@@ -1,0 +1,118 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.Trackings.IndexModel
+@{
+    ViewData["Title"] = "Tracking";
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/Trackings');
+        SimplePageTable.InitTable({
+            hasAction: true,
+            hasEdit: true,
+            hasDelete: false,
+            action: 'page',
+            columns: [
+                { data: 'importTimeString', name: 'ImportTime' },
+                { data: 'stockOutDateString', name: 'StockOutDate' },
+                {
+                    data: 'status', name: 'Status', render: function (data, type, row, node) {
+                        var html = '';
+                        if (data == 'Belum Proses') {
+                            html += '<span class="badge badge-phoenix fs-10 badge-phoenix-secondary" > <span class="badge-label" >' + data + '</span></span>';
+                        } else if (data == 'Dalam Proses') {
+                            html += '<span class="badge badge-phoenix fs-10 badge-phoenix-warning" > <span class="badge-label" >' + data + '</span></span>';
+                        } else if (data == 'Selesai') {
+                            html += '<span class="badge badge-phoenix fs-10 badge-phoenix-success" > <span class="badge-label" >' + data + '</span></span>';
+                        }
+                        return html;
+                    }
+                },
+                { data: 'merk', name: 'Merk' },
+                { data: 'kp', name: 'Kp' },
+                { data: 'ib', name: 'Ib' },
+                { data: 'kode1', name: 'Kode1' },
+                { data: 'kode2', name: 'Kode2' },
+                { data: 'kode3', name: 'Kode3' },
+                { data: 'kode4', name: 'Kode4' },
+                { data: 'oz', name: 'Oz' },
+                { data: 'grade', name: 'Grade' },
+                { data: 'point', name: 'Point' },
+                { data: 'yard', name: 'Yard' },
+                { data: 'kg', name: 'Kg' },
+                { data: 'lebar', name: 'Lebar' },
+                { data: 'susutLusi', name: 'SusutLusi' },
+                { data: 'serialNumber', name: 'SerialNumber' },
+                { data: 'inisial', name: 'Inisial' },
+            ],
+            order: [[1, 'desc']]
+        });
+    </script>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-sm-12 col-md-4">
+                        <label class="form-label">Status</label>
+                        <select class="form-select grid-param" id="status" name="status">
+                            <option value="0">Semua</option>
+                            <option value="1">Belum Proses</option>
+                            <option value="2">Dalam Proses</option>
+                            <option value="3">Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                <hr />
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Import Time</th>
+                            <th>Stock Out Date</th>
+                            <th>Status</th>
+                            <th>Merk</th>
+                            <th>KP</th>
+                            <th>IB</th>
+                            <th>Kode 1</th>
+                            <th>Kode 2</th>
+                            <th>Kode 3</th>
+                            <th>Kode 4</th>
+                            <th>OZ</th>
+                            <th>Grade</th>
+                            <th>Point</th>
+                            <th>Yard</th>
+                            <th>KG</th>
+                            <th>Lebar</th>
+                            <th>Susut Lusi</th>
+                            <th>Serial Number</th>
+                            <th>Inisial</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

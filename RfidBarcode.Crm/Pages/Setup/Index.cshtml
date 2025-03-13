@@ -1,0 +1,59 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.Setup.IndexModel
+
+@{
+    ViewData["Title"] = "Setup";
+}
+<div class="container-fluid bg-300 dark__bg-1200">
+    <div class="bg-holder bg-auth-card-overlay" style="background-image:url(~/assets/img/bg/37.png);">
+    </div>
+    <!--/.bg-holder-->
+    <div class="row flex-center position-relative min-vh-100 g-0 py-5">
+        <div class="col-11 col-sm-10 col-xl-8">
+            <div class="card border border-200 auth-card">
+                <div class="card-body pe-md-0">
+                    <div class="row align-items-center gx-0 gy-7">
+                        <div class="col-auto bg-100 dark__bg-1100 rounded-3 position-relative overflow-hidden auth-title-box">
+                            <div class="bg-holder" style="background-image:url(.~/assets/img/bg/38.png);">
+                            </div>
+                            <!--/.bg-holder-->
+                            <!-- div class="position-relative px-4 px-lg-7 pt-7 pb-7 pb-sm-5 text-center text-md-start pb-lg-7 pb-md-7" -->
+                            <div class="position-relative z-index--1 mb-6 d-none d-md-block text-center mt-md-15">
+                                <img src="~/assets/img/icons/logo-project1.png?3" alt="EValet" width="300">
+                            </div>
+                            <div class="position-relative z-index--1 mb-6 d-none d-md-block text-center mt-md-15">
+                                <img class="auth-title-box-img d-dark-none" src="~/assets/img/spot-illustrations/auth.png" alt="">
+                                <img class="auth-title-box-img d-light-none" src="~/assets/img/spot-illustrations/auth-dark.png" alt="">
+                            </div>
+                        </div>
+                        <div class="col mx-auto">
+                            <div class="auth-form-box">
+                                <div class="text-center mb-7">
+                                    <h3 class="text-1000">Create Administrator</h3>
+                                </div>
+                                <form method="post">
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label" for="Username">Username</label>
+                                        <div class="form-icon-container">
+                                            <input class="form-control form-icon-input" asp-for="Username"
+                                                   placeholder="Username" fdprocessedid="1d534b"><svg class="svg-inline--fa fa-user text-900 fs--1 form-icon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="user" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M224 256c70.7 0 128-57.31 128-128s-57.3-128-128-128C153.3 0 96 57.31 96 128S153.3 256 224 256zM274.7 304H173.3C77.61 304 0 381.6 0 477.3c0 19.14 15.52 34.67 34.66 34.67h378.7C432.5 512 448 496.5 448 477.3C448 381.6 370.4 304 274.7 304z"></path></svg><!-- <span class="fas fa-user text-900 fs--1 form-icon"></span> Font Awesome fontawesome.com -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label" for="password">Password</label>
+                                        <div class="form-icon-container">
+                                            <input class="form-control form-icon-input" asp-for="Password" type="password" placeholder="Password" fdprocessedid="djp8dj">
+                                            <svg class="svg-inline--fa fa-key text-900 fs--1 form-icon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="key" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M282.3 343.7L248.1 376.1C244.5 381.5 238.4 384 232 384H192V424C192 437.3 181.3 448 168 448H128V488C128 501.3 117.3 512 104 512H24C10.75 512 0 501.3 0 488V408C0 401.6 2.529 395.5 7.029 391L168.3 229.7C162.9 212.8 160 194.7 160 176C160 78.8 238.8 0 336 0C433.2 0 512 78.8 512 176C512 273.2 433.2 352 336 352C317.3 352 299.2 349.1 282.3 343.7zM376 176C398.1 176 416 158.1 416 136C416 113.9 398.1 96 376 96C353.9 96 336 113.9 336 136C336 158.1 353.9 176 376 176z"></path></svg><!-- <span class="fas fa-key text-900 fs--1 form-icon"></span> Font Awesome fontawesome.com -->
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary w-100 mb-3" type="submit">Create</button>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

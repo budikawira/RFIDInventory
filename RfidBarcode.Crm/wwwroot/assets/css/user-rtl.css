@@ -1,0 +1,32 @@
+/*-----------------------------------------------
+|   Phoenix buttons
+-----------------------------------------------*/
+/* -------------------------------------------------------------------------- */
+/*                                Phoenix button                              */
+/* -------------------------------------------------------------------------- */
+/* prettier-ignore */
+/* ----------------------------- Phoenix-buttons ---------------------------- */
+.navbar-vertical.navbar-expand-lg .navbar-vertical-content .navbar-nav .nav-link.dropdown-indicator {
+  padding-right: 0rem;
+}
+
+.navbar-vertical.navbar-expand-lg .navbar-vertical-content .navbar-nav .nav .nav-link {
+  padding-right: 2.3125rem;
+  scroll-margin-top: 200px;
+}
+
+.navbar-vertical.navbar-expand-lg .navbar-vertical-content .navbar-nav .nav-link {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  padding-right: 0.75rem;
+  margin-right: 0.75rem;
+  margin-left: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.content {
+  min-height: 100vh;
+  padding: calc(var(--phoenix-navbar-top-height) + 2rem) 1.5rem 6.375rem 1.5rem;
+  padding-bottom: 6rem;
+}
+/*# sourceMappingURL=user-rtl.css.map */

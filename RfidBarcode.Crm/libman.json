@@ -1,0 +1,14 @@
+{
+  "version": "3.0",
+  "defaultProvider": "jsdelivr",
+  "libraries": [
+    {
+      "library": "jspreadsheet-ce@5.0.0",
+      "destination": "wwwroot/vendors/jspreadsheet-ce/"
+    },
+    {
+      "library": "jsuites@5.9.1",
+      "destination": "wwwroot/vendors/jsuites/"
+    }
+  ]
+}

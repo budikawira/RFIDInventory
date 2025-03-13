@@ -1,0 +1,193 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.Finish.AddModel
+@{
+    ViewData["Title"] = "Finish";
+}
+
+@section Scripts {
+    <script src="~/vendors/jspreadsheet5/jspreadsheet.js"></script>
+    <script src="~/vendors/jsuites/dist/jsuites.min.js"></script>
+    <script>
+        let onchange = function (instance, cell, x, y, value) {
+            // If the related series does not exists create a new one
+            console.log('x: ' + x + ', y: ' + y + ', value: ' + value);
+            //cell.style.backgroundColor = '#ffa0a0';
+        }
+        // Create a new spreadsheet
+        var spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
+            worksheets: [{
+                minDimensions: [17,1],
+                columns: [
+                    { type: 'text', title: 'Merk', autoWidth: true },
+                    { type: 'text', title: 'KP', autoWidth: true },
+                    { type: 'text', title: 'Kode1', autoWidth: true },
+                    { type: 'text', title: 'Kode2', autoWidth: true },
+                    { type: 'text', title: 'Kode3', autoWidth: true },
+                    { type: 'text', title: 'Kode4', autoWidth: true },
+                    { type: 'text', title: 'Oz', autoWidth: true },
+                    { type: 'text', title: 'Grade', autoWidth: true },
+                    { type: 'number', title: 'Point', autoWidth: true, format: '0.00'},
+                    { type: 'number', title: 'Yard', autoWidth: true, format: '0.00'},
+                    { type: 'number', title: 'Kg', autoWidth: true, format: '0.00'},
+                    { type: 'text', title: 'Lebar', autoWidth: true },
+                    { type: 'text', title: 'K', autoWidth: true },
+                    { type: 'text', title: 'Susut Lusi', autoWidth: true },
+                    { type: 'text', title: 'Serial Number', autoWidth: true },
+                    { type: 'text', title: 'Inisial', autoWidth: true },
+                    { type: 'text', title: 'Tgl Barcode (yyyy-mm-dd)', width: '200px', autoWidth: true},
+                ],
+                allowInsertColumn: false,
+                allowManualInsertColumn: false,
+                allowDeleteColumn: false,
+                allowRenameColumn: false,
+                columnDrag: false,
+                tableOverflow: true,
+                tableWidth: "100%",
+            }],
+            onchange: onchange
+        });
+
+        function getCellName(row, col) {
+            // Convert column number (x) to letters
+            let columnLetter = '';
+            while (col >= 0) {
+                columnLetter = String.fromCharCode((col % 26) + 65) + columnLetter;
+                col = Math.floor(col / 26) - 1;
+            }
+            // Row number (y) starts from 1
+            return columnLetter + (row + 1);
+        }
+
+        function isValidDateFormat(dateString) {
+            const regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+            return regex.test(dateString);
+        }
+
+        function Save() {
+            //console.log('spreadsheet >> ', spreadsheet[0].getHeaders(1)[0]);
+            let list = spreadsheet[0].getData();
+            //console.log('jspreadsheet >> ', JSON.stringify(list));
+            var errorList = [];
+            var headers = spreadsheet[0].getHeaders(1);
+
+            let i = 0;
+            for (let row=0; row < list.length; row++) {
+                var errors = [];
+                for (var col=0; col < list[row].length; col++) {
+                    var cellName = getCellName(row, col);
+                    var cellValue = spreadsheet[0].getValue(cellName);
+                    if (col != 6) { //skip check Oz
+                        if (cellValue.length == 0) {
+                            errors.push(headers[col]);
+                            spreadsheet[0].getCell(cellName).style.backgroundColor='pink';
+                        } else  if (col == 16 && !isValidDateFormat(cellValue)) {
+                            errors.push(headers[col]);
+                            spreadsheet[0].getCell(cellName).style.backgroundColor='pink';
+                        } else {
+                           
+                            spreadsheet[0].getCell(cellName).style.backgroundColor='white';
+                        }
+                    }
+                }
+                if (errors.length > 0) {
+                    errorList.push("Row-" + (row+1) + ": Invalid " + errors.join(", "));
+                }
+            }
+            console.log('errorList >> ', errorList);
+            if (errorList.length > 0) {
+                var html = '';
+                for (let i=0;i < errorList.length; i++) {
+                    html += '<li>';
+                    html += errorList[i];
+                    html += '</li>';
+                }
+                $('#errorList').html(html);
+            } else {
+                $('#errorList').html('');
+                LoadingScreenFunction.Hide();
+                $.ajax({
+                    type: "POST",
+                    url: "/Finish/Add?Handler=Save",
+                    headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                    data: {
+                        data: list
+                    },
+                    success: function (objRes) {
+                        LoadingScreenFunction.Hide();
+                        if (objRes.result != 0) {
+                            Swal.fire(objRes.message, '', 'error')
+                        } else {
+                            Swal.fire({
+                                title: 'Save Finish',
+                                text: objRes.message,
+                                icon: 'success',
+                                confirmButtonText: 'Ok!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = "/Finish/";
+                                }
+                            })
+                        }
+                    },
+                    error: function (response) {
+                        LoadingScreenFunction.Hide();
+                        alert('Error function please contact developer');
+                    }
+                })
+            }
+            
+        }
+    </script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/vendors/jspreadsheet5/jspreadsheet.css" />
+    <link rel="stylesheet" href="~/vendors/jspreadsheet5/jspreadsheet.themes.css" />
+    <link rel="stylesheet" href="https://jsuites.net/v5/jsuites.css" type="text/css" />
+    <style>
+        .jexcel_content {
+            white-space: pre-wrap !important;
+            word-wrap: break-word;
+        }
+    </style>
+}
+
+<!-- #region Content -->
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex flex-sm-row flex-column justify-content-between">
+                        <div class="me-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="/Finish/">@ViewData["Title"]</a></li>
+                                    <li class="breadcrumb-item active" aria-current="Page">Tambah</li>
+                                </ol>
+                            </nav>
+
+                            <h3 class="pt-3">Tambah @ViewData["Title"]</h3>
+                        </div>
+                        <div class="align-self-end">
+                            <button class="btn btn-primary" type="button" onclick="Save()">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="errorList" class="text-danger"></div>
+                            <div id="spreadsheet"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- #endregion -->

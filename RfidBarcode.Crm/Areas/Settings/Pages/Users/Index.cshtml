@@ -1,0 +1,278 @@
+﻿@page
+@model RfidBarcode.Crm.Areas.Settings.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "User Management";
+}
+
+@section Styles {
+    <style>
+        #grid td:nth-child(1) {
+            width: 0.1%;
+            padding-right: 20px;
+        }
+    </style>
+}
+
+@section Scripts
+{
+    <script>
+        let rowId = 0;
+        let grid;
+        let gridModal;
+
+        let jsFunction = (() => {
+            var token = '';
+            return {
+                Init: ((_token) => {
+                    console.log('Init token >> ', _token);
+                    token = _token;
+                    grid = $('#grid').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        scrollX: true,
+                        ajax: {
+                            url: '/Settings/Users?Handler=RefreshData',
+                            type: 'POST',
+                            headers: { 'RequestVerificationToken': token },
+                            dataSrc: 'data'
+                        },
+                        columns: [
+                            {
+                                data: null,
+                                render: function (data, type, row, node) {
+                                    var button = `<span class="text-nowrap d-inline-block">`;
+                                    button += `<button rel="tooltip" type="button" data-bs-placement="top" title="Edit" class="btn btn-sm btn-soft-primary me-1 mb-1" onclick="jsFunction.Open('` + node.row + `')">`;
+                                    button += '<i class="far fa-edit"> </i>';
+                                    button += '</button>';
+                                    button += `<button rel="tooltip" data-bs-placement="top" data-container="body" title="Delete" class="btn btn-sm btn-soft-danger me-1 mb-1" onclick="jsFunction.Delete('` + node.row + `') ">`;
+                                    button += '<i class="far fa-trash-alt"> </i></button>';
+                                    button += '</span>';
+                                    return button;
+                                },
+                                createdCell: function (td, cellData, rowData, row, col) {
+                                    $(td).addClass('align-middle text-start Edit');
+                                }
+                            },
+                            {
+                                data: 'userName',
+                                name: 'UserName',
+                                createdCell: function (td, cellData, rowData, row, col) {
+                                    $(td).addClass('align-middle');
+                                }
+                            },
+                            {
+                                data: 'role',
+                                name: 'Role',
+                                createdCell: function (td, cellData, rowData, row, col) {
+                                    $(td).addClass('align-middle');
+                                }
+                            }
+                        ],
+                        stripeclasses: ['odd-row', 'even-row'],
+                        info: false,
+                        aoColumnDefs: [
+                            {
+                                bSortable: false,
+                                aTargets: [0]
+                            }
+                        ],
+                        order: [[1, 'asc']],
+                        pagingType: $(window).width() < 768 ? "numbers" : "simple_numbers",
+                    });
+
+                }),
+                Open: ((row) => {
+                    $('.is-invalid').removeClass('is-invalid');
+                    rowId = row || -1;
+                    if (rowId == -1) {
+                        $('#id').val('0');
+                        $('#username').val('');
+                        $('#role').val('User')
+                        $('#password').val('');
+                        $('#password').attr('placeholder', '');
+                    } else {
+                        var rowData = grid.row(rowId).data();
+                        console.log('rowData >> ', rowData);
+                        $('#id').val(rowData.id);
+                        $('#username').val(rowData.userName);
+                        $('#role').val(rowData.role)
+                        $('#password').val('');
+                        $('#password').attr('placeholder', 'Input to change password');
+                    }
+                    $('#entryModal').modal('toggle');
+                }),
+                Save: (() => {
+                    var id = $('#id').val();
+                    var isValid = 0;
+
+                    isValid += validateBlank('username');
+                    if (id == 0) {
+                        isValid += validateBlank('password');
+                    }
+                    if (isValid > 0) {
+                        Swal.fire('Fail', 'Please input all mandatory data', 'error');
+                        return;
+                    }
+
+                    var dataParam = {
+                        id: $('#id').val(),
+                        userName: $('#username').val(),
+                        password: $('#password').val(),
+                        role: $('#role').val()
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "/Settings/Users?Handler=Save",
+                        data: dataParam,
+                        headers: { 'RequestVerificationToken': token },
+                        success: function (objRes) {
+
+                            console.log('data >> ', objRes.data);
+                            if (objRes.result != 0) {
+                                Swal.fire(objRes.message, '', 'error')
+                            } else {
+                                $('#entryModal').modal('toggle');
+                                Swal.fire('Data has been saved!', '', 'success')
+                                    .then(okay => {
+                                        if (okay) {
+                                            if (rowId == -1) {
+                                                grid.ajax.reload();
+                                            } else {
+                                                grid.row(rowId).data(objRes.data).draw();
+                                            }
+                                        }
+                                    });
+                            }
+                        },
+                        error: function (response) {
+
+                            alert('Error function please contact developer');
+                        }
+                    })
+                }),
+                Delete: ((row) => {
+                    rowId = row || -1;
+                    var rowData = grid.row(rowId).data();
+                    console.log('rowData >> ', rowData);
+                    Swal.fire({
+                        title: 'Are you sure to delete this data?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            LoadingScreenFunction.Show();
+                            $.ajax({
+                                type: "POST",
+                                url: "/Settings/Users?Handler=Delete",
+                                headers: { 'RequestVerificationToken': token },
+                                data: {
+                                    id: rowData.id
+                                },
+                                success: function (objRes) {
+                                    LoadingScreenFunction.Hide();
+                                    if (objRes.result != 0) {
+                                        Swal.fire(objRes.message, '', 'error')
+                                    } else {
+                                        Swal.fire('Deleted!', 'Your data has been deleted.', 'success');
+                                        grid.ajax.reload(null, false);
+                                    }
+                                },
+                                error: function (response) {
+                                    LoadingScreenFunction.Hide();
+                                    alert('Error function please contact developer');
+                                }
+                            })
+                        }
+                    })
+                })
+            }
+        })();
+    </script>
+    <script type="text/javascript">
+        jsFunction.Init($('@Html.AntiForgeryToken()').val());
+    </script>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-end">
+                    <div class="col-md-10">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">User Management</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="w-75 p-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="col-md-2 p-3 text-end align-bottom">
+                        <button class="btn btn-primary" type="button" onclick="jsFunction.Open('-1')">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-role="action">Action</th>
+                            <th class="sort" data-role="text">Username</th>
+                            <th class="sort" data-role="text">Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="entryModal" tabindex="-1" aria-labelledby="entryModalLabel" aria-hidden="true">
+    <form id="entryForm" method="POST">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="entryModalLabel">Entry User</h5>
+                    <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="fas fa-times fs--1"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="id" name="id" />
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="username">Username</label>
+                        <input class="form-control is-invalid" id="username" name="username" type="text" maxlength="50" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="password">Password</label>
+                        <input class="form-control is-invalid" id="password" name="password" type="password" maxlength="50" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="role">Role</label>
+                        <select class="form-select" id="role" name="role" type="text">
+                            <option value=""></option>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <option value="@role.Name">@role.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="button" onclick="jsFunction.Save()">Save</button>
+                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

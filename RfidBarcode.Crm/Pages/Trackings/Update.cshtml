@@ -1,0 +1,339 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.Trackings.UpdateModel
+@{
+    ViewData["Action"] = Model.TrackingItem.Id == 0 ? "Tambah" : "Ubah";
+    ViewData["Title"] = "Tracking";
+}
+
+@section Scripts {
+    <script>
+        var hasDelete = @(Model.TrackingItem.EndProcess == null ? "true" : "false");
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/Trackings/Update');
+        SimplePageTable.InitTable({
+            hasAction: true,
+            hasEdit: true,
+            hasDelete: hasDelete,
+            action: 'popup',
+            columns: [
+                { data: 'yard', name: 'Yard' },
+                { data: 'kg', name: 'Kg' },
+                { data: 'lebar', name: 'Lebar' },
+                { data: 'k', name: 'K' },
+                { data: 'susutLusi', name: 'SusutLusi' },
+                { data: 'serialNumber', name: 'SerialNumber' },
+                { data: 'k3l', name: 'K3l' },
+                { data: 'inisial', name: 'Inisial' },
+                { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' },
+            ],
+            order: [[1, 'desc']]
+        });
+
+
+        $('#modal').on('shown.bs.modal', function (event) {
+            var rowData = SimplePageTable.GetRowData();
+            if (rowData != null) {
+                $("#tanggalBuatBarcode").flatpickr({
+                    // Add your desired Flatpickr options here, e.g.,
+                    dateFormat: "Y-m-d",
+                    enableTime: false,
+                    defaultDate: rowData['tanggalBuatBarcodeString']
+                });
+            } else {
+                $("#tanggalBuatBarcode").flatpickr({
+                    // Add your desired Flatpickr options here, e.g.,
+                    dateFormat: "Y-m-d",
+                    enableTime: false,
+                    defaultDate: new Date().toISOString().slice(0, 10)
+                });
+            }
+        });
+
+        function finalize() {
+            Swal.fire({
+                title: 'Are you sure to finalize this data?',
+                text: "Reset status if you need to update the data!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, finalize it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    LoadingScreenFunction.Show();
+                    $.ajax({
+                        type: "POST",
+                        url: "/Trackings/Update?Handler=Finalize",
+                        headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                        data: {
+                            id: $('#trackingItemId').val()
+                        },
+                        success: function (objRes) {
+                            LoadingScreenFunction.Hide();
+                            if (objRes.result != 0) {
+                                Swal.fire(objRes.message, '', 'error')
+                            } else {
+                                Swal.fire('Deleted!', 'Your data has been finalized.', 'success');
+                                window.location.reload();
+                            }
+                        },
+                        error: function (response) {
+                            LoadingScreenFunction.Hide();
+                            alert('Error function please contact developer');
+                        }
+                    })
+                }
+            })
+        }
+
+        function resetStatus() {
+            Swal.fire({
+                title: 'Are you sure to reset status of this data?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, reset it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    LoadingScreenFunction.Show();
+                    $.ajax({
+                        type: "POST",
+                        url: "/Trackings/Update?Handler=ResetStatus",
+                        headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                        data: {
+                            id: $('#trackingItemId').val()
+                        },
+                        success: function (objRes) {
+                            LoadingScreenFunction.Hide();
+                            if (objRes.result != 0) {
+                                Swal.fire(objRes.message, '', 'error')
+                            } else {
+                                Swal.fire('Deleted!', 'Your data has been reset.', 'success');
+                                window.location.reload();
+                            }
+                        },
+                        error: function (response) {
+                            LoadingScreenFunction.Hide();
+                            alert('Error function please contact developer');
+                        }
+                    })
+                }
+            })
+        }
+    </script>
+}
+
+
+
+<!-- #region Content -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item"><a href="/Trackings/">@ViewData["Title"]</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Action"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@(ViewData["Action"] + " " + @ViewData["Title"])</h3>
+                    </div>
+                    <div class="align-self-end">
+                        @if (Model.TrackingItem.EndProcess == null) 
+                        {
+                            <button type="button" class="btn btn-success" onclick="finalize()">
+                                <i class="fas fa-check me-1"></i> Finalisasi
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="SimplePageTable.Open('-1')">
+                                <i class="fas fa-plus me-1"></i> Tambah
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-danger" onclick="resetStatus()">
+                                <i class="fas fa-cross me-1"></i> Reset Status
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <input type="hidden" asp-for="@Model.TrackingItem.Id" />
+                <div class="row">
+
+                    <div class="col-sm-12 col-md-3 mb-3">
+                        <h5>Tracking</h5>
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Merk">Merk</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Merk" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Kp">Kp</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Kp" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Ib">Ib</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Ib" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Kode1">Kode 1</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Kode1" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Kode2">Kode 2</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Kode2" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Kode3">Kode 3</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Kode3" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Kode4">Kode 4</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Kode4" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Oz">Oz</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Oz" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Grade">Grade</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Grade" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Point">Point</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Point" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Yard">Yard</label>
+                            <input type="number" class="form-control" asp-for="@Model.TrackingItem.Yard" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Kg">Kg</label>
+                            <input type="number" class="form-control" asp-for="@Model.TrackingItem.Kg" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.Lebar">Lebar</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.Lebar" disabled />
+                        </div>
+
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.SusutLusi">Susut Lusi</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.SusutLusi" disabled />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" asp-for="@Model.TrackingItem.SerialNumber">Serial Number</label>
+                            <input type="text" class="form-control" asp-for="@Model.TrackingItem.SerialNumber" disabled />
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-12 col-md-9 mb-3">
+                        <h5>Finish</h5>
+                        <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Yard</th>
+                                    <th>KG</th>
+                                    <th>Lebar</th>
+                                    <th>K</th>
+                                    <th>Susut Lusi</th>
+                                    <th>Serial Number</th>
+                                    <th>K3L</th>
+                                    <th>Inisial</th>
+                                    <th>Tanggal Buat Barcode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                    
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+<!-- #region Modal -->
+<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
+    <form id="editForm" method="POST">
+        <div class="modal-dialog modal-dialog-centered modal-large">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle"></h5>
+                    <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="fas fa-times fs--1"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" class="modal-input" id="id" name="id" />
+                    <input type="hidden" class="modal-input grid-param" id="trackingItemId" name="trackingItemId" value="@Model.TrackingItem.Id"/>
+                    <div class="row">
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="yard">Yard</label>
+                            <input type="text" class="form-control modal-input input-decimal" id="yard" name="yard" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="kg">Kg</label>
+                            <input type="text" class="form-control modal-input input-decimal" id="kg" name="kg" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="lebar">Lebar</label>
+                            <input type="text" class="form-control modal-input input-decimal" id="lebar" name="lebar" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="k">K</label>
+                            <input type="text" class="form-control modal-input" id="k" name="k" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="susutLusi">Susut Lusi</label>
+                            <input type="text" class="form-control modal-input" id="susutLusi" name="susutLusi" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="serialNumber">Serial Number</label>
+                            <input type="text" class="form-control modal-input" id="serialNumber" name="serialNumber" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="k3l">K3L</label>
+                            <input type="text" class="form-control modal-input" id="k3l" name="k3l" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="inisial">Inisial</label>
+                            <input type="text" class="form-control modal-input" id="inisial" name="inisial" />
+                        </div>
+                        <div class="form-group mb-3 col-sm-12 col-md-6">
+                            <label class="form-label" for="tanggalBuatBarcode">Tanggal Buat Barcode</label>
+                            <input type="text" class="form-control modal-input flatpickr" id="tanggalBuatBarcode" name="tanggalBuatBarcode" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="button" onclick="SimplePageTable.Save()">Save</button>
+                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- #endregion -->

@@ -1,0 +1,256 @@
+﻿@page
+@using RfidBarcode.Application.Operationals.ViewModels
+@model RfidBarcode.Crm.Pages.Finish.IndexModel
+@{
+    ViewData["Title"] = "Finish";
+}
+@section Scripts {
+    <script type="text/javascript">
+        SimplePageForm.Init($('@Html.AntiForgeryToken()').val(), '/Finish');
+        SimplePageForm.Select2('locationId', 'Pilih Lokasi', 'Location');
+
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/Finish');
+        SimplePageTable.InitTable({
+            hasAction: true,
+            hasEdit: true,
+            hasDelete: true,
+            action: 'page',
+            columns: [
+                {
+                    data: null, render: function (data, type, row, node) {
+                        var html = "<input class=\"form-check-input checkbox-input\" type=\"checkbox\" value=" + data['id'] + " id=\"cbInput\">";
+                        return html;
+                    }
+                },
+                {
+                    data: null, name: 'StatusString', render: function (data, type, row, node) {
+                        var html = '';
+                        if (data['printCount'] > 0) {
+                            html += '<span class="badge badge-phoenix fs-10 badge-phoenix-success" > <span class="badge-label" >' + data['printStatus'] + '</span></span>';
+                        } else {
+                            html += '<span class="badge badge-phoenix fs-10 badge-phoenix-secondary" > <span class="badge-label" >' + data['printStatus'] + '</span></span>';
+                        } 
+                        return html;
+                    }
+                },
+                { data: 'createdDateString', name: 'CreatedDate' },
+                { data: 'locationName', name: 'LocationName' },
+                { data: 'merk', name: 'Merk' },
+                { data: 'kp', name: 'Kp' },
+                { data: 'kode1', name: 'Kode1' },
+                { data: 'kode2', name: 'Kode2' },
+                { data: 'kode3', name: 'Kode3' },
+                { data: 'kode4', name: 'Kode4' },
+                { data: 'oz', name: 'Oz' },
+                { data: 'grade', name: 'Grade' },
+                { data: 'point', name: 'Point' },
+                { data: 'yard', name: 'Yard' },
+                { data: 'kg', name: 'Kg' },
+                { data: 'lebar', name: 'Lebar' },
+                { data: 'k', name: 'K' },
+                { data: 'susutLusi', name: 'SusutLusi' },
+                { data: 'serialNumber', name: 'SerialNumber' },
+                { data: 'k3l', name: 'K3l' },
+                { data: 'inisial', name: 'Inisial' },
+                { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' },
+            ],
+            columnDefs: [
+                { targets: [1], sortable: false }
+            ],
+            order: [[3,'desc']]
+        });
+
+        $(document).ready(function () {
+            $(".checkbox-input-all").change(function () {
+                $(".checkbox-input").prop('checked', $(this).prop("checked"));
+            });
+        });
+
+        function showModalImport() {
+            $('#modalImport').modal('show');
+        }
+
+        function print(fileName) {
+            var ids = [];
+            $(".checkbox-input:checked").each(function () {
+                //console.log('cb value: ' + $(this).val());
+                ids.push($(this).val());
+            });
+
+            LoadingScreenFunction.Show();
+
+
+            var dataParam = {ids : ids};
+
+            $.ajax({
+                type: "POST",
+                url: "/Finish?Handler=Print",
+                data: dataParam,
+                headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                traditional: true,
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (objRes) {
+                    LoadingScreenFunction.Hide();
+
+                    var a = document.createElement('a');
+                    var url = window.URL.createObjectURL(objRes);
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.append(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+
+                    SimplePageTable.GetTable().ajax.reload();
+                },
+                error: function (response) {
+                    console.log('response err >> ', response);
+                    LoadingScreenFunction.Hide();
+                    Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                }
+            })
+        }
+    </script>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                        <a class="btn btn-primary" href="/Finish/Add" >
+                            <i class="fas fa-plus me-1"></i> Add
+                        </a>
+                        <button type="button" class="btn btn-secondary" onclick="showModalImport()">
+                            <i class="fas fa-file-import me-1"></i>  Import
+                        </button>
+                        
+                        <button type="button" class="btn btn-warning" onclick="print('Print.xlsx')">
+                            <i class="fas fa-print me-1"></i>  Print
+                        </button>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-sm-12 col-md-4">
+                        <label class="form-label">Status</label>
+                        <select class="form-select grid-param" id="printStatus" name="printStatus">
+                            <option value="">Semua</option>
+                            <option value="@ItemVM.PRINT_STATUS_PENDING">Belum Print</option>
+                            <option value="@ItemVM.PRINT_STATUS_DONE">Sudah Print</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-4">
+                        <label class="form-label">Lokasi</label>
+                        <select class="form-select grid-param" id="locationId" name="locationId">
+                        </select>
+                    </div>
+                </div>
+                <hr />
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th><input class="form-check-input checkbox-input-all" type="checkbox" id="cbInputAll"></th>
+                            <th>Print</th>
+                            <th>Tanggal Pembuatan</th>
+                            <th>Lokasi</th>
+                            <th>Merk</th>
+                            <th>KP</th>
+                            <th>Kode 1</th>
+                            <th>Kode 2</th>
+                            <th>Kode 3</th>
+                            <th>Kode 4</th>
+                            <th>OZ</th>
+                            <th>Grade</th>
+                            <th>Point</th>
+                            <th>Yard</th>
+                            <th>KG</th>
+                            <th>Lebar</th>
+                            <th>K</th>
+                            <th>Susut Lusi</th>
+                            <th>Serial Number</th>
+                            <th>K3L</th>
+                            <th>Inisial</th>
+                            <th>Tanggal Buat Barcode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Model Import-->
+<div id="import">
+    <div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">
+        <form id="entryForm" method="POST">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalImportTitle">Import</h5>
+                        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                            <span class="fas fa-times fs--1"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <div class="mb-3">
+                                <label class="form-label" for="importFile">Upload Finish XLSX - <a href="~/assets/doc/TemplateImportFinish.xlsx">Template</a></label>
+                                <input class="form-control" id="importFile" name="importFile" type="file" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="button" onclick="SimplePageTable.Import()">Save</button>
+                        <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- modalImportError -->
+    <div class="modal fade" id="modalImportError" tabindex="-1" aria-labelledby="entryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Error Log</h5>
+                    <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="fas fa-times fs--1"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group m-3">
+                        <textarea id="textImportError" name="textImportError" class="form-control" rows="20"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <div>
+                        <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion -->
+</div>

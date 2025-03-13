@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RfidBarcode.Crm", "RfidBarcode.Crm\RfidBarcode.Crm.csproj", "{56835027-3B8E-4383-B669-F68D4D2B6FD2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RfidBarcode.Domain", "RfidBarcode.Domain\RfidBarcode.Domain.csproj", "{C2C98539-D94F-4325-98B1-007079CD4B63}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RfidBarcode.Application", "RfidBarcode.Application\RfidBarcode.Application.csproj", "{22EE04AB-9A3A-4CE8-910C-97EFE835FF80}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RfidBarcode.Infrastructure", "RfidBarcode.Infrastructure\RfidBarcode.Infrastructure.csproj", "{92B3BBC1-ADBF-4FD5-945B-0A28541EF858}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RfidBarcode.Api", "RfidBarcode.Api\RfidBarcode.Api.csproj", "{95F33CC4-0634-492F-90CE-7BC4A1863EBE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56835027-3B8E-4383-B669-F68D4D2B6FD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56835027-3B8E-4383-B669-F68D4D2B6FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56835027-3B8E-4383-B669-F68D4D2B6FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56835027-3B8E-4383-B669-F68D4D2B6FD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2C98539-D94F-4325-98B1-007079CD4B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2C98539-D94F-4325-98B1-007079CD4B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2C98539-D94F-4325-98B1-007079CD4B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2C98539-D94F-4325-98B1-007079CD4B63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22EE04AB-9A3A-4CE8-910C-97EFE835FF80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22EE04AB-9A3A-4CE8-910C-97EFE835FF80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22EE04AB-9A3A-4CE8-910C-97EFE835FF80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22EE04AB-9A3A-4CE8-910C-97EFE835FF80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92B3BBC1-ADBF-4FD5-945B-0A28541EF858}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92B3BBC1-ADBF-4FD5-945B-0A28541EF858}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92B3BBC1-ADBF-4FD5-945B-0A28541EF858}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92B3BBC1-ADBF-4FD5-945B-0A28541EF858}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95F33CC4-0634-492F-90CE-7BC4A1863EBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95F33CC4-0634-492F-90CE-7BC4A1863EBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95F33CC4-0634-492F-90CE-7BC4A1863EBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95F33CC4-0634-492F-90CE-7BC4A1863EBE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B05A1B62-948E-470E-9F30-504EBA605431}
+	EndGlobalSection
+EndGlobal

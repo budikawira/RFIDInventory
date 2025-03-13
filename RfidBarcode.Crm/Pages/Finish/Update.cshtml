@@ -1,0 +1,147 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.Finish.UpdateModel
+@{
+    ViewData["Action"] = Model.Item.Id == 0 ? "Tambah" : "Ubah";
+    ViewData["Title"] = "Finish";
+
+}
+
+@section Scripts {
+    <script>
+        SimplePageForm.Init($('@Html.AntiForgeryToken()').val(), '/Finish/Update');
+
+        $(document).ready(function () {
+            $(".flatpickr").flatpickr({
+                // Add your desired Flatpickr options here, e.g.,
+                dateFormat: "Y-m-d",
+                enableTime: false
+            });
+        });
+    </script>
+}
+<!-- #region Content -->
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex flex-sm-row flex-column justify-content-between">
+                        <div class="me-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="/Finish/">@ViewData["Title"]</a></li>
+                                    <li class="breadcrumb-item active" aria-current="Page">@ViewData["Action"]</li>
+                                </ol>
+                            </nav>
+
+                            <h3 class="pt-3">@(ViewData["Action"] + " " + @ViewData["Title"])</h3>
+                        </div>
+                        <div class="align-self-end">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <input type="hidden" asp-for="@Model.Item.Id" />
+                    <div class="row">
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Merk">Merk</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Merk" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Kp">Kp</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Kp" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Kode1">Kode 1</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Kode1" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Kode2">Kode 2</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Kode2" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Kode3">Kode 3</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Kode3" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Kode4">Kode 4</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Kode4" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Oz">Oz</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Oz" />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Grade">Grade</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Grade" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Point">Point</label>
+                            <input type="number" step="0.01" class="form-control" asp-for="@Model.Item.Point" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Yard">Qty (Yard)</label>
+                            <input type="number" step="0.01" class="form-control" asp-for="@Model.Item.Yard" required  />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Kg">Kg</label>
+                            <input type="number" step="0.01" class="form-control" asp-for="@Model.Item.Kg" required />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Lebar">Lebar</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Lebar" />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.K">K</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.K" />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.SusutLusi">Susut Lusi</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.SusutLusi" />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.SerialNumber">Serial Number</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.SerialNumber" />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.K3l">K3l</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.K3l" />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.Inisial">Inisial</label>
+                            <input type="text" class="form-control" asp-for="@Model.Item.Inisial" />
+                        </div>
+
+                        <div class="form-group mb-3 col-sm-12 col-md-4">
+                            <label class="form-label" asp-for="@Model.Item.TanggalBuatBarcode">Tanggal Buat Barcode</label>
+                            <input type="text flatpickr" class="form-control" asp-for="@Model.Item.TanggalBuatBarcode" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- #endregion -->

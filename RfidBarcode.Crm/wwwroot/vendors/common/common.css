@@ -1,0 +1,17 @@
+﻿.is-invalid .select2-selection,
+.needs-validation ~ span > .select2-dropdown {
+    border-color: red !important;
+}
+
+.modal-backdrop:is(.flatpickr-calendar.animate.static.arrowTop.arrowLeft.open) {
+    /*height: 10000;*/
+}
+
+.select2-results__options {
+    font-size: 14px !important;
+}
+
+.content {
+    font-size: 14px
+}
+

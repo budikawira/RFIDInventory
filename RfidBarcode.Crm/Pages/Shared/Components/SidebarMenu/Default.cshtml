@@ -1,0 +1,84 @@
+﻿@namespace RFIDTracking.Pages.Shared.Phoenix.Components.SidebarMenu
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@using RfidBarcode.Domain.Models.Views;
+
+@model RFIDTracking.Pages.Shared.Components.SidebarMenu.SidebarMenuViewComponent.Model
+@{
+    var path = (string?)ViewData["Path"] ?? Context.Request.Path;
+}
+
+<li class="nav-item">
+    @foreach (var menuGroup in Model.MenuGroups)
+    {
+        if (!string.IsNullOrEmpty(menuGroup.Title))
+        {
+            <!-- label-->
+            <p class="navbar-vertical-label">
+                @menuGroup.Title
+            </p>
+            <hr class="navbar-vertical-line">
+        }
+
+        @foreach (var menuItem in menuGroup.MenuItems)
+        {
+            @if (menuItem.ChildMenuItems.Count == 0)
+            {
+
+                <div class="nav-item-wrapper">
+                    <a class="nav-link label-1 @menuItem.IsActive(Context.Request.Path, Model.BasePath)" href="@menuItem.Href" role="button" data-bs-toggle="" aria-expanded="false">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon"><span data-feather="@menuItem.Icon"></span></span><span class="nav-link-text-wrapper"><span class="nav-link-text">@menuItem.Label</span></span>
+                        </div>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="nav-item-wrapper">
+                    <a class="nav-link label-1 dropdown-indicator" href="#@menuItem.Href" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="@menuItem.Href">
+                        <div class="d-flex align-items-center">
+                            <div class="dropdown-indicator-icon">
+                                <span class="fas fa-caret-right"></span>
+                            </div>
+                            <span class="nav-link-icon">
+                                <span data-feather="@menuItem.Icon"></span>
+                            </span>
+                            <span class="nav-link-text">
+                                @menuItem.Label
+                                @foreach (var key in menuItem.Badges.Keys)
+                                {
+                                    <span class="@key">@menuItem.Badges[key]</span>
+                                }
+                            </span>
+                        </div>
+                    </a>
+                    <div class="parent-wrapper label-1">
+                        <ul class="nav collapse parent @menuItem.IsShow(Context.Request.Path, Model.BasePath)" data-bs-parent="#navbarVerticalCollapse" id="@menuItem.Href">
+                            <li class="collapsed-nav-item-title d-none">
+                                @menuItem.Label
+                            </li>
+                            @foreach (var childMenu in menuItem.ChildMenuItems)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @childMenu.IsActive(Context.Request.Path, Model.BasePath)" href="@childMenu.Href" data-bs-toggle="" aria-expanded="false">
+                                        <div class="d-flex align-items-center">
+                                            <span class="nav-link-text">
+                                                @childMenu.Label
+                                                @foreach (var key in childMenu.Badges.Keys)
+                                                {
+                                                    <span class="@key">@childMenu.Badges[key]</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        }
+    }
+
+</li>
