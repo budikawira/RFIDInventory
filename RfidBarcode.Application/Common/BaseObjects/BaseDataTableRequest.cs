@@ -11,7 +11,7 @@ namespace RfidBarcode.Application.Common.BaseObjects
         public string? SortColumnDir { get; set; }
         public string? SearchValue { get; set; }
         public string? Action { get; set; }
-        public T Data { get; set; } = null!;
+        public T? Data { get; set; }
         public string? MiscDescription { get; set; }
 
 

@@ -18,6 +18,7 @@ namespace RfidBarcode.Application.Common.Exports
         public const int TYPE_INT = 1;
         public const int TYPE_LONG = 2;
         public const int TYPE_DOUBLE = 3;
+        public const int TYPE_DECIMAL = 4;
 
         public ExportExcel(string? title, string[] subTitles,
             string[] headers, string[] columns,
@@ -97,6 +98,8 @@ namespace RfidBarcode.Application.Common.Exports
                                         ws.Cell(i + rowIndex, j + 1).Value = (long)value; break;
                                     case TYPE_DOUBLE:
                                         ws.Cell(i + rowIndex, j + 1).Value = (double)value; break;
+                                    case TYPE_DECIMAL:
+                                        ws.Cell(i + rowIndex, j + 1).Value = (decimal)value; break;
                                 }
                             }
                         }

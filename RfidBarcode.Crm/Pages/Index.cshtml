@@ -1,9 +1,179 @@
 ﻿@page
+@inject IConfiguration _config
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <img src="~/assets\img/spot-illustrations/page-under-construction.png" />
+@section Scripts
+{
+    <script href="~/vendors/echarts/echarts.js"></script>
+    <script>
+                let jsAdminDashFunction = (() => {
+            var chartGate;
+            var _token = '';
+            var _options;
+            return {
+                Init: ((token, options) => {
+                    _token = token;
+                    _options = options;
+
+                    chartGate = echarts.init(document.getElementById('chartGate'));
+                }),
+                InitGateStatus: (() => {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Index?Handler=GateStatus",
+                        headers: { 'RequestVerificationToken': _token },
+                        success: function (objRes) {
+
+                            if (objRes.result != 0) {
+                                Swal.fire(objRes.message, '', 'error')
+                            } else {
+                                // Define your data
+                                const data = objRes.data;
+                                console.log("GateStatus data >> ", data);
+                                console.log("GateStatus message >> ", objRes.message);
+                                gateDetails = objRes.message;
+                                var total = data[0].value + data[1].value;
+                                // Set up the options for the donut chart
+                                const option = {
+                                    legend: {
+                                        top: '5%',
+                                        left: 'center'
+                                    },
+                                    tooltip: {
+                                        trigger: 'item'
+                                    },
+                                    title: {
+                                        text: data[0].value + '/' + total,
+                                        left: 'center',
+                                        top: 'center',
+                                        textStyle: {
+                                            fontSize: 24,
+                                            color: '#00b04f'
+                                        }
+                                    },
+                                    series: [{
+                                        type: 'pie',
+                                        label: {
+                                            show: false
+                                        },
+                                        radius: ['40%', '70%'],
+                                        data: data
+                                    }],
+                                    color: ['#00b04f', '#b04f00']
+                                };
+                                chartGate.setOption(option);
+                            }
+
+                            setTimeout(function () {
+                                jsAdminDashFunction.InitGateStatus();
+                            }, 60000);
+                        },
+                        error: function (response) {
+                            LoadingScreenFunction.Hide();
+                            alert('Error function please contact developer');
+                        }
+                    })
+                }),
+                ShowGateStatus: (() => {
+                    $('#modalInfoTitle').html('Gate Status');
+                    $('#modalInfoBody').html(gateDetails);
+                    $('#modalInfo').modal('show');
+                }),
+                InitCheckLocation: (() => {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Index?Handler=CheckLocation",
+                        headers: { 'RequestVerificationToken': _token },
+                        success: function (objRes) {
+                            console.log("CheckLocation >> ", objRes);
+                            if (objRes.result != 0) {
+                                $('#lastCompleteSoDate').html('-');
+                                $('#lastCompleteSoLocation').html('-');
+                                $('#totalUnknown').html('-')
+                            } else {
+                                $('#lastCompleteSoDate').html(objRes.data.lastCompleteSoDate);
+                                $('#lastCompleteSoLocation').html(objRes.data.lastCompleteSoLocation);
+                                $('#totalUnknown').html(objRes.data.totalUnknown + ' kain');
+                            }
+
+                        },
+                        error: function (response) {
+                            LoadingScreenFunction.Hide();
+                            alert('Error function please contact developer');
+                        }
+                    })
+                })
+            }
+        })();
+    </script>
+    <script>
+        jsAdminDashFunction.Init($('@Html.AntiForgeryToken()').val(), {
+
+        });
+        jsAdminDashFunction.InitGateStatus();
+        jsAdminDashFunction.InitCheckLocation();
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Set the container to occupy 30% of the screen height */
+        #chartGate {
+            height:350px;
+            width: 100%;
+        }
+
+        #chartProduction {
+            height: 350px;
+            width: 100%;
+        }
+    </style>
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6 col-sm-12">
+        <div class="d-flex justify-content-center">
+            <h3 class="text-center">Gate Status</h3>
+        </div>
+        <div id="chartGate" class="col-12" onclick="jsAdminDashFunction.ShowGateStatus()"></div>
+    </div>
+
+    <div class="col-md-6 col-sm-12">
+            <h3 class="card-title mb-5">Cek Lokasi</h3>
+            <div class="row align-items-center g-4">
+                <div class="col-sm-12">
+                    <h5 class="mb-0 text-info"><span id="lastCompleteSoDate">-</span></h5>
+                    <p class="text-body-secondary fs--1 mb-0">Stok Opname Lengkap Terakhir</p>
+                </div>
+                <div class="col-sm-12">
+                    <h5 class="mb-0 text-warning"><span id="lastCompleteSoLocation">-</span></h5>
+                    <p class="text-body-secondary fs--1 mb-0">Lokasi Stok Opname Lengkap Terakhir</p>
+                </div>
+                <div class="col-sm-12">
+                    <h5 class="mb-0 text-danger"><span id="totalUnknown">-</span></h5>
+                    <p class="text-body-secondary fs--1 mb-0">Total Lokasi Unknown</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal" tabindex="-1" role="dialog" id="modalInfo">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalInfoTitle">Info</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalInfoBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>

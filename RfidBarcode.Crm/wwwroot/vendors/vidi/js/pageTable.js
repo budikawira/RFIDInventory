@@ -110,7 +110,7 @@ var SimplePageTable = (() => {
                             button += '<i class="far fa-edit"> </i>';
                             button += '</button>';
                         } else if (actionType == 'page') {
-                            console.log('data >> ', data);
+                            //console.log('data >> ', data);
                             button += `<a rel="tooltip" data-bs-placement="top" title="Edit" class="btn btn-sm btn-soft-primary me-1 mb-1" `;
                             button += `href="` + _url + `/Update?id=` + data['id'] + `"`;
                             button += `>`;

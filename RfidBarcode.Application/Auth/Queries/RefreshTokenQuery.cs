@@ -28,13 +28,15 @@ namespace RfidBarcode.Application.Auth.Queries
             _config = config;
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<RefreshTokenResponse> Handle(RefreshTokenRequest request, CancellationToken cancellationToken)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var response = new RefreshTokenResponse();
             try
             {
 
-                response.Token = Helper.GenerateJSONWebToken(_config, new UserVM() { Id = request.UserId}, request.DeviceId);
+                response.Token = Helper.GenerateJSONWebToken(_config, request.UserId);
                 response.Message = "Login successful!";
                 response.Result = BaseResponse.RESULT_OK;
             } 

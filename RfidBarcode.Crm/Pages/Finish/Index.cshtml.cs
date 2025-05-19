@@ -12,11 +12,21 @@ using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Crm.Common.ViewModels;
 using SQLitePCL;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace RfidBarcode.Crm.Pages.Finish
 {
     public class IndexModel : PageModel
     {
+        public class RowData
+        {
+            public int Index { get; set; }
+            public long Id { get; set; }
+        }
+
+        [BindProperty]
+        public List<RowData>? Ids { get; set; }
+
         private readonly IMediator _mediator;
         private readonly IUserResolverService _user;
         public IndexModel(IMediator mediator, IUserResolverService user)
@@ -32,10 +42,37 @@ namespace RfidBarcode.Crm.Pages.Finish
         public async Task<IActionResult> OnPostRefreshDataAsync()
         {
             var printStatus = Request.Form["printStatus"].ToString();
+            var tempLocation = Request.Form["locationId"];
+            var temp = Request.Form["tagId"];
             var response = new BaseDataTableResponse<ItemVM>();
             try
             {
                 var request = new GetAllItemRequest() { PrintStatus = printStatus};
+
+                if (!string.IsNullOrEmpty(temp))
+                {
+                    var array = Regex.Split(temp!, @"\s*,\s*")
+                          .Where(s => !string.IsNullOrWhiteSpace(s))
+                          .ToArray();
+                    if (array.Length > 0)
+                    {
+                        request.Ids = new List<long>();
+                        foreach (var row in array)
+                        {
+                            long tagId;
+                            if (long.TryParse(row, out tagId))
+                            {
+                                request.Ids.Add(tagId);
+                            }
+                        }
+                    }
+                }
+
+                long locationId;
+                if (long.TryParse(tempLocation, out locationId))
+                {
+                    request.LocationId = locationId;
+                }
                 request.InitFromDataTable(Request.Form);
 
                 response = await _mediator.Send(request);
@@ -64,14 +101,44 @@ namespace RfidBarcode.Crm.Pages.Finish
             return new OkObjectResult(response);
         }
 
+
+        public async Task<IActionResult> OnPostRefreshLocationAsync()
+        {
+            var response = new BaseObjectResponse<List<ItemVM>>();
+
+            var param = new List<long>();
+
+            if (Ids != null)
+            {
+                foreach (var row in Ids)
+                {
+                    param.Add(row.Id);
+                }
+
+                var cmd = new GetAllItemRequest()
+                {
+                    Ids = param
+                };
+                var res = await _mediator.Send(cmd);
+                if (res.Data != null)
+                {
+                    response.Data = res.Data;
+                    response.Result = BaseResponse.RESULT_OK;
+                    response.Message = "";
+                }
+            }
+            
+            return new OkObjectResult(response);
+        }
+
         public async Task<IActionResult> OnPostImportAsync()
         {
             var response = new BaseResponse();
             var indexColumn = new string[]
             {
-                "Merk", "Kp", "Ib", "Kode1", "Kode2", "Kode3", "Kode4",
-                "Oz", "T01", "Grade", "Point", "Yard", "Kg", "Lebar", "K", 
-                "SusutLusi", "SerialNumber", "K3l", "Inisial", "TanggalBuatBarcode", "PointGrade"
+                "Merk", "Kp", "Kode1", "Kode2", "Kode3", "Kode4",
+                "Oz", "Grade", "Point", "Yard", "Kg", "Lebar", "K", 
+                "SusutLusi", "SerialNumber", "Inisial", "TanggalBuatBarcode"
 
             };
 
@@ -103,6 +170,7 @@ namespace RfidBarcode.Crm.Pages.Finish
                             else
                             {
                                 itemVM.UserId = _user.GetUserId();
+                                itemVM.LocationId = null;
                                 var cmd = new CreateItemRequest(itemVM);
                                 var res = await _mediator.Send(cmd);
                                 if (res.Result != BaseResponse.RESULT_OK)
@@ -186,24 +254,24 @@ namespace RfidBarcode.Crm.Pages.Finish
                     "SusutLusi", "Lebar", "Inisial", "K", "K3l", "TagId"
                     ],
                 [
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_DOUBLE,
-                    ExportExcel<ItemVM>.TYPE_DOUBLE,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_DOUBLE,
-                    ExportExcel<ItemVM>.TYPE_STRING,
-                    ExportExcel<ItemVM>.TYPE_STRING,
+                    ExportExcel<ItemVM>.TYPE_STRING, //merk
+                    ExportExcel<ItemVM>.TYPE_STRING, //serialnumber
+                    ExportExcel<ItemVM>.TYPE_STRING, //kp
+                    ExportExcel<ItemVM>.TYPE_STRING, //kode1
+                    ExportExcel<ItemVM>.TYPE_STRING, //kode2
+                    ExportExcel<ItemVM>.TYPE_STRING, //kode3
+                    ExportExcel<ItemVM>.TYPE_STRING, //kode4
+                    ExportExcel<ItemVM>.TYPE_STRING, //grade
+                    ExportExcel<ItemVM>.TYPE_STRING, //lot
+                    ExportExcel<ItemVM>.TYPE_STRING, //point
+                    ExportExcel<ItemVM>.TYPE_DECIMAL, //yard
+                    ExportExcel<ItemVM>.TYPE_DECIMAL, //kg
+                    ExportExcel<ItemVM>.TYPE_STRING, //susutlusi
+                    ExportExcel<ItemVM>.TYPE_STRING, //lebar
+                    ExportExcel<ItemVM>.TYPE_STRING, //inisial
+                    ExportExcel<ItemVM>.TYPE_STRING, //k
+                    ExportExcel<ItemVM>.TYPE_STRING, //k3l
+                    ExportExcel<ItemVM>.TYPE_STRING, //tagid
                 ]);
 
                 using (XLWorkbook wb = export.ExportFile(res.Data, typeof(ItemVM).GetProperties()))

@@ -29,7 +29,7 @@ namespace RfidBarcode.Application.Operationals.ViewModels
         public string? Inisial { get; set; }
         public long UserId { get; set; }
         //public int? Koreksi { get; set; }
-        public long? SuratJalanId { get; set; }
+
         public long? QcFinishUserId { get; set; }
         public DateTime? QcFinish { get; set; }
         public DateTime? TanggalBuatBarcode { get; set; }
@@ -45,11 +45,14 @@ namespace RfidBarcode.Application.Operationals.ViewModels
 
         public int PrintCount { get; set; }
 
-        public string TagId { get { return Epc; } }
+        public string TagId { get { return Epc ?? ""; } }
         public string? Epc { get; set; }
         public string? Qr { get; set; }
         public long? LocationId { get; set; }
         public string? LocationName { get; set; }
+        public byte? LocationType { get; set; }
+
+        public string? SuratJalanP1 { get; set; }
 
         public string TanggalBuatBarcodeString { get { 
                 return TanggalBuatBarcode != null ? TanggalBuatBarcode.Value.ToString("yyyy-MM-dd") : ""; 
@@ -62,6 +65,38 @@ namespace RfidBarcode.Application.Operationals.ViewModels
             {
                 if (PrintCount > 0) return PRINT_STATUS_DONE;
                 return PRINT_STATUS_PENDING;
+            }
+        }
+
+        public string ConvertedLebar
+        {
+            get
+            {
+                if (Lebar != null && Lebar.Length >= 2)
+                {
+                    if (Lebar.Substring(0,2).CompareTo("L ") == 0)
+                    {
+                        return Lebar.Substring(2);
+                    }
+                }
+                return Lebar ?? "";
+            }
+        }
+
+        public string ConvertedK
+        {
+            get
+            {
+                if (K != null)
+                {
+                    var index = K.IndexOf("/");
+                    if (index > 0)
+                    {
+                        return K.Substring(0, index);
+                    }
+                }
+
+                return K ?? "";
             }
         }
 

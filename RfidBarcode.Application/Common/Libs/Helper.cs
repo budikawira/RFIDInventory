@@ -7,21 +7,19 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using RfidBarcode.Domain.Entities;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using RfidBarcode.Application.Operationals.ViewModels;
 
 namespace RfidBarcode.Application.Common.Libs
 {
     public class Helper
     {
-        public static string GenerateJSONWebToken(IConfiguration _config, UserVM user, String? deviceId)
+        public static string GenerateJSONWebToken(IConfiguration _config, long userId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new List<Claim>();
-            claims.Add(new Claim(IdentityExtended.ClaimUserId, user.Id.ToString()));
-            if (deviceId != null)
-            {
-                claims.Add(new Claim(IdentityExtended.ClaimDeviceId, user.Id.ToString()));
-            }
+            claims.Add(new Claim(IdentityExtended.ClaimUserId, userId.ToString()));
 
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
@@ -45,6 +43,36 @@ namespace RfidBarcode.Application.Common.Libs
               signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public static bool ValidateSuratJalanColumns(List<ItemVM> rows)
+        {
+            var kps = rows.GroupBy(x => x.Kp)
+                .Select(g => new
+                {
+                    Kp = g.Key,
+                    Count = g.Count()
+                }).OrderByDescending(x => x.Count).ToList();
+            if (kps.Count > 5)
+            {
+                return false;
+            }
+
+            var col = 0;
+            foreach (var kp in kps)
+            {
+
+                var additionalCol = (int)Math.Ceiling(((decimal)kp.Count / 5));
+                col += additionalCol;
+            }
+
+            if (col > 5)
+            {
+                return false;
+            }
+
+
+            return true;
         }
 
         public static DateTime? ParseDate(string? str)
@@ -138,5 +166,36 @@ namespace RfidBarcode.Application.Common.Libs
             sb.Append(item.Inisial ?? "");
             return sb.ToString();
         }
+
+        public static long? ParseItemTagId(string tagId)
+        {
+            if (tagId.Length == 24)
+            {
+                if (tagId.Substring(0, 4) == "0505")
+                {
+                    long data;
+                    if (long.TryParse(tagId.Substring(4), NumberStyles.HexNumber, null, out data))
+                    {
+                        return data;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public static string GetItemTagId(Item item)
+        {
+            if (!string.IsNullOrEmpty(item.Epc))
+            {
+                return item.Epc;
+            }
+            return string.Format("0505{0:X20}", item.Id);
+        }
+
+        //public static string GenerateSuratJalanNo(string type, int year, int month, int count)
+        //{
+        //    return type + "/" + month.ToString("D2") + "/" + year.ToString() + "/" + count.ToString("D4");
+        //}
     }
 }

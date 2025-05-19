@@ -35,6 +35,7 @@
                 },
                 { data: 'createdDateString', name: 'CreatedDate' },
                 { data: 'locationName', name: 'LocationName' },
+                { data: 'id', name: 'Id' },
                 { data: 'merk', name: 'Merk' },
                 { data: 'kp', name: 'Kp' },
                 { data: 'kode1', name: 'Kode1' },
@@ -53,9 +54,10 @@
                 { data: 'k3l', name: 'K3l' },
                 { data: 'inisial', name: 'Inisial' },
                 { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' },
+                { data: 'suratJalanP1', name: 'SuratJalanP1' },
             ],
             columnDefs: [
-                { targets: [1], sortable: false }
+                { targets: [1], sortable: false, visible: false }
             ],
             order: [[3,'desc']]
         });
@@ -64,7 +66,72 @@
             $(".checkbox-input-all").change(function () {
                 $(".checkbox-input").prop('checked', $(this).prop("checked"));
             });
+
+            refreshTable();
         });
+
+        function updateTable(newRows) {
+            var table = SimplePageTable.GetTable();
+            var indexIds = [];
+
+            table.rows().every(function(rowIdx) {
+                var rowData = this.data();
+                indexIds[rowIdx] = rowData.id;
+            });
+
+            newRows.forEach(function(currentValue, index, array) {
+                // code to execute for each element
+                // console.log('newRows >> ', currentValue);
+                var indexId = indexIds.indexOf(currentValue.id);
+                //currentValue.merk = "Test Aja";
+                if (indexId >= 0) {
+                    table.row(indexId).data(currentValue);
+                }
+            });
+            //console.log('updateTable indexIds >> ', indexIds);
+        }
+
+        function refreshTable() {
+            var dataParam = [];
+            var table = SimplePageTable.GetTable();
+            var rowData2;
+            table.rows().every(function(rowIdx) {
+                var rowData = this.data();
+                dataParam.push({"index": rowIdx, "id": rowData.id});
+            });
+            /*
+            if (dataParam.length > 2) {
+                rowData2.merk = "Test";
+                table.row(2).data(rowData2);
+            }
+            */
+
+            console.log("dataParam >> ", dataParam);
+            if (dataParam.length === 0) {
+                setTimeout(refreshTable, 5000);
+            } else {
+                $.ajax({
+                    url: '/Finish/Index?Handler=RefreshLocation',
+                    method: 'POST', // or 'POST'
+                    headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                    data: {
+                        ids: dataParam
+                    },
+                    success: function(response) {
+                        // Process the response
+                        console.log('response >>', response);
+                        updateTable(response.data);
+                        // Schedule the next call (this creates the loop)
+                        setTimeout(refreshTable, 5000); // Call again after 1 second
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error
+                        console.error("AJAX error:", error);
+                        setTimeout(refreshTable, 5000); // Call again after 1 second
+                    }
+                });
+            }
+        }
 
         function showModalImport() {
             $('#modalImport').modal('show');
@@ -138,7 +205,7 @@
                             <i class="fas fa-file-import me-1"></i>  Import
                         </button>
                         
-                        <button type="button" class="btn btn-warning" onclick="print('Print.xlsx')">
+                        <button type="button" class="btn btn-warning" onclick="print('Print.xlsx')" style="display: none;">
                             <i class="fas fa-print me-1"></i>  Print
                         </button>
                         
@@ -161,6 +228,11 @@
                         <select class="form-select grid-param" id="locationId" name="locationId">
                         </select>
                     </div>
+
+                    <div class="form-group col-sm-12 col-md-4">
+                        <label class="form-label">Tag id</label>
+                        <input class="form-control grid-param" id="tagId" name="tagId" placeholder="ex: 1,2,10,28" />
+                    </div>
                 </div>
                 <hr />
                 <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
@@ -171,6 +243,7 @@
                             <th>Print</th>
                             <th>Tanggal Pembuatan</th>
                             <th>Lokasi</th>
+                            <th>Tag Id</th>
                             <th>Merk</th>
                             <th>KP</th>
                             <th>Kode 1</th>
@@ -189,6 +262,7 @@
                             <th>K3L</th>
                             <th>Inisial</th>
                             <th>Tanggal Buat Barcode</th>
+                            <th>Srt Jln K3</th>
                         </tr>
                     </thead>
                     <tbody>

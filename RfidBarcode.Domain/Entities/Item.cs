@@ -35,7 +35,7 @@ namespace RfidBarcode.Domain.Entities
         public long UserId { get; set; }
         //public int Koreksi { get; set; }
         //public int Print { get; set; } = 0;
-        public long? SuratJalanId { get; set; }
+
         public long? QcFinishUserId { get; set; }
         public DateTime? QcFinish { get; set; }
 
@@ -54,11 +54,16 @@ namespace RfidBarcode.Domain.Entities
         public string? Qr { get; set; }
         public long? LocationId { get; set; }
 
+        public SuratJalanP1? SuratJalanP1 { get; set; }
+
         public TrackingItem? TrackingItem { get; set; }
 
         public List<ItemPrintLog> ItemPrintLogs { get; set; } = null!;
         public Location? Location { get; set; }
         public List<TagLocation> TagLocations { get; set; } = null!;
+        public List<StockOpnameDetail> StockOpnameDetails { get; set; } = null!;
+
+        public List<ItemMovement> ItemMovements { get; set; } = null!;
 
     }
 }

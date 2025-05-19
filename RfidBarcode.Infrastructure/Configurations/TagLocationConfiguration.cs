@@ -16,12 +16,24 @@ namespace RfidBarcode.Infrastructure.Configurations
                 .IsRequired(false)
                 .HasForeignKey(x => x.ItemId)
                 .OnDelete(DeleteBehavior.SetNull);
+            
             builder.HasOne(x => x.Location)
-                .WithMany(y => y.TagLocations)
+                .WithMany()
                 .IsRequired(false)
                 .HasForeignKey(x => x.LocationId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasOne(x => x.PrevLocation)
+                .WithMany()
+                .IsRequired(false)
+                .HasForeignKey(x => x.PrevLocationId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(x => x.StockOpname)
+                .WithMany()
+                .IsRequired(false)
+                .HasForeignKey(x => x.StockOpnameId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

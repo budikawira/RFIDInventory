@@ -32,7 +32,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         var entity = _mapper.Map<Item>(item);
                         entity.K3l = Helper.GetK3L(item.Kode3 ?? "");
                         entity.Qr = Helper.GetQr(entity);
-
+                        entity.Location = null;
                         await _context.Items.AddAsync(entity);
                         entities.Add(entity);
                     }

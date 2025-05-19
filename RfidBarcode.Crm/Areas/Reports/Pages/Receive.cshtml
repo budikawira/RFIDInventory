@@ -1,0 +1,195 @@
+﻿@page
+@model RfidBarcode.Crm.Areas.Reports.Pages.ReceiveModel
+@{
+    ViewData["Title"] = "Laporan Penerimaan";
+}
+
+@section Scripts
+{
+    <script>
+        let grid;
+        let createdDate = $("#createdDate").flatpickr({
+                defaultDate: [new Date(), new Date()],
+                mode: "range",
+                dateFormat: "Y-m-d",
+                enableTime: false
+            });
+        function view() {
+            if (grid == null) {
+                $('#grid').show();grid = $('#grid').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        scrollX: true,
+                        ajax: {
+                            url: '/Reports/Receive?Handler=RefreshData',
+                            type: 'POST',
+                            headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                            data: function (d) {
+                                const selectedDates = createdDate.selectedDates;
+                                d.startDate = createdDate.formatDate(selectedDates[0], 'Y-m-d');
+                                d.endDate = createdDate.formatDate(selectedDates[1], 'Y-m-d');
+                                d.locationId = $('#locationId').val()
+                            }
+                        },
+                        columns: [
+                            { data: 'createdDateString', name: 'CreatedDate' },
+                            { data: 'id', name: 'Id' },
+                            { data: 'merk', name: 'Merk' },
+                            { data: 'kp', name: 'Kp' },
+                            { data: 'kode1', name: 'Kode1' },
+                            { data: 'kode2', name: 'Kode2' },
+                            { data: 'kode3', name: 'Kode3' },
+                            { data: 'kode4', name: 'Kode4' },
+                            { data: 'oz', name: 'Oz' },
+                            { data: 'grade', name: 'Grade' },
+                            { data: 'point', name: 'Point' },
+                            { data: 'yard', name: 'Yard' },
+                            { data: 'kg', name: 'Kg' },
+                            { data: 'lebar', name: 'Lebar' },
+                            { data: 'k', name: 'K' },
+                            { data: 'susutLusi', name: 'SusutLusi' },
+                            { data: 'serialNumber', name: 'SerialNumber' },
+                            { data: 'k3l', name: 'K3l' },
+                            { data: 'inisial', name: 'Inisial' },
+                            { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' },
+                            { data: 'suratJalanP1', name: 'SuratJalanP1' },
+                        ],
+                        stripeclasses: ['odd-row', 'even-row'],
+                        info: false,
+                        aoColumnDefs: [
+                            {
+                                bSortable: false,
+                                aTargets: [0]
+                            }
+                        ],
+                        order: [[0, 'asc']],
+                        pagingType: $(window).width() < 768 ? "numbers" : "simple_numbers",
+                    });
+            } else {
+                grid.ajax.reload();
+            }
+        }
+
+        function download() {
+
+            LoadingScreenFunction.Show();
+
+            const selectedDates = createdDate.selectedDates;
+            var dataParam = {
+                startDate : createdDate.formatDate(selectedDates[0], 'Y-m-d'),
+                endDate : createdDate.formatDate(selectedDates[1], 'Y-m-d'),
+                locationId : $('#locationId').val()
+            };
+            console.log('dataParam >> ', dataParam);
+
+            fileName = 'Penerimaan_' + dataParam.startDate + "_" + dataParam.endDate + '.xlsx';
+
+            $.ajax({
+                type: "POST",
+                url: "/Reports/Receive?Handler=Download",
+                data: dataParam,
+                headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                traditional: true,
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (objRes) {
+                    LoadingScreenFunction.Hide();
+
+                    var a = document.createElement('a');
+                    var url = window.URL.createObjectURL(objRes);
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.append(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+
+                    SimplePageTable.GetTable().ajax.reload();
+                },
+                error: function (response) {
+                    console.log('response err >> ', response);
+                    LoadingScreenFunction.Hide();
+                    Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                }
+            })
+        }
+    </script>
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                        <button type="button" class="btn btn-primary" onclick="view()">
+                            <i class="fas fa-eye me-1"></i> View
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="download()">
+                            <i class="fas fa-file-excel me-1"></i>  Download
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label class="form-label">Tanggal</label>
+                        <input type="text" id="createdDate" class="form-control flatpickr"/>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label class="form-label">Lokasi</label>
+                        <select class="form-select grid-param" id="locationId" name="locationId">
+                            @foreach (var loc in Model.Locations)
+                            {
+                                <option value="@loc.Id">@loc.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <hr />
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%" style="display:none">
+                    <thead>
+                        <tr>
+                            <th>Tanggal Terima</th>
+                            <th>Tag Id</th>
+                            <th>Merk</th>
+                            <th>KP</th>
+                            <th>Kode 1</th>
+                            <th>Kode 2</th>
+                            <th>Kode 3</th>
+                            <th>Kode 4</th>
+                            <th>OZ</th>
+                            <th>Grade</th>
+                            <th>Point</th>
+                            <th>Yard</th>
+                            <th>KG</th>
+                            <th>Lebar</th>
+                            <th>K</th>
+                            <th>Susut Lusi</th>
+                            <th>Serial Number</th>
+                            <th>K3L</th>
+                            <th>Inisial</th>
+                            <th>Tanggal Buat Barcode</th>
+                            <th>Srt Jln K3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -10,6 +10,7 @@ namespace RfidBarcode.Domain.Services
         public string Epc { get; set; } = null!;
         public long ItemId { get; set; }
         public long LocationId { get; set; }
+        public string? LocationName { get; set; }
         public long Start { get; set; }
         public long? End { get; set; }
         public long LastScanned { get; set; }

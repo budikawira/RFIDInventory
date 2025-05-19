@@ -1,0 +1,78 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.StockOpnames.UpdateModel
+@{
+    ViewData["Title"] = Model.StockOpname.LocationName + " - " + Model.StockOpname.CreatedDateString;
+}
+
+@section Scripts
+{
+    <script>
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/StockOpnames/Update');
+        SimplePageTable.InitTable({
+            hasAction: false,
+            action: 'popup',
+            columns: [
+                { data: 'note', name: 'Note' },
+                { data: 'itemId', name: 'ItemId' },
+                { data: 'merk', name: 'Merk' },
+                { data: 'kp', name: 'Kp' },
+                { data: 'kode', name: 'Kode' },
+                { data: 'serialNumber', name: 'SerialNumber' },
+            ],
+        });
+    </script>
+}
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item"><a href="/StockOpnames/">Stock Opname</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">View</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                        <a class="btn btn-primary mb-3" href="/Finish/Add">
+                            <i class="fas fa-plus me-1"></i> Add
+                        </a>
+                        <button type="button" class="btn btn-secondary mb-3" onclick="showModalImport()">
+                            <i class="fas fa-file-import me-1"></i>  Import
+                        </button>
+
+                        <button type="button" class="btn btn-warning mb-3" onclick="print('Print.xlsx')">
+                            <i class="fas fa-print me-1"></i>  Print
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <input type="hidden" class="grid-param" value="@Model.StockOpname.Id" id="stockOpnameId" />
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Tag Id</th>
+                            <th>Merk</th>
+                            <th>KP</th>
+                            <th>Kode</th>
+                            <th>Serial Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

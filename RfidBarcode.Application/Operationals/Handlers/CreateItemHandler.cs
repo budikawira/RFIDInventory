@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Bibliography;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RfidBarcode.Application.Common.BaseObjects;
@@ -35,6 +36,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                     entity.Kode += (!string.IsNullOrEmpty(entity.Kode) && !string.IsNullOrEmpty(request.Data.Kode4)) ? " " : "";
                     entity.Kode += request.Data.Kode4;
                     entity.K3l = Helper.GetK3L(entity.Kode3 ?? "");
+                    entity.Location = null;
                     await _context.Items.AddAsync(entity);
                     await _context.SaveChangesAsync(cancellationToken);
                     entity.Epc = Helper.GetEpc(entity.Id);
@@ -47,7 +49,8 @@ namespace RfidBarcode.Application.Operationals.Handlers
                 }
                 else
                 {
-                    var entity = await _context.Items.Where(x => x.Id == request.Data.Id).FirstOrDefaultAsync();
+                    var entity = await _context.Items.Include(x => x.Location)
+                        .Where(x => x.Id == request.Data.Id).FirstOrDefaultAsync();
                     if (entity != null)
                     {
                         if (request.Data.TanggalBuatBarcode == null || request.Data.Yard == null || request.Data.Kg == null || request.Data.K == null)
@@ -84,7 +87,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         entity.K3l = request.Data.K3l;
                         entity.Inisial = request.Data.Inisial;
                         entity.UserId = request.Data.UserId;
-                        entity.SuratJalanId = request.Data.SuratJalanId;
+                        entity.SuratJalanP1Id = request.Data.SuratJalanP1Id;
                         entity.QcFinishUserId = request.Data.QcFinishUserId;
                         entity.QcFinish = request.Data.QcFinish;
                         entity.TanggalBuatBarcode = request.Data.TanggalBuatBarcode.Value;

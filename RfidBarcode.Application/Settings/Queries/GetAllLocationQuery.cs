@@ -5,6 +5,7 @@ using RfidBarcode.Application.Common.BaseObjects;
 using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Application.Settings.ViewModels;
+using RfidBarcode.Domain.Entities;
 using System.Linq.Dynamic.Core;
 
 namespace RfidBarcode.Application.Settings.Queries
@@ -41,10 +42,19 @@ namespace RfidBarcode.Application.Settings.Queries
                 var total = query.Count();
                 var totalFiltered = total;
 
+                if (request.IsForStockOpname)
+                {
+                    query = query.Where(x => x.SkipStockOpname == Location.SKIP_STOCKOPNAME_MODE_NO);
+                }
+                if (request.IsForSummaryK3)
+                {
+                    query = query.Where(x => x.Type == Location.TYPE_END_LOCATION);
+                }
                 if (!string.IsNullOrEmpty(request.SearchValue))
                 {
                     var search = request.SearchValue.ToLower();
-                    query = query.Where(x => x.Name.ToLower().Contains(search) || x.Description.ToLower().Contains(search));
+                    query = query.Where(x => x.Name.ToLower().Contains(search) || 
+                        (x.Description != null && x.Description.ToLower().Contains(search)));
                     totalFiltered = await query.CountAsync();
                 }
                 if (!string.IsNullOrEmpty(request.SortColumn) && !string.IsNullOrEmpty(request.SortColumn))

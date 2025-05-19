@@ -1,0 +1,641 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.SuratJalanP1s.UpdateModel
+@{
+    ViewData["Title"] = Model.ViewModel.No;
+}
+
+@section Scripts
+{
+    <script>
+        let jsFunction = (() => {
+        var _gridModal;
+        var _token;
+        var _url;
+        return {
+        Init: ((token, url) => {
+        _token = token;
+        _url = url;
+        }),
+        Open: (() => {
+        jsFunction.RefreshTable();
+        $('#modal').modal('show');
+        }),
+        OpenFinalize: (() => {
+            $('#modalFinalize').modal('show');
+        }),
+        Finalize: (() => {
+
+            var isValid = 0;
+
+            isValid += validateBlank('no');
+            if (isValid > 0) {
+                Swal.fire('Fail', 'Please input all mandatory data', 'error');
+                return;
+            }
+            Swal.fire({
+                title: 'Finalisasi Surat Jalan?',
+                text: "Data tidak dapat diubah lagi!",
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Finalisasi!',
+                cancelButtonText: 'Selesai'
+            }).then((result) => {
+            if (result.isConfirmed) {
+                LoadingScreenFunction.Show();
+                $.ajax({
+                    type: "POST",
+                    url: "/SuratJalanP1s/Update?Handler=Finalize",
+                    data: {
+                        suratJalanP1Id: $('#suratJalanP1Id').val(),
+                        type: $('#type').val(),
+                        no: $('#no').val()
+                    },
+                    headers: {
+                        'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                    },
+                    success: function(objRes) {
+                        console.log('objRes >> ', objRes);
+                        LoadingScreenFunction.Hide();
+                        if (objRes.result == 0) {
+                            window.location.reload();
+                        } else {
+                            Swal.fire('Gagal Finalisasi!', objRes.message, 'error');
+                        }
+                    },
+                    error: function(response) {
+                        console.log('response err >> ', response);
+                        LoadingScreenFunction.Hide();
+                        Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                    }
+                })
+            }
+        })
+    }),
+        AddItems: (() => {
+        var itemIds = [];
+        $(".checkbox-input:checked").each(function() {
+        //console.log('cb value: ' + $(this).val());
+        itemIds.push($(this).val());
+        });
+
+        LoadingScreenFunction.Show();
+        var dataParam = {
+        itemIds: itemIds,
+        suratJalanP1Id: $('#suratJalanP1Id').val()
+        };
+
+        $.ajax({
+        type: "POST",
+        url: "/SuratJalanP1s/Update?Handler=AddItems",
+        data: dataParam,
+        headers: {
+        'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+        },
+        success: function(objRes) {
+        LoadingScreenFunction.Hide();
+        $('#modal').modal('hide');
+        SimplePageTable.GetTable().ajax.reload();
+        },
+        error: function(response) {
+        console.log('response err >> ', response);
+        LoadingScreenFunction.Hide();
+        Swal.fire('Error : ' + response.status, response.responseText, 'error');
+        }
+        })
+        }),
+        RefreshTable: (() => {
+        if (_gridModal == null) {
+        _gridModal = $('#gridModal').DataTable({
+        processing: true,
+        serverSide: true,
+        orderCellsTop: true,
+        autoWidth: true,
+        scrollX: true,
+        ajax: {
+        url: _url + '?Handler=RefreshDataModal',
+        type: 'POST',
+        headers: {
+        'RequestVerificationToken': _token
+        },
+        data: function(d) {
+        d.suratJalanP1Id = $('#suratJalanP1Id').val();
+        }
+        },
+        columns: [{
+        data: null,
+        render: function(data, type, row, node) {
+        var html = "<input class=\"form-check-input checkbox-input ms-3\" type=\"checkbox\" value=" + data['id'] + " id=\"cbInput\" checked>";
+        return html;
+        }
+        },
+        {
+        data: 'createdDateString',
+        name: 'CreatedDate'
+        },
+        {
+        data: 'locationName',
+        name: 'LocationName'
+        },
+        {
+        data: 'merk',
+        name: 'Merk'
+        },
+        {
+        data: 'kp',
+        name: 'Kp'
+        },
+        {
+        data: 'kode1',
+        name: 'Kode1'
+        },
+        {
+        data: 'kode2',
+        name: 'Kode2'
+        },
+        {
+        data: 'kode3',
+        name: 'Kode3'
+        },
+        {
+        data: 'kode4',
+        name: 'Kode4'
+        },
+        {
+        data: 'oz',
+        name: 'Oz'
+        },
+        {
+        data: 'grade',
+        name: 'Grade'
+        },
+        {
+        data: 'point',
+        name: 'Point'
+        },
+        {
+        data: 'yard',
+        name: 'Yard'
+        },
+        {
+        data: 'kg',
+        name: 'Kg'
+        },
+        {
+        data: 'lebar',
+        name: 'Lebar'
+        },
+        {
+        data: 'k',
+        name: 'K'
+        },
+        {
+        data: 'susutLusi',
+        name: 'SusutLusi'
+        },
+        {
+        data: 'serialNumber',
+        name: 'SerialNumber'
+        },
+        {
+        data: 'k3l',
+        name: 'K3l'
+        },
+        {
+        data: 'inisial',
+        name: 'Inisial'
+        },
+        {
+        data: 'tanggalBuatBarcodeString',
+        name: 'TanggalBuatBarcode'
+        },
+        ],
+        order: [
+        [1, "asc"]
+        ],
+        columnDefs: [{
+        orderable: false,
+        targets: 0
+        }],
+        pageLength: 25
+        });
+        } else {
+        _gridModal.ajax.reload(null, false);
+        }
+        })
+        }
+        })();
+    </script>
+    <script>
+        var hasDelete = @(Model.ViewModel.FinalizeDate == null ? "true" : "false");
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/SuratJalanP1s/Update');
+        SimplePageTable.InitTable({
+        hasAction: hasDelete,
+        hasDelete: hasDelete,
+        action: 'page',
+        columns: [
+        { data: 'createdDateString', name: 'CreatedDate' },
+        { data: 'locationName', name: 'LocationName' },
+        { data: 'merk', name: 'Merk' },
+        { data: 'kp', name: 'Kp' },
+        { data: 'kode1', name: 'Kode1' },
+        { data: 'kode2', name: 'Kode2' },
+        { data: 'kode3', name: 'Kode3' },
+        { data: 'kode4', name: 'Kode4' },
+        { data: 'oz', name: 'Oz' },
+        { data: 'grade', name: 'Grade' },
+        { data: 'point', name: 'Point' },
+        { data: 'yard', name: 'Yard' },
+        { data: 'kg', name: 'Kg' },
+        { data: 'lebar', name: 'Lebar' },
+        { data: 'k', name: 'K' },
+        { data: 'susutLusi', name: 'SusutLusi' },
+        { data: 'serialNumber', name: 'SerialNumber' },
+        { data: 'k3l', name: 'K3l' },
+        { data: 'inisial', name: 'Inisial' },
+        { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' },
+        ],
+        columnDefs: [
+        { targets: [1], sortable: false }
+        ],
+        order: [[3,'desc']]
+        });
+
+        jsFunction.Init($('@Html.AntiForgeryToken()').val(), '/SuratJalanP1s/Update');
+
+
+        $(document).ready(function () {
+        $(".checkbox-input-all").change(function () {
+        $(".checkbox-input").prop('checked', $(this).prop("checked"));
+        });
+        });
+    </script>
+    <script>
+        function openAndPrint() {
+        // Open a new window
+        const printWindow = window.open('', '', 'width=800,height=600');
+
+        // Get the content from the print section
+        const content = document.getElementById('print-section').innerHTML;
+
+        // Write content to the new window
+        printWindow.document.write('<html><head><title>Invoice</title>');
+        printWindow.document.write('<style>body{font-family: Arial, sans-serif;} table{width: 100%; border-collapse: collapse;} th, td{border: 1px solid #ddd; padding: 8px;} th{background-color: #f4f4f4;} .cell-wrapper{min-height:20px;display:flex;align-items:center;box-sizing:border-box}</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(content);
+
+        // Wait for the window to load, then trigger print dialog
+        printWindow.document.close();
+        printWindow.onload = function() {
+        printWindow.print();
+        printWindow.close(); // Optionally close the window after printing
+        };
+        }
+    </script>
+}
+
+@section Styles
+{
+<style>
+    /* Hide print section in the browser */
+    #print-section {
+    display: none;
+    }
+
+    @@media print {
+    @@page {
+    size: landscape;
+    }
+
+    body * {
+    visibility: hidden;
+    }
+
+    #print-section, #print-section * {
+    visibility: visible;
+    }
+    }
+
+    .invoice-box {
+    max-width: 600px;
+    margin: auto;
+    padding: 30px;
+    font-family: 'Arial', sans-serif;
+    border: 1px solid #eee;
+    font-size: 14px;
+    }
+
+    .invoice-box table {
+    width: 100%;
+    border-collapse: collapse;
+    }
+
+    .invoice-box th, .invoice-box td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    }
+
+    .invoice-box th {
+    background-color: #f4f4f4;
+    }
+
+</style>
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item"><a href="/SuratJalanP1s/">Surat Jalan</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">Ubah</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                        @if (Model.ViewModel.FinalizeDate == null)
+                        {
+                            <button class="btn btn-primary" onclick="jsFunction.Open()">
+                                <i class="fas fa-plus me-1"></i> Tambah
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="jsFunction.OpenFinalize()">
+                                <i class="fas fa-check me-1"></i>  Finalisasi
+                            </button>
+                        }
+                        else
+                        {
+
+                            <button class="btn btn-primary" onclick="openAndPrint()">
+                                <i class="fas fa-print me-1"></i>  Print Surat Jalan
+                            </button>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <input type="hidden" id="suratJalanP1Id" value="@Model.ViewModel.Id" class="grid-param" />
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            @if (Model.ViewModel.FinalizeDate == null)
+                            {
+                                <th>Action</th>
+                            }
+                            <th>Tanggal Pembuatan</th>
+                            <th>Lokasi</th>
+                            <th>Merk</th>
+                            <th>KP</th>
+                            <th>Kode 1</th>
+                            <th>Kode 2</th>
+                            <th>Kode 3</th>
+                            <th>Kode 4</th>
+                            <th>OZ</th>
+                            <th>Grade</th>
+                            <th>Point</th>
+                            <th>Yard</th>
+                            <th>KG</th>
+                            <th>Lebar</th>
+                            <th>K</th>
+                            <th>Susut Lusi</th>
+                            <th>Serial Number</th>
+                            <th>K3L</th>
+                            <th>Inisial</th>
+                            <th>Tanggal Buat Barcode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="entryModalLabel" aria-hidden="true">
+    <form id="entryForm" method="POST">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Tambah</h5>
+                    <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="fas fa-times fs--1"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="gridModal" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                        <thead>
+                            <tr>
+                                <th class="me-1"><input class="form-check-input checkbox-input-all ms-3" type="checkbox" id="cbInputAll" checked></th>
+                                <th>Tanggal Pembuatan</th>
+                                <th>Lokasi</th>
+                                <th>Merk</th>
+                                <th>KP</th>
+                                <th>Kode 1</th>
+                                <th>Kode 2</th>
+                                <th>Kode 3</th>
+                                <th>Kode 4</th>
+                                <th>OZ</th>
+                                <th>Grade</th>
+                                <th>Point</th>
+                                <th>Yard</th>
+                                <th>KG</th>
+                                <th>Lebar</th>
+                                <th>K</th>
+                                <th>Susut Lusi</th>
+                                <th>Serial Number</th>
+                                <th>K3L</th>
+                                <th>Inisial</th>
+                                <th>Tanggal Buat Barcode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="button" onclick="jsFunction.AddItems()">Tambah</button>
+                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="modalFinalize" tabindex="-1" aria-labelledby="entryModalLabel" aria-hidden="true">
+    <form id="entryForm" method="POST">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle"></h5>
+                    <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="fas fa-times fs--1"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="name">Tipe Surat Jalan</label>
+                        <select class="form-select modal-input" id="type" name="type">
+                            @foreach (var item in Model.SuratJalanTypes)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="description">Nomor Surat Jalan</label>
+                        <input class="form-control modal-input" id="no" name="no" type="text" placeholder="contoh: P1/30/12/0001" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="button" onclick="jsFunction.Finalize()">Finalisasi</button>
+                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<!-- Static print content (hidden in browser) -->
+
+@if (Model.ViewModel.Grade == "ALK")
+{
+    <div id="print-section" class="invoice-box">
+        <table style="border:none">
+            <tbody>
+                <tr style="border:none">
+                    <td style="border:none;width:150px"><strong>No Surat Jalan</strong></td>
+                    <td style="border:none"><strong>: @Model.ViewModel.No</strong></td>
+                    <td style="border:none"></td>
+                    <td style="border:none;width:200px;text-align:right;"><strong></strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:25px"><strong>No</strong></th>
+                    <th><strong>SN</strong></th>
+                    <th><strong>KP</strong></th>
+                    <th colspan="4"><strong>KODE</strong></th>
+                    <th><strong>GRADE</strong></th>
+                    <th><strong>QTY (YD)</strong></th>
+                    <th><strong>WEIGHT (KG)</strong></th>
+                    <th><strong>LEBAR</strong></th>
+                    <th><strong>LOT</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ var no = 1; }
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@no</td>
+                        <td>@item.SerialNumber</td>
+                        <td>@item.Kp</td>
+                        <td>@item.Kode1</td>
+                        <td>@item.Kode2</td>
+                        <td>@item.Kode3</td>
+                        <td>@item.Kode4</td>
+                        <td>@item.Grade</td>
+                        <td>@item.Yard</td>
+                        <td>@item.Kg</td>
+                        <td>@item.Lebar</td>
+                        <td>@item.Lot</td>
+                    </tr>
+                    no++;
+                }
+            </tbody>
+        </table>
+        <br />
+        <table style="border:none">
+            <tbody>
+                <tr style="border:none">
+                    <td style="border:none;"><strong>TOTAL ROLL : @Model.TotalRoll</strong></td>
+                    <td style="border:none;text-align:right;"><strong>TOTAL YARD: @Model.TotalYard YDS</strong></td>
+                </tr>
+                <tr style="border:none">
+                    <td style="border:none;"><strong>PERHATIAN SJ!</strong></td>
+                    <td style="border:none;text-align:right;"><strong>PERHATIAN BRG!</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div id="print-section" class="invoice-box">
+        <table style="border:none">
+            <tbody>
+                <tr style="border:none">
+                    <td style="border:none;width:150px"><strong>No Surat Jalan</strong></td>
+                    <td style="border:none"><strong>: @Model.ViewModel.No</strong></td>
+                    <td style="border:none;width:200px;text-align:right;"><strong>KA : @Model.ViewModel.Kode</strong></td>
+                </tr>
+                <tr>
+                    <td style="border:none;vertical-align:top"><strong>User</strong></td>
+                    <td style="border:none;vertical-align:top"><strong>: @Model.Username</strong></td>
+                    <td style="border:none;text-align:right" rowspan="2"><image src="/api/qr?text=@Model.ViewModel.No" style="width:80px;height:80px" /></td>
+                </tr>
+                <tr><td colspan="2" style="border:none;vertical-align:bottom;"><strong>@Model.ViewModel.Grade</strong></td></tr>
+            </tbody>
+        </table>
+        <br />
+        <table>
+            <thead>
+                <tr>
+                    <th width="20%"><strong>PO : @(Model.ColKp.Count > 0 ? Model.ColKp[0] : "")</strong></th>
+                    <th width="20%"><strong>PO : @(Model.ColKp.Count > 1 ? Model.ColKp[1] : "")</strong></th>
+                    <th width="20%"><strong>PO : @(Model.ColKp.Count > 2 ? Model.ColKp[2] : "")</strong></th>
+                    <th width="20%"><strong>PO : @(Model.ColKp.Count > 3 ? Model.ColKp[3] : "")</strong></th>
+                    <th width="20%"><strong>PO : @(Model.ColKp.Count > 4 ? Model.ColKp[4] : "")</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 5; i++)
+                {
+                    <tr>
+                        <td><div class="cell-wrapper">@Model.ColItems[0].ElementAt(i)</div></td>
+                        <td>@Model.ColItems[1].ElementAt(i)</td>
+                        <td>@Model.ColItems[2].ElementAt(i)</td>
+                        <td>@Model.ColItems[3].ElementAt(i)</td>
+                        <td>@Model.ColItems[4].ElementAt(i)</td>
+                    </tr>
+                }
+                <tr>
+                    <td style="text-align:center;"><strong>@(Model.ColYards[0] > 0 ? Model.ColYards[0].ToString() : "")</strong></td>
+                    <td style="text-align:center;"><strong>@(Model.ColYards[1] > 0 ? Model.ColYards[1].ToString() : "")</strong></td>
+                    <td style="text-align:center;"><strong>@(Model.ColYards[2] > 0 ? Model.ColYards[2].ToString() : "")</strong></td>
+                    <td style="text-align:center;"><strong>@(Model.ColYards[3] > 0 ? Model.ColYards[3].ToString() : "")</strong></td>
+                    <td style="text-align:center;"><strong>@(Model.ColYards[4] > 0 ? Model.ColYards[4].ToString() : "")</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <table style="border:none">
+            <tbody>
+                <tr style="border:none">
+                    <td style="border:none;"><strong>TOTAL ROLL : @Model.TotalRoll</strong></td>
+                    <td style="border:none;text-align:right;"><strong>TOTAL YARD: @Model.TotalYard YDS</strong></td>
+                </tr>
+                <tr style="border:none">
+                    <td style="border:none;"><strong>PERHATIAN SJ!</strong></td>
+                    <td style="border:none;text-align:right;"><strong>PERHATIAN BRG!</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+}

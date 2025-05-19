@@ -9,6 +9,15 @@
     {
       "library": "jsuites@5.9.1",
       "destination": "wwwroot/vendors/jsuites/"
+    },
+    {
+      "library": "paho-mqtt@1.1.0",
+      "destination": "wwwroot/vendors/paho-mqtt/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "paho-mqtt@1.1.0",
+      "destination": "wwwroot/vendors/paho-mqtt/"
     }
   ]
 }

@@ -1,0 +1,69 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.StockOpnames.IndexModel
+@{
+    ViewData["Title"] = "Stock Opname";
+}
+
+@section Scripts 
+{
+    <script>
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/StockOpnames');
+        SimplePageTable.InitTable({
+            hasAction: true,
+            hasDelete: true,
+            hasView: true,
+            action: 'page',
+            columns: [
+                { data: 'createdDateString', name: 'CreatedDate' },
+                { data: 'locationName', name: 'LocationName' },
+                { data: 'scanned', name: 'Scanned' },
+                { data: 'notScanned', name: 'NotScanned' },
+                { data: 'misplaced', name: 'Misplaced' },
+                { data: 'invalidTag', name: 'InvalidTag' },
+            ],
+            order: [[1,'desc']]
+        });
+    </script>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-end">
+                    <div class="col-md-10">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">Stock Opname</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="w-75 p-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="col-md-2 p-3 text-end align-bottom">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="sort" data-role="action">Action</th>
+                            <th class="sort" data-role="text">Tgl Stock Opname</th>
+                            <th class="sort" data-role="text">Location</th>
+                            <th class="sort" data-role="text">Scanned</th>
+                            <th class="sort" data-role="text">Misplaced</th>
+                            <th class="sort" data-role="text">Not Scanned</th>
+                            <th class="sort" data-role="text">Invalid Tag</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

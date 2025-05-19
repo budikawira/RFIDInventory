@@ -34,7 +34,8 @@ namespace RfidBarcode.Infrastructure.Services.Identities
                                   select new
                                   {
                                       Id = roles.Id,
-                                      Name = roles.NormalizedName
+                                      Name = roles.NormalizedName,
+                                      UserId = users.Id
                                   }).FirstOrDefaultAsync();
 
                 if (role != null)
@@ -46,6 +47,7 @@ namespace RfidBarcode.Infrastructure.Services.Identities
                     {
                         identity.AddClaim(new Claim(acc.AccessMenu.Id, "R"));
                     }
+                    identity.AddClaim(new Claim(IdentityExtended.ClaimUserId, role.UserId.ToString()));
                 }
             }
 

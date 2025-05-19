@@ -63,20 +63,41 @@ namespace RFIDTracking.Pages.Shared.Components.SidebarMenu
 
             var menuFinish = new MenuItem() { Label = "Finish", Href = "/Finish/", Icon = "check-circle" };
             groupOps.MenuItems.Add(menuFinish);
-            
+            var menuStockOpname = new MenuItem() { Label = "Stock Opname", Href = "/StockOpnames/", Icon = "check-square" };
+            groupOps.MenuItems.Add(menuStockOpname);
+            var menuSuratJalanP1 = new MenuItem() { Label = "Surat Jalan", Href = "/SuratJalanP1s/", Icon = "file" };
+            groupOps.MenuItems.Add(menuSuratJalanP1);
+
+
             Param.MenuGroups.Add(groupOps);
+            #endregion
+
+            #region Laporan
+            var groupReport = new MenuGroup
+            {
+                Title = "Laporan"
+            };
+            var menuReportReceived = new MenuItem()
+            {
+                Label = "Penerimaan",
+                Icon = "check-square",
+                Href = "/Reports/Receive/"
+            };
+            groupReport.MenuItems.Add(menuReportReceived);
+
+            Param.MenuGroups.Add(groupReport);
             #endregion
 
             #region Setting
             var groupSetting = new MenuGroup
             {
-                Title = "Settings"
+                Title = "Pengaturan"
             };
 
             #region User Setting
             var menuSetting = new MenuItem
             {
-                Label = "Pengaturan Pengguna",
+                Label = "Pengguna",
                 Icon = "users",
                 Href = "settings"
             };
@@ -86,7 +107,7 @@ namespace RFIDTracking.Pages.Shared.Components.SidebarMenu
                 menuSetting.ChildMenuItems.Add(menuUsers);
             }
 
-            var menuProfile = new MenuItem() { Label = "Ganti Password", Href = "/Settings/Password/" };
+            var menuProfile = new MenuItem() { Label = "Ubah Password", Href = "/Settings/Password/" };
             menuSetting.ChildMenuItems.Add(menuProfile);
             groupSetting.MenuItems.Add(menuSetting);
             #endregion

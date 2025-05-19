@@ -24,11 +24,17 @@ namespace RfidBarcode.Infrastructure
         public DbSet<TrackingItem> TrackingItems { get; set; }
         public DbSet<Item> Items { get; set; }
         public DbSet<ItemPrintLog> ItemPrintLogs { get; set; }
+        public DbSet<ItemMovement> ItemMovements { get; set; }
 
         public DbSet<Location> Locations { get; set; }
         public DbSet<Gate> Gates { get; set; }
         public DbSet<GateMap> GateMaps { get; set; }
         public DbSet<TagLocation> TagLocations { get; set; }
+
+        public DbSet<StockOpname> StockOpnames { get; set; }
+        public DbSet<StockOpnameDetail> StockOpnameDetails { get; set; }
+
+        public DbSet<SuratJalanP1> SuratJalanP1s { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IUserResolverService userService)
@@ -123,6 +129,8 @@ namespace RfidBarcode.Infrastructure
             modelBuilder.ApplyConfiguration(new GateConfiguration());
             modelBuilder.ApplyConfiguration(new GateMapConfiguration());
             modelBuilder.ApplyConfiguration(new LocationConfiguration());
+            modelBuilder.ApplyConfiguration(new SuratJalanP1Configuration());
+            modelBuilder.ApplyConfiguration(new ItemMovementConfiguration());
         }
     }
 }

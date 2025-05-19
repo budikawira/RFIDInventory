@@ -37,6 +37,7 @@ builder.Services.AddSingleton<IHostedService, IMqttClientService>(serviceProvide
 
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration));
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -46,6 +47,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers.Remove("ASPNETCORE-BROWSER-TOKEN");
+        await next();
+    });
 }
 
 //app.UseHttpsRedirection();
@@ -69,9 +75,11 @@ app.MapAreaControllerRoute(
     pattern: "Settings/{controller=Home}/{action=Index}/{id?}");
 
 app.MapAreaControllerRoute(
-    name: "ValetSettings",
-    areaName: "ValetSettings",
-    pattern: "ValetSettings/{controller=Home}/{action=Index}/{id?}");
+    name: "Reports",
+    areaName: "Reports",
+    pattern: "Reports/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllers();
 
 var supportedCultures = new[] { new CultureInfo("en-US") };
 app.UseRequestLocalization(new RequestLocalizationOptions
@@ -82,6 +90,6 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 });
 
 
-app.UseSerilogRequestLogging();
+//app.UseSerilogRequestLogging();
 
 app.Run();

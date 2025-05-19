@@ -19,9 +19,9 @@ namespace RfidBarcode.Infrastructure.Configurations
                     Id = AccessMenu.UserManagement,
                     Description = "User Management",
                     CreatedBy = "system",
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = new DateTime(2025,5,12),
                     LastUpdateBy = "system",
-                    LastUpdateDate = DateTime.Now
+                    LastUpdateDate = new DateTime(2025, 5, 12)
                 }
             );
         }

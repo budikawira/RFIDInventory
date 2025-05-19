@@ -73,10 +73,11 @@
             let i = 0;
             for (let row=0; row < list.length; row++) {
                 var errors = [];
+                var nullables = [2,3,4,5,6]; //kode1 - kode4, oz
                 for (var col=0; col < list[row].length; col++) {
                     var cellName = getCellName(row, col);
                     var cellValue = spreadsheet[0].getValue(cellName);
-                    if (col != 6) { //skip check Oz
+                    if (nullables.indexOf(col) === -1) { //skip check Kode1-Kode4, Oz
                         if (cellValue.length == 0) {
                             errors.push(headers[col]);
                             spreadsheet[0].getCell(cellName).style.backgroundColor='pink';
@@ -84,7 +85,6 @@
                             errors.push(headers[col]);
                             spreadsheet[0].getCell(cellName).style.backgroundColor='pink';
                         } else {
-                           
                             spreadsheet[0].getCell(cellName).style.backgroundColor='white';
                         }
                     }

@@ -22,6 +22,16 @@ namespace RfidBarcode.Infrastructure.Configurations
                 .HasForeignKey(y => y.ItemId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasMany(x => x.TagLocations)
+                .WithOne(y => y.Item)
+                .HasForeignKey(y => y.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(x => x.StockOpnameDetails)
+                .WithOne(y => y.Item)
+                .HasForeignKey(y => y.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.Property(x => x.Yard)
                 .HasColumnType("decimal(18,2)");
             builder.Property(x => x.Kg)
@@ -33,6 +43,12 @@ namespace RfidBarcode.Infrastructure.Configurations
                 .WithMany(y => y.Items)
                 .IsRequired(false)
                 .HasForeignKey(x => x.LocationId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(x => x.SuratJalanP1)
+                .WithMany(y => y.Items)
+                .IsRequired(false)
+                .HasForeignKey(x => x.SuratJalanP1Id)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace RfidBarcode.Application.Common.BaseObjects
 {
-    public class BaseDataTableResponse<T> where T : class
+    public class BaseDataTableResponse<T> : BaseResponse where T : class 
     {
         public string? Draw { get; set; } = null!;
         public int RecordsFiltered { get; set; }
@@ -11,8 +11,13 @@
         public T Entity { get; set; } = null!;
         public bool Status { get; set; } = true;
         public string? Note { get; set; }
-        public string? Message { get; set; }
 
         public DateTime? LastUpdateOn { get; set; }
+
+        public BaseDataTableResponse()
+        {
+            this.Result = BaseResponse.RESULT_OK;
+            this.Message = "";
+        }
     }
 }

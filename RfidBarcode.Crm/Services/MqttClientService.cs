@@ -1,6 +1,6 @@
-﻿using MediatR;
+﻿using DocumentFormat.OpenXml.Vml.Office;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
@@ -10,8 +10,7 @@ using RfidBarcode.Application.Common.BaseObjects;
 using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Application.Operationals.Requests;
 using RfidBarcode.Application.Operationals.ViewModels;
-using RfidBarcode.Application.Settings.Queries;
-using RfidBarcode.Application.Settings.Requests;
+using RfidBarcode.Application.Settings.ViewModels;
 using RfidBarcode.Domain.Entities;
 using RfidBarcode.Domain.Services;
 using RfidBarcode.Infrastructure;
@@ -28,11 +27,12 @@ namespace RfidBarcode.Crm.Services
         private readonly IServiceScopeFactory _scopeFactory;
         private ICollection<Gate> gates;
         //mapping of topic + "/" + antena to LocationId
-        private Dictionary<string, long> mapLocations = new Dictionary<string, long>();
+        private Dictionary<string, LocationVM> mapLocations = new Dictionary<string, LocationVM>();
 
         private List<MqttTopicFilter> topics;
         private List<TagScannedLog> tagScannedLogs = new List<TagScannedLog>();
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private Dictionary<String, long> GateStatusUpdate = new Dictionary<String, long>();
 
         public MqttClientService(IServiceScopeFactory scopeFactory, IConfiguration config)
         {
@@ -67,13 +67,16 @@ namespace RfidBarcode.Crm.Services
                 try
                 {
                     ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    gates = await context.Gates.Include(x => x.GateMaps).ToListAsync();
+                    gates = await context.Gates.Include(x => x.GateMaps)
+                        .ThenInclude(x => x.NextLocation)
+                        .ToListAsync();
                     mapLocations.Clear();
                     foreach (var gate in gates)
                     {
                         foreach (var gateMap in gate.GateMaps)
                         {
-                            mapLocations.Add(gate.ClientId + "/" + gateMap.Antenna, gateMap.NextLocationId);
+                            mapLocations.Add(gate.ClientId + "/" + gateMap.Antenna, 
+                                new LocationVM() { Id = gateMap.NextLocationId, Name = gateMap.NextLocation.Name ?? "" });
                         }
                     }
                 }
@@ -91,13 +94,17 @@ namespace RfidBarcode.Crm.Services
 
         public DateTime? GetGateLastUpdate(string clientId)
         {
-            throw new NotImplementedException();
+            var unixTimeMillis = GateStatusUpdate.GetValueOrDefault(clientId);
+            DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimeMillis);
+            DateTime dateTime = dateTimeOffset.LocalDateTime; // or .UtcDateTime if you prefer UTC
+            return dateTime;
         }
 
         public async Task mqttClient_ConnectedAsync(MqttClientConnectedEventArgs arg)
         {
             //susbcribe
             topics = new List<MqttTopicFilter>();
+            GateStatusUpdate.Clear();
             foreach (var gate in gates)
             {
                 var topicFilter = new MqttTopicFilterBuilder()
@@ -105,6 +112,7 @@ namespace RfidBarcode.Crm.Services
                         .WithExactlyOnceQoS() // <-- This sets the QoS of the subscription
                         .Build();
                 topics.Add(topicFilter);
+                GateStatusUpdate.Add(gate.ClientId, 0);
             }
 
             await _mqttClient.SubscribeAsync(topics);
@@ -172,22 +180,22 @@ namespace RfidBarcode.Crm.Services
                     using (var scope = _scopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
 
                         foreach (var tagSummary in gateData.Data)
                         {
-                            long locationId = 0;
+                            LocationVM? location = null;
                             var prevAntenna = "";
                             foreach (var data in tagSummary.Data)
                             {
                                 if (prevAntenna != data.Ant)
                                 {
-                                    if (mapLocations.TryGetValue(topic + "/" + data.Ant, out locationId))
+                                    if (mapLocations.TryGetValue(topic + "/" + data.Ant, out location))
                                     {
                                         prevAntenna = data.Ant;
                                     }
                                     else
                                     {
-
                                         Log.Information("LOCATION NOT FOUND! SKIP LOG");
                                         Debug.WriteLine("LOCATION NOT FOUND! SKIP LOG");
                                         continue;
@@ -197,9 +205,9 @@ namespace RfidBarcode.Crm.Services
                                 var log = tagScannedLogs.Where(x => x.Epc == tagSummary.Epc).FirstOrDefault();
 
                                 //existing tag already detected
-                                if (log != null)
+                                if (log != null && location != null)
                                 {
-                                    if (log.LocationId == locationId)
+                                    if (log.LocationId == location.Id)
                                     {
                                         //still in the same location
                                         if (data.Time - log.LastScanned < 5000)
@@ -212,7 +220,7 @@ namespace RfidBarcode.Crm.Services
                                                 {
                                                     //detected for more than 1 second
                                                     log.End = log.LastScanned;
-                                                    log = await UpdateTagLocationLog(mediator, log);
+                                                    log = await UpdateTagLocationLog(mediator, context, log);
                                                 }
                                             }
                                         }
@@ -220,7 +228,7 @@ namespace RfidBarcode.Crm.Services
                                         {
                                             //tag already gone, record in database and renew the data
                                             log.End = log.LastScanned;
-                                            await UpdateTagLocationLog(mediator, log);
+                                            await UpdateTagLocationLog(mediator, context, log);
                                             log = new TagScannedLog();
                                             log.Start = data.Time;
                                             log.LastScanned = data.Time;
@@ -235,9 +243,10 @@ namespace RfidBarcode.Crm.Services
                                         if (data.Time - log.End > 1000 || log.Id == 0)
                                         {
                                             log.End = log.LastScanned;
-                                            await UpdateTagLocationLog(mediator, log);
+                                            await UpdateTagLocationLog(mediator, context, log);
                                             log = new TagScannedLog();
-                                            log.LocationId = locationId;
+                                            log.LocationId = location.Id;
+                                            log.LocationName = location.Name;
                                             log.Start = data.Time;
                                             log.End = 0;
                                             log.LastScanned = data.Time;
@@ -255,7 +264,8 @@ namespace RfidBarcode.Crm.Services
                                         End = null,
                                         LastScanned = data.Time,
                                         Id = 0,
-                                        LocationId = locationId
+                                        LocationId = location != null ? location.Id : 0,
+                                        LocationName = location != null ? location.Name : ""
                                     };
                                     tagScannedLogs.Add(newLog);
                                 }
@@ -268,7 +278,7 @@ namespace RfidBarcode.Crm.Services
                         foreach (var log in removedLogs)
                         {
                             log.End = log.LastScanned;
-                            await UpdateTagLocationLog(mediator, log);
+                            await UpdateTagLocationLog(mediator, context, log);
                         }
                         tagScannedLogs.RemoveAll(x => x.LastScanned < (gateData.Time - 5000));
                     }
@@ -291,7 +301,7 @@ namespace RfidBarcode.Crm.Services
             }
         }
 
-        private async Task<TagScannedLog> UpdateTagLocationLog(IMediator mediator, TagScannedLog log)
+        private async Task<TagScannedLog> UpdateTagLocationLog(IMediator mediator, IApplicationDbContext context, TagScannedLog log)
         {
             try
             {
@@ -302,9 +312,29 @@ namespace RfidBarcode.Crm.Services
 
                         var cmdItem = new GetItemRequest(new ItemVM() { Epc = log.Epc });
                         var resItem = await mediator.Send(cmdItem);
-                        if (resItem.Result == BaseResponse.RESULT_OK && resItem.Data != null)
+                        if (resItem.Result == BaseResponse.RESULT_OK && resItem.Data != null && resItem.Data.SuratJalanP1Id == null)
                         {
                             log.ItemId = resItem.Data.Id;
+
+                            //update item location
+                            var prevLocationId = resItem.Data.LocationId;
+                            var newLocationId = log.LocationId;
+                            
+                            if (prevLocationId != newLocationId)
+                            {
+                                var itemMovement = new ItemMovement()
+                                {
+                                    ItemId = log.ItemId,
+                                    PrevLocationId = prevLocationId,
+                                    LocationId = newLocationId,
+                                    PrevLocationName = resItem.Data.LocationName,
+                                    LocationName = log.LocationName,
+                                    Source = ItemMovement.SOURCE_GATE,
+                                    TagLocationId = log.Id
+                                };
+                                await context.ItemMovements.AddAsync(itemMovement);
+                            }
+
                             //update the item location
                             resItem.Data.LocationId = log.LocationId;
                             if (resItem.Data.PrintCount == 0)
@@ -316,6 +346,7 @@ namespace RfidBarcode.Crm.Services
                             }
                             var cmd2 = new CreateItemRequest(resItem.Data);
                             var res2 = await mediator.Send(cmd2);
+
                         }
                         else
                         {
@@ -372,6 +403,15 @@ namespace RfidBarcode.Crm.Services
                         if (gateData != null)
                         {
                             await ProcessGateData(e.ApplicationMessage.Topic, gateData);
+
+                            if (GateStatusUpdate.ContainsKey(e.ApplicationMessage.Topic))
+                            {
+                                var prevValue = GateStatusUpdate[e.ApplicationMessage.Topic];
+                                if (prevValue < gateData.Time)
+                                {
+                                    GateStatusUpdate[e.ApplicationMessage.Topic] = gateData.Time;
+                                }
+                            }
                         }
                         //if (gateLog != null)
                         {

@@ -14,6 +14,9 @@ namespace RfidBarcode.Crm.Areas.Settings.Pages.Gates
         [BindProperty]
         public GateVM ViewModel { get; set; } = null!;
 
+        [BindProperty]
+        public long SuratJalanP1Id { get; set; }
+
         private readonly IMediator _mediator;
 
         public UpdateModel(IMediator mediator)
@@ -115,6 +118,7 @@ namespace RfidBarcode.Crm.Areas.Settings.Pages.Gates
 
             return new OkObjectResult(response);
         }
+
 
     }
 }

@@ -20,9 +20,9 @@ namespace RfidBarcode.Infrastructure.Configurations
                     RoleId = ApplicationRole.RoleAdministrator, //Administrator
                     AccessMenuId = AccessMenu.UserManagement,
                     CreatedBy = "system",
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = new DateTime(2025, 5, 12),
                     LastUpdateBy = "system",
-                    LastUpdateDate = DateTime.Now
+                    LastUpdateDate = new DateTime(2025, 5, 12)
                 }
             );
 
