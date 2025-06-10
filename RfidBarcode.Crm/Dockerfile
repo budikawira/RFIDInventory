@@ -1,7 +1,7 @@
 ﻿###########
 # syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
-ENV ASPNETCORE_ENVIRONMENT=Docker
+ENV ASPNETCORE_ENVIRONMENT=Demo
 # RUN apt-get update && apt-get install -y libgdiplus
 # RUN apt-get install -y nano
 

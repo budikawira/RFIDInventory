@@ -12,26 +12,29 @@
         var _token;
         var _url;
         return {
-        Init: ((token, url) => {
-        _token = token;
-        _url = url;
+                Init: ((token, url) => {
+            _token = token;
+            _url = url;
         }),
+
         Open: (() => {
-        jsFunction.RefreshTable();
-        $('#modal').modal('show');
+            jsFunction.RefreshTable();
+            $('#modal').modal('show');
         }),
+
         OpenFinalize: (() => {
             $('#modalFinalize').modal('show');
         }),
+
         Finalize: (() => {
-
             var isValid = 0;
-
             isValid += validateBlank('no');
+
             if (isValid > 0) {
                 Swal.fire('Fail', 'Please input all mandatory data', 'error');
                 return;
             }
+
             Swal.fire({
                 title: 'Finalisasi Surat Jalan?',
                 text: "Data tidak dapat diubah lagi!",
@@ -42,190 +45,130 @@
                 confirmButtonText: 'Ya, Finalisasi!',
                 cancelButtonText: 'Selesai'
             }).then((result) => {
-            if (result.isConfirmed) {
-                LoadingScreenFunction.Show();
-                $.ajax({
-                    type: "POST",
-                    url: "/SuratJalanP1s/Update?Handler=Finalize",
-                    data: {
-                        suratJalanP1Id: $('#suratJalanP1Id').val(),
-                        type: $('#type').val(),
-                        no: $('#no').val()
-                    },
-                    headers: {
-                        'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
-                    },
-                    success: function(objRes) {
-                        console.log('objRes >> ', objRes);
-                        LoadingScreenFunction.Hide();
-                        if (objRes.result == 0) {
-                            window.location.reload();
-                        } else {
-                            Swal.fire('Gagal Finalisasi!', objRes.message, 'error');
+                if (result.isConfirmed) {
+                    LoadingScreenFunction.Show();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/SuratJalanP1s/Update?Handler=Finalize",
+                        data: {
+                            suratJalanP1Id: $('#suratJalanP1Id').val(),
+                            type: $('#type').val(),
+                            no: $('#no').val()
+                        },
+                        headers: {
+                            'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                        },
+                        success: function(objRes) {
+                            console.log('objRes >> ', objRes);
+                            LoadingScreenFunction.Hide();
+
+                            if (objRes.result == 0) {
+                                window.location.reload();
+                            } else {
+                                Swal.fire('Gagal Finalisasi!', objRes.message, 'error');
+                            }
+                        },
+                        error: function(response) {
+                            console.log('response err >> ', response);
+                            LoadingScreenFunction.Hide();
+                            Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                        }
+                    });
+                }
+            });
+        }),
+        AddItems: (() => {
+            var itemIds = [];
+            $(".checkbox-input:checked").each(function() {
+                itemIds.push($(this).val());
+            });
+
+            LoadingScreenFunction.Show();
+
+            var dataParam = {
+                itemIds: itemIds,
+                suratJalanP1Id: $('#suratJalanP1Id').val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/SuratJalanP1s/Update?Handler=AddItems",
+                data: dataParam,
+                headers: {
+                    'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                },
+                success: function(objRes) {
+                    LoadingScreenFunction.Hide();
+                    $('#modal').modal('hide');
+                    SimplePageTable.GetTable().ajax.reload();
+                },
+                error: function(response) {
+                    console.log('response err >> ', response);
+                    LoadingScreenFunction.Hide();
+                    Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                }
+            });
+        }),
+
+        RefreshTable: (() => {
+            if (_gridModal == null) {
+                _gridModal = $('#gridModal').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    orderCellsTop: true,
+                    autoWidth: true,
+                    scrollX: true,
+                    ajax: {
+                        url: _url + '?Handler=RefreshDataModal',
+                        type: 'POST',
+                        headers: {
+                            'RequestVerificationToken': _token
+                        },
+                        data: function(d) {
+                            d.suratJalanP1Id = $('#suratJalanP1Id').val();
                         }
                     },
-                    error: function(response) {
-                        console.log('response err >> ', response);
-                        LoadingScreenFunction.Hide();
-                        Swal.fire('Error : ' + response.status, response.responseText, 'error');
-                    }
-                })
+                    columns: [
+                        {
+                            data: null,
+                            render: function(data, type, row, node) {
+                                return `<input class="form-check-input checkbox-input ms-3" type="checkbox" value="${data['id']}" id="cbInput" checked>`;
+                            }
+                        },
+                        { data: 'createdDateString', name: 'CreatedDate' },
+                        { data: 'locationName', name: 'LocationName' },
+                        { data: 'merk', name: 'Merk' },
+                        { data: 'kp', name: 'Kp' },
+                        { data: 'kode1', name: 'Kode1' },
+                        { data: 'kode2', name: 'Kode2' },
+                        { data: 'kode3', name: 'Kode3' },
+                        { data: 'kode4', name: 'Kode4' },
+                        { data: 'oz', name: 'Oz' },
+                        { data: 'grade', name: 'Grade' },
+                        { data: 'point', name: 'Point' },
+                        { data: 'yard', name: 'Yard' },
+                        { data: 'kg', name: 'Kg' },
+                        { data: 'lebar', name: 'Lebar' },
+                        { data: 'k', name: 'K' },
+                        { data: 'susutLusi', name: 'SusutLusi' },
+                        { data: 'serialNumber', name: 'SerialNumber' },
+                        { data: 'k3l', name: 'K3l' },
+                        { data: 'inisial', name: 'Inisial' },
+                        { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' }
+                    ],
+                    order: [[1, "asc"]],
+                    columnDefs: [{
+                        orderable: false,
+                        targets: 0
+                    }],
+                    pageLength: 25
+                });
+            } else {
+                _gridModal.ajax.reload(null, false);
             }
         })
-    }),
-        AddItems: (() => {
-        var itemIds = [];
-        $(".checkbox-input:checked").each(function() {
-        //console.log('cb value: ' + $(this).val());
-        itemIds.push($(this).val());
-        });
-
-        LoadingScreenFunction.Show();
-        var dataParam = {
-        itemIds: itemIds,
-        suratJalanP1Id: $('#suratJalanP1Id').val()
-        };
-
-        $.ajax({
-        type: "POST",
-        url: "/SuratJalanP1s/Update?Handler=AddItems",
-        data: dataParam,
-        headers: {
-        'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
-        },
-        success: function(objRes) {
-        LoadingScreenFunction.Hide();
-        $('#modal').modal('hide');
-        SimplePageTable.GetTable().ajax.reload();
-        },
-        error: function(response) {
-        console.log('response err >> ', response);
-        LoadingScreenFunction.Hide();
-        Swal.fire('Error : ' + response.status, response.responseText, 'error');
-        }
-        })
-        }),
-        RefreshTable: (() => {
-        if (_gridModal == null) {
-        _gridModal = $('#gridModal').DataTable({
-        processing: true,
-        serverSide: true,
-        orderCellsTop: true,
-        autoWidth: true,
-        scrollX: true,
-        ajax: {
-        url: _url + '?Handler=RefreshDataModal',
-        type: 'POST',
-        headers: {
-        'RequestVerificationToken': _token
-        },
-        data: function(d) {
-        d.suratJalanP1Id = $('#suratJalanP1Id').val();
-        }
-        },
-        columns: [{
-        data: null,
-        render: function(data, type, row, node) {
-        var html = "<input class=\"form-check-input checkbox-input ms-3\" type=\"checkbox\" value=" + data['id'] + " id=\"cbInput\" checked>";
-        return html;
-        }
-        },
-        {
-        data: 'createdDateString',
-        name: 'CreatedDate'
-        },
-        {
-        data: 'locationName',
-        name: 'LocationName'
-        },
-        {
-        data: 'merk',
-        name: 'Merk'
-        },
-        {
-        data: 'kp',
-        name: 'Kp'
-        },
-        {
-        data: 'kode1',
-        name: 'Kode1'
-        },
-        {
-        data: 'kode2',
-        name: 'Kode2'
-        },
-        {
-        data: 'kode3',
-        name: 'Kode3'
-        },
-        {
-        data: 'kode4',
-        name: 'Kode4'
-        },
-        {
-        data: 'oz',
-        name: 'Oz'
-        },
-        {
-        data: 'grade',
-        name: 'Grade'
-        },
-        {
-        data: 'point',
-        name: 'Point'
-        },
-        {
-        data: 'yard',
-        name: 'Yard'
-        },
-        {
-        data: 'kg',
-        name: 'Kg'
-        },
-        {
-        data: 'lebar',
-        name: 'Lebar'
-        },
-        {
-        data: 'k',
-        name: 'K'
-        },
-        {
-        data: 'susutLusi',
-        name: 'SusutLusi'
-        },
-        {
-        data: 'serialNumber',
-        name: 'SerialNumber'
-        },
-        {
-        data: 'k3l',
-        name: 'K3l'
-        },
-        {
-        data: 'inisial',
-        name: 'Inisial'
-        },
-        {
-        data: 'tanggalBuatBarcodeString',
-        name: 'TanggalBuatBarcode'
-        },
-        ],
-        order: [
-        [1, "asc"]
-        ],
-        columnDefs: [{
-        orderable: false,
-        targets: 0
-        }],
-        pageLength: 25
-        });
-        } else {
-        _gridModal.ajax.reload(null, false);
-        }
-        })
-        }
-        })();
+    })();
     </script>
     <script>
         var hasDelete = @(Model.ViewModel.FinalizeDate == null ? "true" : "false");
@@ -281,7 +224,7 @@
 
         // Write content to the new window
         printWindow.document.write('<html><head><title>Invoice</title>');
-        printWindow.document.write('<style>body{font-family: Arial, sans-serif;} table{width: 100%; border-collapse: collapse;} th, td{border: 1px solid #ddd; padding: 8px;} th{background-color: #f4f4f4;} .cell-wrapper{min-height:20px;display:flex;align-items:center;box-sizing:border-box}</style>');
+        printWindow.document.write('<style>body{font-family: Arial, sans-serif;} table{width: 100%; border-collapse: collapse;} th, td{border: 0px solid #ddd; padding: 8px; text-align:center} th{background-color: #f4f4f4;} .cell-wrapper{min-height:20px;display:flex;align-items:center;box-sizing:border-box}</style>');
         printWindow.document.write('</head><body>');
         printWindow.document.write(content);
 

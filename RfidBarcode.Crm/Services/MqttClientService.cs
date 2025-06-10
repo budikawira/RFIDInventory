@@ -103,6 +103,7 @@ namespace RfidBarcode.Crm.Services
         public async Task mqttClient_ConnectedAsync(MqttClientConnectedEventArgs arg)
         {
             //susbcribe
+            
             topics = new List<MqttTopicFilter>();
             GateStatusUpdate.Clear();
             foreach (var gate in gates)
