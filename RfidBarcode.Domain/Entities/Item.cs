@@ -35,6 +35,8 @@ namespace RfidBarcode.Domain.Entities
         public long UserId { get; set; }
         //public int Koreksi { get; set; }
         //public int Print { get; set; } = 0;
+        public int? R { get; set; } // R = Roll
+        public string? IdentitasBenang { get; set; }
 
         public long? QcFinishUserId { get; set; }
         public DateTime? QcFinish { get; set; }

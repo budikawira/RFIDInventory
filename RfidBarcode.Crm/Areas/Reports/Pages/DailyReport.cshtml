@@ -1,0 +1,86 @@
+﻿@page
+@model RfidBarcode.Crm.Areas.Reports.Pages.DailyReportModel
+@{
+    ViewData["Title"] = "Laporan Harian";
+}
+
+@section Styles {
+    <style>
+        tr td:first-child {
+            width: 30px;
+            white-space: nowrap;
+        }
+    </style>
+}
+
+@section Scripts
+{
+    <script>
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/Reports/DailyReport');
+        SimplePageTable.InitTable({
+            hasAction: false,
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, row, node) {
+                        var button = `<span class="text-nowrap d-inline-block">`;
+                        button += `<a rel="tooltip" data-bs-placement="top" title="Download" class="btn btn-sm btn-soft-primary me-1 mb-1" href="/Reports/DailyReport?handler=Download&id=` + data['id'] + `">`;
+                        button += '<i class="fa fa-download"> </i>';
+                        button += '</a>';
+                        button += '</span>';
+                        return button;
+                    },
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('align-middle ps-3 text-end Edit');
+                    }
+                },
+                { data: 'currentDateString', name: 'CurrentDate' },
+            ],
+            orders: [[1, 'desc']],
+            dom: 'rtip'
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                        <button type="button" class="btn btn-primary" onclick="view()">
+                            <i class="fas fa-eye me-1"></i> View
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="download()">
+                            <i class="fas fa-file-excel me-1"></i>  Download
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Tanggal Laporan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

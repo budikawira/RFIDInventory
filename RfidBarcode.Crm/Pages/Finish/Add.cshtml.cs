@@ -69,7 +69,7 @@ namespace RfidBarcode.Crm.Pages.Finish
                 var cmd = new CreateItemsRequest(listVM);
                 response = await _mediator.Send(cmd);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 response.Message = "Invalid row " + rowIndex;
             }

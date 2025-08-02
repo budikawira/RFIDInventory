@@ -1,14 +1,16 @@
-﻿using RfidBarcode.Application.Users.ViewModels;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.IdentityModel.Tokens;
+using RfidBarcode.Application.Operationals.ViewModels;
+using RfidBarcode.Application.Reports.ViewModels;
+using RfidBarcode.Application.Users.ViewModels;
+using RfidBarcode.Domain.Entities;
 using System.Data;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
-using RfidBarcode.Domain.Entities;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using RfidBarcode.Application.Operationals.ViewModels;
 
 namespace RfidBarcode.Application.Common.Libs
 {
@@ -193,9 +195,155 @@ namespace RfidBarcode.Application.Common.Libs
             return string.Format("0505{0:X20}", item.Id);
         }
 
-        //public static string GenerateSuratJalanNo(string type, int year, int month, int count)
-        //{
-        //    return type + "/" + month.ToString("D2") + "/" + year.ToString() + "/" + count.ToString("D4");
-        //}
+        public static XLWorkbook? CreateExcelDailyReport(Dictionary<string, List<DailySummaryVM>> rows)
+        {
+            XLWorkbook wb = new XLWorkbook();
+            try
+            {
+                var ws = wb.Worksheets.Add("Report");
+                var colSA = 1;
+                var colIn = 1;
+                var colOut = 1;
+                var colKode = 1;
+                int rowIndex = 1;
+                var lastCol = 0;
+
+                //create header
+                var colIndex = 1;
+                ws.Cell(rowIndex, colIndex++).Value = "KP";
+                ws.Cell(rowIndex, colIndex++).Value = "Identitas";
+                ws.Cell(rowIndex, colIndex++).Value = "OZ";
+                ws.Cell(rowIndex, colIndex++).Value = "I";
+                ws.Cell(rowIndex, colIndex++).Value = ""; //Kode General
+                ws.Cell(rowIndex, colIndex++).Value = "Kategori";
+                colKode = colIndex;
+                ws.Cell(rowIndex, colIndex++).Value = "Kode";
+                ws.Cell(rowIndex, colIndex++).Value = "K";
+                colSA = colIndex;
+                ws.Cell(rowIndex, colIndex++).Value = "SA";
+                ws.Cell(rowIndex, colIndex++).Value = "SA";
+                ws.MergedRanges.Add(ws.Range(rowIndex, colIndex - 2, rowIndex, colIndex - 1));
+                colIn = colIndex;
+                ws.Cell(rowIndex, colIndex++).Value = "In";
+                ws.Cell(rowIndex, colIndex++).Value = "In";
+                ws.MergedRanges.Add(ws.Range(rowIndex, colIndex - 2, rowIndex, colIndex - 1));
+                colOut = colIndex;
+                ws.Cell(rowIndex, colIndex++).Value = "Out";
+                ws.Cell(rowIndex, colIndex++).Value = "Out";
+                ws.MergedRanges.Add(ws.Range(rowIndex, colIndex - 2, rowIndex, colIndex - 1));
+                ws.Cell(rowIndex, colIndex++).Value = "YDS";
+                ws.Cell(rowIndex, colIndex++).Value = "T.S.";
+                ws.Cell(rowIndex, colIndex++).Value = "P";
+                ws.Cell(rowIndex, colIndex++).Value = "GR";
+                ws.Cell(rowIndex, colIndex++).Value = "";
+                ws.Cell(rowIndex, colIndex++).Value = "S A K";
+                ws.Cell(rowIndex, colIndex).Value = "";
+                lastCol = colIndex;
+
+                rowIndex++;
+                colIndex = 1;
+                while (colIndex < colSA)
+                {
+                    ws.MergedRanges.Add(ws.Range(ws.Cell(rowIndex - 1, colIndex), ws.Cell(rowIndex, colIndex)));
+                    colIndex++;
+                }
+                ws.Cell(rowIndex, colSA).Value = "R";
+                ws.Cell(rowIndex, colSA + 1).Value = "Yds";
+                ws.Cell(rowIndex, colIn).Value = "R";
+                ws.Cell(rowIndex, colIn + 1).Value = "Yds";
+                ws.Cell(rowIndex, colOut).Value = "R";
+                ws.Cell(rowIndex, colOut + 1).Value = "Yds";
+                colIndex = colOut + 2;
+                while (colIndex <= lastCol)
+                {
+                    ws.MergedRanges.Add(ws.Range(ws.Cell(rowIndex - 1, colIndex), ws.Cell(rowIndex, colIndex)));
+                    colIndex++;
+                }
+
+                var rowHeader = ws.Range(ws.Cell(rowIndex - 1, 1), ws.Cell(rowIndex, lastCol));
+                rowHeader.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                rowHeader.Style.Font.Bold = true;
+                rowHeader.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+
+                rowIndex++;
+
+                string? previousKategori = "";
+                foreach (var key in rows.Keys)
+                {
+                    var list = rows[key];
+                    if (list == null || list.Count == 0)
+                        continue;
+                    if (previousKategori != list[0].Kategori)
+                    {
+                        ws.Cell(rowIndex, colKode - 1).Value = list[0].Kategori;
+                        rowIndex++;
+                    }
+
+                    ws.Cell(rowIndex, colKode - 1).Value = list[0].Kategori;
+                    ws.Cell(rowIndex, colKode).Value = key;
+                    ws.Cell(rowIndex, colKode).Style.Fill.BackgroundColor = XLColor.Yellow;
+                    rowIndex++;
+                    foreach (var row in list)
+                    {
+                        colIndex = 1;
+
+                        var SaR = row.R - row.InR + row.OutR;
+                        var SaYard = row.Yard - row.InYard + row.OutYard;
+                        ws.Cell(rowIndex, colIndex++).Value = row.KP;
+                        ws.Cell(rowIndex, colIndex++).Value = row.Identitas;
+                        ws.Cell(rowIndex, colIndex++).Value = row.OZ;
+                        ws.Cell(rowIndex, colIndex++).Value = row.KodeI;
+                        ws.Cell(rowIndex, colIndex++).Value = row.KodeGeneral;
+                        ws.Cell(rowIndex, colIndex++).Value = row.Kategori;
+                        ws.Cell(rowIndex, colIndex++).Value = row.Kode;
+                        ws.Cell(rowIndex, colIndex++).Value = row.K;
+                        //SA
+                        ws.Cell(rowIndex, colIndex++).Value = SaR > 0 ? SaR : "";
+                        ws.Cell(rowIndex, colIndex++).Value = SaYard > 0 ? SaYard : "";
+                        //In
+                        ws.Cell(rowIndex, colIndex++).Value = row.InR > 0 ? row.InR : "";
+                        ws.Cell(rowIndex, colIndex++).Value = row.InYard > 0 ? row.InYard : "";
+                        //Out
+                        ws.Cell(rowIndex, colIndex++).Value = row.OutR > 0 ? row.OutR : "";
+                        ws.Cell(rowIndex, colIndex++).Value = row.OutYard > 0 ? row.OutYard : "";
+                        //YDS
+                        ws.Cell(rowIndex, colIndex++).Value = row.Yard > 0 ? row.Yard : "";
+                        //T.S.
+                        ws.Cell(rowIndex, colIndex++).Value = row.TS;
+                        //P
+                        ws.Cell(rowIndex, colIndex++).Value = row.P;
+                        //GR
+                        ws.Cell(rowIndex, colIndex++).Value = row.GR;
+                        //SAK
+                        ws.Cell(rowIndex, colIndex++).Value = row.SAK;
+                        //Total
+                        ws.Cell(rowIndex, colIndex).Value = row.Total;
+                        rowIndex++;
+                    }
+                }
+                ws.Columns(1, lastCol).AdjustToContents();
+                for (int i = 1; i <= lastCol; i++)
+                {
+                    var w = ws.Column(i).Width;
+                    if (w < 8)
+                    {
+                        ws.Column(i).Width = 8;
+                    }
+                }
+
+                var rowTable = ws.Range(ws.Cell(1, 1), ws.Cell(rowIndex-1, lastCol));
+                rowTable.Style.Border.BottomBorder = XLBorderStyleValues.Medium;
+                rowTable.Style.Border.TopBorder = XLBorderStyleValues.Medium;
+                rowTable.Style.Border.LeftBorder = XLBorderStyleValues.Medium;
+                rowTable.Style.Border.RightBorder = XLBorderStyleValues.Medium;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return wb;
+        }
     }
 }

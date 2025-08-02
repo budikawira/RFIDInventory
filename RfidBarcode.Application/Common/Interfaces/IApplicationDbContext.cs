@@ -28,6 +28,7 @@ namespace RfidBarcode.Application.Common.Interfaces
         public DbSet<StockOpnameDetail> StockOpnameDetails { get; set; }
 
         public DbSet<SuratJalanP1> SuratJalanP1s { get; set; }
+        public DbSet<DailyReport> DailyReports { get; set; }
 
         public DatabaseFacade Db { get; }
 

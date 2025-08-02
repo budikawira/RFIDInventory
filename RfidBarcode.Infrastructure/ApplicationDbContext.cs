@@ -35,6 +35,7 @@ namespace RfidBarcode.Infrastructure
         public DbSet<StockOpnameDetail> StockOpnameDetails { get; set; }
 
         public DbSet<SuratJalanP1> SuratJalanP1s { get; set; }
+        public DbSet<DailyReport> DailyReports { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IUserResolverService userService)

@@ -85,6 +85,7 @@ namespace RFIDTracking.Pages.Shared.Components.SidebarMenu
             };
             groupReport.MenuItems.Add(menuReportReceived);
 
+            groupReport.MenuItems.Add(new MenuItem() { Label = "Laporan Harian", Icon="file-text", Href = "/Reports/DailyReport/" });
             Param.MenuGroups.Add(groupReport);
             #endregion
 

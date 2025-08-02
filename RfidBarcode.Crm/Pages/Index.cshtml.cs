@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,10 +6,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using RfidBarcode.Application.Common.BaseObjects;
 using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Application.Dashboards.Requests;
+using RfidBarcode.Application.Reports.Handlers;
+using RfidBarcode.Application.Reports.Requests;
+using RfidBarcode.Application.Reports.ViewModels;
 using RfidBarcode.Application.Settings.Queries;
 using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Crm.Common.ViewModels;
 using RfidBarcode.Infrastructure;
+using System.Threading.Tasks;
 
 namespace RfidBarcode.Crm.Pages
 {
@@ -24,12 +29,6 @@ namespace RfidBarcode.Crm.Pages
             _mediator = mediator;
             _mqtt = mqtt;
             _connectionString = config.GetConnectionString("DefaultConnection") ?? "";
-        }
-
-
-        public void OnGet()
-        {
-
         }
 
         public async Task<IActionResult> OnPostGateStatusAsync()

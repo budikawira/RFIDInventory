@@ -1,14 +1,15 @@
-using RfidBarcode.Application;
-using RfidBarcode.Application.Common;
-using RfidBarcode.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
-using System.Globalization;
-using Serilog;
+using Microsoft.EntityFrameworkCore;
+using Quartz;
+using RfidBarcode.Application;
+using RfidBarcode.Application.Common;
 using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Crm.Services;
+using RfidBarcode.Infrastructure;
+using Serilog;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,23 @@ builder.Services.AddSingleton<IHostedService, IMqttClientService>(serviceProvide
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddControllers();
+
+builder.Services.AddQuartz(q =>
+{
+    var jobDailyReportKey = new JobKey("DailyReportJob");
+    q.AddJob<DailyReportJob>(opts => opts.WithIdentity(jobDailyReportKey));
+    var cron = builder.Configuration["Cron:DailyReportJob"];
+    if (cron != null)
+    {
+        q.AddTrigger(opts => opts
+            .ForJob(jobDailyReportKey)
+            .WithIdentity("DailyReportJob-trigger")
+            .WithCronSchedule(cron)
+        );
+    }
+
+});
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
