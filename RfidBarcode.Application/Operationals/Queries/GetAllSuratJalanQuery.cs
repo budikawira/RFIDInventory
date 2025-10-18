@@ -9,9 +9,9 @@ using System.Linq.Dynamic.Core;
 
 namespace RfidBarcode.Application.Operationals.Queries
 {
-    public class GetAllSuratJalanP1Query : BaseHandler, IRequestHandler<GetAllSuratJalanP1Request, BaseDataTableResponse<SuratJalanP1VM>>
+    public class GetAllSuratJalanQuery : BaseHandler, IRequestHandler<GetAllSuratJalanP1Request, BaseDataTableResponse<SuratJalanP1VM>>
     {
-        public GetAllSuratJalanP1Query(IApplicationDbContext context, IMapper mapper)
+        public GetAllSuratJalanQuery(IApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

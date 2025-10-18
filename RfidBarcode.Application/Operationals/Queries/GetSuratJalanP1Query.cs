@@ -9,7 +9,7 @@ using System.Linq.Dynamic.Core;
 
 namespace RfidBarcode.Application.Operationals.Queries
 {
-    public class GetSuratJalanP1Query : BaseHandler, IRequestHandler<GetSuratJalanP1Request, BaseObjectResponse<SuratJalanP1VM>>
+    public class GetSuratJalanP1Query : BaseHandler, IRequestHandler<GetSuratJalanRequest, BaseObjectResponse<SuratJalanP1VM>>
     {
         public GetSuratJalanP1Query(IApplicationDbContext context, IMapper mapper)
         {
@@ -17,7 +17,7 @@ namespace RfidBarcode.Application.Operationals.Queries
             _mapper = mapper;
         }
 
-        public async Task<BaseObjectResponse<SuratJalanP1VM>> Handle(GetSuratJalanP1Request request, CancellationToken cancellationToken)
+        public async Task<BaseObjectResponse<SuratJalanP1VM>> Handle(GetSuratJalanRequest request, CancellationToken cancellationToken)
         {
             var response = new BaseObjectResponse<SuratJalanP1VM>();
 

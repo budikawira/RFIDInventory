@@ -8,166 +8,168 @@
 {
     <script>
         let jsFunction = (() => {
-        var _gridModal;
-        var _token;
-        var _url;
+            var _gridModal;
+            var _token;
+            var _url;
         return {
-                Init: ((token, url) => {
-            _token = token;
-            _url = url;
-        }),
+            Init: ((token, url) => {
+                _token = token;
+                _url = url;
+            }),
 
-        Open: (() => {
-            jsFunction.RefreshTable();
-            $('#modal').modal('show');
-        }),
+            Open: (() => {
+                jsFunction.RefreshTable();
+                $('#modal').modal('show');
+            }),
 
-        OpenFinalize: (() => {
-            $('#modalFinalize').modal('show');
-        }),
+            OpenFinalize: (() => {
+                $('#modalFinalize').modal('show');
+            }),
+        
+            Finalize: (() => {
+                var isValid = 0;
+                isValid += validateBlank('no');
 
-        Finalize: (() => {
-            var isValid = 0;
-            isValid += validateBlank('no');
-
-            if (isValid > 0) {
-                Swal.fire('Fail', 'Please input all mandatory data', 'error');
-                return;
-            }
-
-            Swal.fire({
-                title: 'Finalisasi Surat Jalan?',
-                text: "Data tidak dapat diubah lagi!",
-                icon: 'success',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Finalisasi!',
-                cancelButtonText: 'Selesai'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    LoadingScreenFunction.Show();
-
-                    $.ajax({
-                        type: "POST",
-                        url: "/SuratJalanP1s/Update?Handler=Finalize",
-                        data: {
-                            suratJalanP1Id: $('#suratJalanP1Id').val(),
-                            type: $('#type').val(),
-                            no: $('#no').val()
-                        },
-                        headers: {
-                            'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
-                        },
-                        success: function(objRes) {
-                            console.log('objRes >> ', objRes);
-                            LoadingScreenFunction.Hide();
-
-                            if (objRes.result == 0) {
-                                window.location.reload();
-                            } else {
-                                Swal.fire('Gagal Finalisasi!', objRes.message, 'error');
-                            }
-                        },
-                        error: function(response) {
-                            console.log('response err >> ', response);
-                            LoadingScreenFunction.Hide();
-                            Swal.fire('Error : ' + response.status, response.responseText, 'error');
-                        }
-                    });
+                if (isValid > 0) {
+                    Swal.fire('Fail', 'Please input all mandatory data', 'error');
+                    return;
                 }
-            });
-        }),
-        AddItems: (() => {
-            var itemIds = [];
-            $(".checkbox-input:checked").each(function() {
-                itemIds.push($(this).val());
-            });
 
-            LoadingScreenFunction.Show();
+                Swal.fire({
+                    title: 'Finalisasi Surat Jalan?',
+                    text: "Data tidak dapat diubah lagi!",
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Finalisasi!',
+                    cancelButtonText: 'Selesai'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        LoadingScreenFunction.Show();
 
-            var dataParam = {
-                itemIds: itemIds,
-                suratJalanP1Id: $('#suratJalanP1Id').val()
-            };
+                        $.ajax({
+                            type: "POST",
+                            url: "/SuratJalanP1s/Update?Handler=Finalize",
+                            data: {
+                                suratJalanP1Id: $('#suratJalanP1Id').val(),
+                                type: $('#type').val(),
+                                no: $('#no').val(),
+                                sequence: $('#sequence').val()
+                            },
+                            headers: {
+                                'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                            },
+                            success: function(objRes) {
+                                console.log('objRes >> ', objRes);
+                                LoadingScreenFunction.Hide();
 
-            $.ajax({
-                type: "POST",
-                url: "/SuratJalanP1s/Update?Handler=AddItems",
-                data: dataParam,
-                headers: {
-                    'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
-                },
-                success: function(objRes) {
-                    LoadingScreenFunction.Hide();
-                    $('#modal').modal('hide');
-                    SimplePageTable.GetTable().ajax.reload();
-                },
-                error: function(response) {
-                    console.log('response err >> ', response);
-                    LoadingScreenFunction.Hide();
-                    Swal.fire('Error : ' + response.status, response.responseText, 'error');
-                }
-            });
-        }),
-
-        RefreshTable: (() => {
-            if (_gridModal == null) {
-                _gridModal = $('#gridModal').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    orderCellsTop: true,
-                    autoWidth: true,
-                    scrollX: true,
-                    ajax: {
-                        url: _url + '?Handler=RefreshDataModal',
-                        type: 'POST',
-                        headers: {
-                            'RequestVerificationToken': _token
-                        },
-                        data: function(d) {
-                            d.suratJalanP1Id = $('#suratJalanP1Id').val();
-                        }
-                    },
-                    columns: [
-                        {
-                            data: null,
-                            render: function(data, type, row, node) {
-                                return `<input class="form-check-input checkbox-input ms-3" type="checkbox" value="${data['id']}" id="cbInput" checked>`;
+                                if (objRes.result == 0) {
+                                    window.location.reload();
+                                } else {
+                                    Swal.fire('Gagal Finalisasi!', objRes.message, 'error');
+                                }
+                            },
+                            error: function(response) {
+                                console.log('response err >> ', response);
+                                LoadingScreenFunction.Hide();
+                                Swal.fire('Error : ' + response.status, response.responseText, 'error');
                             }
-                        },
-                        { data: 'createdDateString', name: 'CreatedDate' },
-                        { data: 'locationName', name: 'LocationName' },
-                        { data: 'merk', name: 'Merk' },
-                        { data: 'kp', name: 'Kp' },
-                        { data: 'kode1', name: 'Kode1' },
-                        { data: 'kode2', name: 'Kode2' },
-                        { data: 'kode3', name: 'Kode3' },
-                        { data: 'kode4', name: 'Kode4' },
-                        { data: 'oz', name: 'Oz' },
-                        { data: 'grade', name: 'Grade' },
-                        { data: 'point', name: 'Point' },
-                        { data: 'yard', name: 'Yard' },
-                        { data: 'kg', name: 'Kg' },
-                        { data: 'lebar', name: 'Lebar' },
-                        { data: 'k', name: 'K' },
-                        { data: 'susutLusi', name: 'SusutLusi' },
-                        { data: 'serialNumber', name: 'SerialNumber' },
-                        { data: 'k3l', name: 'K3l' },
-                        { data: 'inisial', name: 'Inisial' },
-                        { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' }
-                    ],
-                    order: [[1, "asc"]],
-                    columnDefs: [{
-                        orderable: false,
-                        targets: 0
-                    }],
-                    pageLength: 25
+                        });
+                    }
                 });
-            } else {
-                _gridModal.ajax.reload(null, false);
-            }
-        })
+            }),
+            AddItems: (() => {
+                var itemIds = [];
+                $(".checkbox-input:checked").each(function() {
+                    itemIds.push($(this).val());
+                });
+
+                LoadingScreenFunction.Show();
+
+                var dataParam = {
+                    itemIds: itemIds,
+                    suratJalanP1Id: $('#suratJalanP1Id').val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/SuratJalanP1s/Update?Handler=AddItems",
+                    data: dataParam,
+                    headers: {
+                        'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                    },
+                    success: function(objRes) {
+                        LoadingScreenFunction.Hide();
+                        $('#modal').modal('hide');
+                        SimplePageTable.GetTable().ajax.reload();
+                    },
+                    error: function(response) {
+                        console.log('response err >> ', response);
+                        LoadingScreenFunction.Hide();
+                        Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                    }
+                });
+            }),
+
+            RefreshTable: (() => {
+                if (_gridModal == null) {
+                    _gridModal = $('#gridModal').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        orderCellsTop: true,
+                        autoWidth: true,
+                        scrollX: true,
+                        ajax: {
+                            url: _url + '?Handler=RefreshDataModal',
+                            type: 'POST',
+                            headers: {
+                                'RequestVerificationToken': _token
+                            },
+                            data: function(d) {
+                                d.suratJalanP1Id = $('#suratJalanP1Id').val();
+                            }
+                        },
+                        columns: [
+                            {
+                                data: null,
+                                render: function(data, type, row, node) {
+                                    return `<input class="form-check-input checkbox-input ms-3" type="checkbox" value="${data['id']}" id="cbInput" checked>`;
+                                }
+                            },
+                            { data: 'createdDateString', name: 'CreatedDate' },
+                            { data: 'locationName', name: 'LocationName' },
+                            { data: 'merk', name: 'Merk' },
+                            { data: 'kp', name: 'Kp' },
+                            { data: 'kode1', name: 'Kode1' },
+                            { data: 'kode2', name: 'Kode2' },
+                            { data: 'kode3', name: 'Kode3' },
+                            { data: 'kode4', name: 'Kode4' },
+                            { data: 'oz', name: 'Oz' },
+                            { data: 'grade', name: 'Grade' },
+                            { data: 'point', name: 'Point' },
+                            { data: 'yard', name: 'Yard' },
+                            { data: 'kg', name: 'Kg' },
+                            { data: 'lebar', name: 'Lebar' },
+                            { data: 'k', name: 'K' },
+                            { data: 'susutLusi', name: 'SusutLusi' },
+                            { data: 'serialNumber', name: 'SerialNumber' },
+                            { data: 'k3l', name: 'K3l' },
+                            { data: 'inisial', name: 'Inisial' },
+                            { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' }
+                        ],
+                        order: [[1, "asc"]],
+                        columnDefs: [{
+                            orderable: false,
+                            targets: 0
+                        }],
+                        pageLength: 25
+                    });
+                } else {
+                    _gridModal.ajax.reload(null, false);
+                }
+            }) 
+        }
     })();
     </script>
     <script>
@@ -208,33 +210,96 @@
         jsFunction.Init($('@Html.AntiForgeryToken()').val(), '/SuratJalanP1s/Update');
 
 
+        let seqPrefix;
+
         $(document).ready(function () {
-        $(".checkbox-input-all").change(function () {
-        $(".checkbox-input").prop('checked', $(this).prop("checked"));
+            $(".checkbox-input-all").change(function () {
+                $(".checkbox-input").prop('checked', $(this).prop("checked"));
+            });
+
+            $('#type').change(function () {
+                var selectedValue = $('#type').val();
+                $('#noPrefixLabel').text(selectedValue + '/');
+
+                var no = $('#no').val();
+                if (no.length >= 2) {
+                    refreshSequenceNo();
+                }
+            });
+
+            $('#no').on('input', function() {
+                var no = $('#no').val();
+                if (no.length >= 2) {
+                    var newSeqPrefix = no.substring(0, 2);
+                    if (seqPrefix != newSeqPrefix) {
+                        seqPrefix = newSeqPrefix;
+                        refreshSequenceNo();
+                    }
+                    if (no.length == 4) {
+                        $('#btnFinalize').removeAttr('disabled');
+                    } else {
+                        $('#btnFinalize').attr('disabled',true);
+                    }
+                } else {
+                    seqPrefix = '';
+                    $('#btnFinalize').attr('disabled',true);
+                    $('#noPostfixLoading').hide();
+                    $('#noPostfixLabel').text('/00001');
+                    $('#sequence').val('1');
+                }
+            });
         });
-        });
+
+        function refreshSequenceNo() {
+            $('#noPostfixLoading').show();
+            $('#noPostfixLabel').text('');
+            $.ajax({
+                type: "POST",
+                url: "/SuratJalanP1s/Update?Handler=GetNoSequence",
+                data: {
+                    type: $('#type').val(),
+                    seqPrefix: seqPrefix
+                },
+                headers: {
+                    'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                },
+                success: function(objRes) {
+                    if (objRes.result == 0) {
+                        var no = objRes.data;
+                        $('#sequence').val(no);
+                        var padded = no.toString().padStart(5,'0');
+                        $('#noPostfixLabel').text('/' + padded);
+                        $('#noPostfixLoading').hide();
+                    }
+                },
+                error: function(response) {
+
+                }
+            })
+        }
     </script>
     <script>
         function openAndPrint() {
-        // Open a new window
-        const printWindow = window.open('', '', 'width=800,height=600');
+            // Open a new window
+            const printWindow = window.open('', '', 'width=800,height=600');
 
-        // Get the content from the print section
-        const content = document.getElementById('print-section').innerHTML;
+            // Get the content from the print section
+            const content = document.getElementById('print-section').innerHTML;
 
-        // Write content to the new window
-        printWindow.document.write('<html><head><title>Invoice</title>');
-        printWindow.document.write('<style>body{font-family: Arial, sans-serif;} table{width: 100%; border-collapse: collapse;} th, td{border: 0px solid #ddd; padding: 8px; text-align:center} th{background-color: #f4f4f4;} .cell-wrapper{min-height:20px;display:flex;align-items:center;box-sizing:border-box}</style>');
-        printWindow.document.write('</head><body>');
-        printWindow.document.write(content);
+            // Write content to the new window
+            printWindow.document.write('<html><head><title>Invoice</title>');
+            printWindow.document.write('<style>body{font-family: Arial, sans-serif;} table{width: 100%; border-collapse: collapse;} th, td{border: 0px solid #ddd; padding: 8px; text-align:center} th{background-color: #f4f4f4;} .cell-wrapper{min-height:20px;display:flex;align-items:center;box-sizing:border-box}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(content);
 
-        // Wait for the window to load, then trigger print dialog
-        printWindow.document.close();
-        printWindow.onload = function() {
-        printWindow.print();
-        printWindow.close(); // Optionally close the window after printing
-        };
+            // Wait for the window to load, then trigger print dialog
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.close(); // Optionally close the window after printing
+            };
         }
+
     </script>
 }
 
@@ -435,12 +500,23 @@
                         </select>
                     </div>
                     <div class="form-group mb-3">
-                        <label class="form-label" for="description">Nomor Surat Jalan</label>
-                        <input class="form-control modal-input" id="no" name="no" type="text" placeholder="contoh: P1/30/12/0001" />
+                        <label class="form-label" for="no">Nomor Surat Jalan</label>
+                        <div class="input-group mb-3">
+                             <span class="input-group-text" id="noPrefixLabel">P1/</span>
+                            <input class="form-control modal-input" id="no" name="no" type="text" style="max-width:100px" placeholder="cth: OL01" maxlength="4" />
+                            <span class="input-group-text d-flex justify-content-center align-items-center" style="width:100px">
+                                <span id="noPostfixLabel">/00001</span>
+                                <div class="spinner-grow spinner-grow-sm text-secondary" role="status" style="display:none" id="noPostfixLoading">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </span>
+
+                            <input type="hidden" class="modal-input" id="sequence" />
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" type="button" onclick="jsFunction.Finalize()">Finalisasi</button>
+                    <button id="btnFinalize" disabled class="btn btn-primary" type="button" onclick="jsFunction.Finalize()">Finalisasi</button>
                     <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>

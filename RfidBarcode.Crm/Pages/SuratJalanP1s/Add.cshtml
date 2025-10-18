@@ -33,7 +33,7 @@
                         render: function (data, type, row, node) {
                             var button = `<span class="text-nowrap d-inline-block">`;
                             button += `<button rel="tooltip" type="button" class="btn btn-sm btn-soft-primary me-1 mb-1" onclick="jsFunction.Create('` + node.row + `')">`;
-                            button += 'Buat K3';
+                            button += 'Buat Surat Jalan';
                             button += '</button>';
                             button += '</span>';
                             return button;
@@ -174,9 +174,12 @@
                     <div class="form-group col-sm-12 col-md-6 mb-3">
                         <label class="form-label">Lokasi</label>
                         <select class="form-select" id="LocationId">
-                            @foreach (var row in Model.Locations)
+                            @if (Model.Locations != null)
                             {
-                                <option value="@row.Id">@row.Name</option>   
+                                @foreach (var row in Model.Locations)
+                                {
+                                    <option value="@row.Id">@row.Name</option>
+                                }
                             }
                         </select>
                     </div>
@@ -184,7 +187,7 @@
                 <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
                     <thead>
                         <tr>
-                            <th class="sort" data-role="action">Action</th>
+                            <th class="sort" data-role="action" style="width:1%">Action</th>
                             <th class="sort" data-role="text">Kode</th>
                             <th class="sort" data-role="text">Grade</th>
                             <th class="sort" data-role="text">Jumlah</th>

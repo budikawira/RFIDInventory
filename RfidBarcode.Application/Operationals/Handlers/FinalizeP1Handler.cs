@@ -72,20 +72,38 @@ namespace RfidBarcode.Application.Operationals.Handlers
                     response.Message = "Jumlah Item melebihi kolom Surat Jalan";
                     return response;
                 }
+                if (request.Code.Length != 4)
+                {
+                    response.Message = "Kode No Surat Jalan harus 4 karakter.";
+                    return response;
+                }
+
+                var no = Helper.GenerateSuratJalanNo(request.Type, request.Code, request.Sequence);
 
                 //check if any duplicate no
-                if (await _context.SuratJalanP1s.Where(x => x.No == request.No).AnyAsync())
+                if (await _context.SuratJalanP1s.Where(x => x.No == no).AnyAsync())
                 {
+                    //try to regenerate with new sequence
+                    var noPrefix = $"{request.Type}/{request.Code}";
+                    var count = await _context.SuratJalanP1s
+                        .Where(sj => sj.No != null && sj.No.StartsWith(noPrefix))
+                        .OrderByDescending(sj => sj.Sequence)
+                        .Select(sj => sj.Sequence)
+                        .FirstOrDefaultAsync();
+                    request.Sequence = count + 1;
+                    no = Helper.GenerateSuratJalanNo(request.Type, request.Code, request.Sequence);
+
                     response.Message = "Nomor Surat Jalan sudah pernah digunakan!";
                     return response;
                 }
 
-                var k3 = await _context.SuratJalanP1s.Where(x => x.Id == request.SuratJalanP1Id).FirstOrDefaultAsync();
-                if (k3 != null)
+                var srtJalan = await _context.SuratJalanP1s.Where(x => x.Id == request.SuratJalanP1Id).FirstOrDefaultAsync();
+                if (srtJalan != null)
                 {
-                    k3.Type = request.Type;
-                    k3.No = request.No;
-                    k3.FinalizeDate = DateTime.Now;
+                    srtJalan.Type = request.Type;
+                    srtJalan.No = no;
+                    srtJalan.FinalizeDate = DateTime.Now;
+                    srtJalan.Sequence = request.Sequence;
 
                     await _context.SaveChangesAsync(cancellationToken);
                     response.Result = BaseResponse.RESULT_OK;

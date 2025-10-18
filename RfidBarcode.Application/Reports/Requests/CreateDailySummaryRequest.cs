@@ -9,6 +9,8 @@ namespace RfidBarcode.Application.Reports.Requests
     {
         public DateTime PreviousDate { get; set; }
         public DateTime CurrentDate { get; set; }
+        public string? Kode { get; set; }
+        public string? Grade { get; set; }
         public CreateDailySummaryRequest(DateTime previousDate, DateTime currentDate)
         {
             PreviousDate = previousDate;

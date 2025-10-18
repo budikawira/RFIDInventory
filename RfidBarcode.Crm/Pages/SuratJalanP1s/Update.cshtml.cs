@@ -52,7 +52,7 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 
         public async Task<IActionResult> OnGetAsync(long id)
         {
-            var cmd = new GetSuratJalanP1Request(new SuratJalanP1VM() { Id = id });
+            var cmd = new GetSuratJalanRequest(new SuratJalanP1VM() { Id = id });
             var res = await _mediator.Send(cmd);
             if (res.Result == BaseResponse.RESULT_OK && res.Data != null)
             {
@@ -183,10 +183,18 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
             return new OkObjectResult(response);
         }
 
-        public async Task<IActionResult> OnPostFinalizeAsync(string type, string no)
+        public async Task<IActionResult> OnPostFinalizeAsync(string type, string no, int sequence)
         {
             var list = new List<long>();
-            var cmd = new FinalizeP1Request(SuratJalanP1Id, type, no);
+            var cmd = new FinalizeP1Request(SuratJalanP1Id, type, no, sequence);
+            var response = await _mediator.Send(cmd);
+
+            return new OkObjectResult(response);
+        }
+
+        public async Task<IActionResult> OnPostGetNoSequenceAsync(string type, string seqPrefix)
+        {
+            var cmd = new GetSuratJalanSequenceRequest(type, seqPrefix);
             var response = await _mediator.Send(cmd);
 
             return new OkObjectResult(response);

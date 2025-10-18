@@ -115,24 +115,6 @@ namespace RfidBarcode.Infrastructure
 
             services.AddHttpClient();
 
-            services.AddQuartz(q =>
-            {
-                //Sync to Tracking App
-                //var job1 = new JobKey("SyncTrackingItemJob");
-                //q.AddJob<SyncTrackingItemJob>(opts => opts.WithIdentity(job1));
-                //var cron = configuration["Cron:SyncTrackingItemJob"];
-                //if (cron != null)
-                //{
-                //    q.AddTrigger(opts => opts
-                //        .ForJob(job1)
-                //        .WithIdentity("SyncTrackingItemJob-trigger")
-                //        .WithCronSchedule(cron)
-                //    );
-                //}
-            });
-
-            services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
             return services;
         }
     }

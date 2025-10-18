@@ -47,6 +47,11 @@ namespace RfidBarcode.Application.Common.Libs
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public static string GenerateSuratJalanNo(string type, string code, int sequence)
+        {
+            return $"{type}/{code}/{sequence:D5}";
+        }
+
         public static bool ValidateSuratJalanColumns(List<ItemVM> rows)
         {
             var kps = rows.GroupBy(x => x.Kp)
@@ -345,5 +350,6 @@ namespace RfidBarcode.Application.Common.Libs
 
             return wb;
         }
+
     }
 }

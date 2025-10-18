@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using RfidBarcode.Application;
 using RfidBarcode.Application.Common;
@@ -10,6 +11,7 @@ using RfidBarcode.Crm.Services;
 using RfidBarcode.Infrastructure;
 using Serilog;
 using System.Globalization;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +41,6 @@ builder.Services.AddSingleton<IHostedService, IMqttClientService>(serviceProvide
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddControllers();
-
 builder.Services.AddQuartz(q =>
 {
     var jobDailyReportKey = new JobKey("DailyReportJob");
@@ -62,9 +63,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
     app.Use(async (context, next) =>
     {
         context.Response.Headers.Remove("ASPNETCORE-BROWSER-TOKEN");
@@ -78,6 +76,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession();
+
 app.UseAuthorization();
 
 app.MapRazorPages();

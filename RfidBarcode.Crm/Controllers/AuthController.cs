@@ -20,13 +20,14 @@ namespace RfidBarcode.Crm.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<AuthResponse> OnPostLoginAsync(AuthRequest request)
+        public async Task<ActionResult<AuthResponse>> OnPostLoginAsync([FromBody] AuthRequest request)
         {
             var response = await _mediator.Send(request);
 
-            return response;
+            return new OkObjectResult(response);
         }
 
+        [HttpGet]
         public BaseResponse Index()
         {
             var response = new BaseResponse();

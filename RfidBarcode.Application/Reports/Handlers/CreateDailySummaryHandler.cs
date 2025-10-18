@@ -95,6 +95,15 @@ namespace RfidBarcode.Application.Reports.Handlers
                     })
                     .AsQueryable();
 
+                if (!string.IsNullOrEmpty(request.Kode))
+                {
+                    qry = qry.Where(x => x.Kategori.Contains(request.Kode));
+                }
+                if (!string.IsNullOrEmpty(request.Grade))
+                {
+                    qry = qry.Where(x => x.GR.Contains(request.Grade));
+                }
+
                 var items = await qry.ToListAsync(cancellationToken);
                 var rows = new Dictionary<string, List<DailySummaryVM>>();
                 var keys = items.Select(x => new

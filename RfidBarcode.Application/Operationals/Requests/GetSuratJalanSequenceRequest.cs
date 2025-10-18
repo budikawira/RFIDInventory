@@ -1,23 +1,18 @@
 ﻿using MediatR;
 using RfidBarcode.Application.Common.BaseObjects;
 using RfidBarcode.Application.Operationals.ViewModels;
-using System.Buffers;
 
 namespace RfidBarcode.Application.Operationals.Requests
 {
-    public class FinalizeP1Request : IRequest<BaseResponse>
+    public class GetSuratJalanSequenceRequest : IRequest<BaseObjectResponse<Int32>>
     {
-        public long SuratJalanP1Id { get; set; }
         public string Type { get; set; }
         public string Code { get; set; }
-        public int Sequence { get; set; }
 
-        public FinalizeP1Request(long suratJalanP1Id, string type, string code, int sequence) 
+        public GetSuratJalanSequenceRequest(string type, string code) 
         {
-            SuratJalanP1Id = suratJalanP1Id;
             Type = type;
             Code = code;
-            Sequence = sequence;
         }
     }
 }

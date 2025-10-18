@@ -1,0 +1,225 @@
+﻿@page
+@model RfidBarcode.Crm.Areas.Reports.Pages.StockModel
+@{
+    ViewData["Title"] = "Laporan Stok";
+}
+
+@section Scripts {
+    <script>
+        function formatDateLocal(date) {
+          const yyyy = date.getFullYear();
+          const mm = String(date.getMonth() + 1).padStart(2, '0');
+          const dd = String(date.getDate()).padStart(2, '0');
+          return `${yyyy}-${mm}-${dd}`;
+        }
+
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        const dateRange = flatpickr("#range", {
+          mode: "range",
+          dateFormat: "Y-m-d",
+          defaultDate: [
+            formatDateLocal(startOfMonth),
+            formatDateLocal(today)
+          ],
+          allowInput: true
+        });
+
+    </script>
+
+    <script>
+        function refreshTable() {
+
+            LoadingScreenFunction.Show();
+
+            selectedDates = dateRange.selectedDates;
+            var formattedStart = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+            var formattedEnd = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+
+            var dataParam = {
+                kode : $('#kode').val(),
+                grade : $('#grade').val(),
+                start: formattedStart,
+                end: formattedEnd
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Reports/Stock?Handler=RefreshTable",
+                data: dataParam,
+                headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                success: function(data) {
+                    console.log('view data >> ', data);
+                    LoadingScreenFunction.Hide();
+                    var tbody = $('#grid tbody');
+                    tbody.empty(); // Clear existing data
+
+                    $.each(data, function(index, item) {
+                        var SaR = item.r - item.inR + item.outR;
+                        var SaYard = item.yard - item.inYard + item.outYard;
+                        var row = $('<tr>');
+                        console.log('item >> ', item);
+                        // Add cells according to your table structure
+                        row.append($('<td>').text(item.kp));
+                        row.append($('<td>').text(item.identitas));
+                        row.append($('<td>').text(item.oz));
+                        row.append($('<td>').text(item.kodeI));
+                        row.append($('<td>').text(item.kodeGeneral)); // Empty column
+                        row.append($('<td>').text(item.kategori));
+                        row.append($('<td>').text(item.kode));
+                        row.append($('<td>').text(item.k));
+                        row.append($('<td>').text(SaR > 0 ? SaR : ""));
+                        row.append($('<td>').text(SaYard > 0 ? SaYard: ""));
+                        row.append($('<td>').text(item.inR > 0 ? item.inR : ""));
+                        row.append($('<td>').text(item.inYard > 0 ? item.inYard : ""));
+                        row.append($('<td>').text(item.outR > 0 ? item.outR : ""));
+                        row.append($('<td>').text(item.outYard > 0 ? item.outYard : ""));
+                        row.append($('<td>').text(item.yard)); // YDS
+                        row.append($('<td>').text(item.ts));
+                        row.append($('<td>').text(item.p));
+                        row.append($('<td>').text(item.gr));
+                        row.append($('<td>').text('')); // Empty column
+                        row.append($('<td>').text(item.sak));
+
+                        tbody.append(row);
+                    });
+                    $('#grid').show();
+
+                },
+                error: function(xhr, status, error) {
+                    LoadingScreenFunction.Hide();
+                    console.error('Error loading data:', error);
+                }
+            });
+        }
+
+        function download() {
+            LoadingScreenFunction.Show();
+
+            selectedDates = dateRange.selectedDates;
+            var formattedStart = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+            var formattedEnd = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+
+            var dataParam = {
+                kode : $('#kode').val(),
+                grade : $('#grade').val(),
+                start: formattedStart,
+                end: formattedEnd
+            };
+
+            fileName = 'Stock_' + formattedStart + "_" + formattedEnd + '.xlsx';
+
+            $.ajax({
+                type: "POST",
+                url: "/Reports/Stock?Handler=Download",
+                data: dataParam,
+                headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                traditional: true,
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (objRes) {
+                    LoadingScreenFunction.Hide();
+
+                    var a = document.createElement('a');
+                    var url = window.URL.createObjectURL(objRes);
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.append(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+
+                    SimplePageTable.GetTable().ajax.reload();
+                },
+                error: function (response) {
+                    console.log('response err >> ', response);
+                    LoadingScreenFunction.Hide();
+                    Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                }
+            })
+        }
+    </script>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="ms-3 h-100">
+                        <button type="button" class="btn btn-primary align-middle" onclick="refreshTable()">
+                            <i class="fas fa-eye me-1"></i> View
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="download()">
+                            <i class="fas fa-file-excel me-1"></i>  Download
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="kode">Filter Kode</label>
+                        <input type="text" class="form-control" id="kode" name="kode" />
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="grade">Filter Grade</label>
+                        <input type="text" class="form-control" id="grade" name="grade" />
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="range">Filter Tanggal</label>
+                        <input type="text" class="form-control" id="range" name="range" />
+                    </div>
+
+                </div>
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="align-middle">KP</th>
+                            <th rowspan="2" class="align-middle">Identitas</th>
+                            <th rowspan="2" class="align-middle">OZ</th>
+                            <th rowspan="2" class="align-middle">I</th>
+                            <th rowspan="2" class="align-middle">General</th>
+                            <th rowspan="2" class="align-middle">Kategori</th>
+                            <th rowspan="2" class="align-middle">Kode</th>
+                            <th rowspan="2" class="align-middle">K</th>
+                            <th colspan="2" class="align-middle text-center">SA</th>
+                            <th colspan="2" class="align-middle text-center">In</th>
+                            <th colspan="2" class="align-middle text-center">Out</th>
+                            <th rowspan="2" class="align-middle">YDS</th>
+                            <th rowspan="2" class="align-middle">T.S.</th>
+                            <th rowspan="2" class="align-middle">P</th>
+                            <th rowspan="2" class="align-middle">GR</th>
+                            <th rowspan="2" class="align-middle"></th>
+                            <th rowspan="2" class="align-middle">S A K</th>
+                        </tr>
+                        <tr>
+                            <th>R</th>
+                            <th>Yds</th>
+                            <th>R</th>
+                            <th>Yds</th>
+                            <th>R</th>
+                            <th>Yds</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

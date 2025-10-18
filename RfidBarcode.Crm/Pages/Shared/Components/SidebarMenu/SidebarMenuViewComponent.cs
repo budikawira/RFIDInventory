@@ -79,9 +79,9 @@ namespace RFIDTracking.Pages.Shared.Components.SidebarMenu
             };
             var menuReportReceived = new MenuItem()
             {
-                Label = "Penerimaan",
+                Label = "Laporan Stok",
                 Icon = "check-square",
-                Href = "/Reports/Receive/"
+                Href = "/Reports/Stock/"
             };
             groupReport.MenuItems.Add(menuReportReceived);
 
