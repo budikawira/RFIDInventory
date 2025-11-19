@@ -23,7 +23,7 @@ namespace RfidBarcode.Domain.Entities
         public string? Kode4 { get; set; }
         public string? Oz { get; set; }
         public string? Grade { get; set; }
-        public decimal? Point { get; set; }
+        public string? Point { get; set; }
         public decimal? Yard { get; set; }
         public decimal? Kg { get; set; }
         public string? Lebar { get; set; }

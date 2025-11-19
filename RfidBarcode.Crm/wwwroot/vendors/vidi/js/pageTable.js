@@ -392,7 +392,7 @@ var SimplePageTable = (() => {
         }),
         Import: (() => {
             LoadingScreenFunction.Show();
-            var fileExtension = ['xls', 'xlsx'];
+            var fileExtension = ['xls', 'xlsx', 'xlsm'];
             var filename = $('#importFile').val();
             if (filename.length == 0) {
                 LoadingScreenFunction.Hide();

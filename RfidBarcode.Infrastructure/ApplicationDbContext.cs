@@ -23,6 +23,7 @@ namespace RfidBarcode.Infrastructure
 
         public DbSet<TrackingItem> TrackingItems { get; set; }
         public DbSet<Item> Items { get; set; }
+        public DbSet<ImportItemLog> ImportItemLogs { get; set; }
         public DbSet<ItemPrintLog> ItemPrintLogs { get; set; }
         public DbSet<ItemMovement> ItemMovements { get; set; }
 

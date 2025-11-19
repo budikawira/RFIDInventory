@@ -11,6 +11,7 @@ using RfidBarcode.Application.Operationals.ViewModels;
 using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Crm.Common.ViewModels;
 using SQLitePCL;
+using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
@@ -131,7 +132,101 @@ namespace RfidBarcode.Crm.Pages.Finish
             return new OkObjectResult(response);
         }
 
+        //new import format
         public async Task<IActionResult> OnPostImportAsync()
+        {
+            var response = new BaseResponse();
+            var indexColumn = new string[]
+            {
+                "", "Merk", "", "Kp", "Kode1", "Kode2", "Kode3", "Kode4",
+                "Grade", "", "", "Point", "Yard", "Kg", "SusutLusi", "Lebar", "Inisial", 
+                "K", "K3l", "Qr"
+            };
+
+            var errorList = new List<string>();
+
+            IFormFile file = Request.Form.Files[0];
+            string fileName = file.FileName;
+            using var stream = file.OpenReadStream();
+            using var sha = SHA256.Create();
+            var hash = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLower();
+            var cmdCheck = new GetIsImportItemDuplicateRequest(fileName, hash);
+            var resCheck =  await _mediator.Send(cmdCheck);
+            if (resCheck)
+            {
+                response.Message = "File sudah pernah diimport sebelumnya!";
+                return new OkObjectResult(response);
+            }
+            try
+            {
+                using (var workbook = new XLWorkbook(file.OpenReadStream()))
+                {
+                    var ws = workbook.Worksheet(1);
+                    var rowCount = ws.LastRowUsed()?.RowNumber();
+                    var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+                    for (int row = 4; row <= rowCount; row++)
+                    {
+                        try
+                        {
+
+                            var json = new JsonObject();
+                            for (int col = 0; col < indexColumn.Length; col++)
+                            {
+                                json[indexColumn[col]] = ws.Cell(row, col + 1).GetValue<string>() ?? "";
+                            }
+                            if (json["Merk"] == null || json["Merk"]!.ToString().Length == 0)
+                            {
+                                break;
+                            }
+
+                            ItemVM? itemVM = JsonConvert.DeserializeObject<ItemVM>(json.ToJsonString());
+                            if (itemVM == null)
+                            {
+                                errorList.Add("Error line-" + row + " : Data is null");
+                            }
+                            else
+                            {
+                                itemVM.UserId = _user.GetUserId();
+                                itemVM.LocationId = null;
+                                itemVM.TanggalBuatBarcode = now;
+                                var cmd = new CreateItemRequest(itemVM);
+                                var res = await _mediator.Send(cmd);
+                                if (res.Result != BaseResponse.RESULT_OK)
+                                {
+                                    errorList.Add("Error line-" + row + " : " + res.Message);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            errorList.Add("Error line-" + row + " : " + ex.Message);
+                        }
+                    }
+
+                    if (errorList.Count == 0)
+                    {
+                        response.Result = BaseResponse.RESULT_OK;
+                        response.Message = "Berhasil import data!";
+
+                        var cmdLog = new CreateImportItemLogRequest(fileName, hash);
+                        var resLog = await _mediator.Send(cmdLog);
+                    }
+                    else
+                    {
+                        response.Message = string.Join("\n", errorList);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Exception: " + ex.Message;
+            }
+
+            return new OkObjectResult(response);
+        }
+
+        //old import format
+        public async Task<IActionResult> OnPostImport1Async()
         {
             var response = new BaseResponse();
             var indexColumn = new string[]

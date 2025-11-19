@@ -42,8 +42,8 @@ namespace RfidBarcode.Crm.Pages.Finish
                         response.Message = "Error row " + rowIndex;
                         return new OkObjectResult(response);
                     }
-                    decimal point, yard, kg;
-                    point = decimal.Parse(row[8]);
+                    decimal yard, kg;
+                    //decimal point = decimal.Parse(row[8]);
                     yard = decimal.Parse(row[9]);
                     kg = decimal.Parse(row[10]);
                     var vm = new ItemVM();
@@ -55,7 +55,7 @@ namespace RfidBarcode.Crm.Pages.Finish
                     vm.Kode4 = row[5];
                     vm.Oz = row[6];
                     vm.Grade = row[7];
-                    vm.Point = point;
+                    vm.Point = row[8];
                     vm.Yard = yard;
                     vm.Kg = kg;
                     vm.Lebar = row[11];

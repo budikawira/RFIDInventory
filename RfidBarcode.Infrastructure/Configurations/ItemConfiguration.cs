@@ -36,8 +36,8 @@ namespace RfidBarcode.Infrastructure.Configurations
                 .HasColumnType("decimal(18,2)");
             builder.Property(x => x.Kg)
                 .HasColumnType("decimal(18,2)");
-            builder.Property(x => x.Point)
-                .HasColumnType("decimal(18,2)");
+            //builder.Property(x => x.Point)
+            //    .HasColumnType("decimal(18,2)");
 
             builder.HasOne(x => x.Location)
                 .WithMany(y => y.Items)

@@ -16,7 +16,7 @@ namespace RfidBarcode.Application.Operationals.ViewModels
         public string? Kode4 { get; set; } = null!;
         public string? Oz { get; set; } = null!;
         public string? Grade { get; set; } = null!;
-        public decimal? Point { get; set; } = null!;
+        public string? Point { get; set; } = null!;
         public decimal? Yard { get; set; }
         public decimal? Kg { get; set; }
         public double? Lebar { get; set; }
