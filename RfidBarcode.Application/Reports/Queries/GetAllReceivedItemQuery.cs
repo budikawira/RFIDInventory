@@ -29,11 +29,11 @@ namespace RfidBarcode.Application.Reports.Queries
             {
                 var query = _context.ItemMovements
                     .Include(x => x.Item)
-                        .ThenInclude(x => x.ItemPrintLogs)
+                        .ThenInclude(x => x!.ItemPrintLogs)
                     .Include(x => x.Item)
-                        .ThenInclude(x => x.Location)
+                        .ThenInclude(x => x!.Location)
                     .Include(x => x.Item)
-                        .ThenInclude(x => x.SuratJalanP1)
+                        .ThenInclude(x => x!.OutSuratJalan)
                     .AsNoTracking()
                     .Where(x => (x.CreatedDate != null && 
                         x.CreatedDate.Value.Date >= request.StartDate && 
@@ -66,9 +66,12 @@ namespace RfidBarcode.Application.Reports.Queries
                         QcFinishUserId = x.Item!.QcFinishUserId,
                         QcFinish = x.Item!.QcFinish,
                         TanggalBuatBarcode = x.Item!.TanggalBuatBarcode,
-                        SuratJalanP1Id = x.Item!.SuratJalanP1Id,
-                        ScanP1UserId = x.Item!.ScanP1UserId,
-                        ScanP1 = x.Item!.ScanP1,
+                        InSuratJalanId = x.Item!.InSuratJalanId,
+                        InScanUserId = x.Item!.InScanUserId,
+                        InScan = x.Item!.InScan,
+                        OutSuratJalanId = x.Item!.OutSuratJalanId,
+                        OutScanUserId = x.Item!.OutScanUserId,
+                        OutScan = x.Item!.OutScan,
                         TrackingItemId = x.Item!.TrackingItemId,
                         CreatedDate = x.CreatedDate ?? DateTime.MinValue,
                         CreatedBy = x.Source,
@@ -79,7 +82,7 @@ namespace RfidBarcode.Application.Reports.Queries
                         LocationName = x.Item!.Location != null ? x.Item!.Location.Name : "",
                         LocationType = x.Item!.Location != null ? x.Item!.Location.Type : null,
                         Epc = x.Item!.Epc,
-                        SuratJalanP1 = x.Item!.SuratJalanP1 != null ? x.Item!.SuratJalanP1.No : null
+                        OutSuratJalan = x.Item!.OutSuratJalan != null ? x.Item!.OutSuratJalan.No : null
                 }).AsQueryable();
 
                 var total = query.Count();

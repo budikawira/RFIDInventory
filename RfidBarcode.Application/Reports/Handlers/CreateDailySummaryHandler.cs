@@ -50,7 +50,7 @@ namespace RfidBarcode.Application.Reports.Handlers
                         P = 0,
                         GR = x.Grade ?? "",
                         SAK = "",
-                        StockOut = x.ScanP1,
+                        StockOut = x.OutScan,
                         TangalBuatBarcode = x.TanggalBuatBarcode
                     })
                     .Where(x => (x.StockOut == null || x.StockOut >= request.PreviousDate) &&

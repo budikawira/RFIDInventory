@@ -313,7 +313,7 @@ namespace RfidBarcode.Crm.Services
 
                         var cmdItem = new GetItemRequest(new ItemVM() { Epc = log.Epc });
                         var resItem = await mediator.Send(cmdItem);
-                        if (resItem.Result == BaseResponse.RESULT_OK && resItem.Data != null && resItem.Data.SuratJalanP1Id == null)
+                        if (resItem.Result == BaseResponse.RESULT_OK && resItem.Data != null && resItem.Data.OutSuratJalanId == null)
                         {
                             log.ItemId = resItem.Data.Id;
 
@@ -441,5 +441,12 @@ namespace RfidBarcode.Crm.Services
                 catch (Exception) { }
             }
         }
+
+        public async Task RestartAsync(CancellationToken cancellationToken = default)
+        {
+            await StopAsync(cancellationToken);
+            await StartAsync(cancellationToken);
+        }
+
     }
 }

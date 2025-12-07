@@ -13,10 +13,12 @@ namespace RfidBarcode.Application.Settings.Handlers
 {
     public class CreateGateMapHandler : BaseHandler, IRequestHandler<CreateGateMapRequest, BaseObjectResponse<GateMapVM>>
     {
-        public CreateGateMapHandler(IApplicationDbContext context, IMapper mapper)
+        private readonly IMqttClientService _mqtt;
+        public CreateGateMapHandler(IApplicationDbContext context, IMapper mapper, IMqttClientService mqtt)
         {
             _context = context;
             _mapper = mapper;
+            _mqtt = mqtt;
         }
 
         public async Task<BaseObjectResponse<GateMapVM>> Handle(CreateGateMapRequest request, CancellationToken cancellationToken)
@@ -68,6 +70,8 @@ namespace RfidBarcode.Application.Settings.Handlers
                         response.Message = "Data tidak ditemukan";
                     }
                 }
+
+                await _mqtt.RestartAsync();
             }
             catch (Exception ex)
             {

@@ -39,17 +39,17 @@ namespace RfidBarcode.Application.Operationals.Handlers
                 try
                 {
                     var items = await _context.Items
-                        .Include(x => x.SuratJalanP1)
+                        .Include(x => x.InSuratJalan)
                         .Where(x => request.Ids.Contains(x.Id)).ToListAsync();
 
                     //check if there is any invalid items
                     //items that already paired with other K3
-                    var invalidItems = items.Where(x => x.SuratJalanP1Id != null);
+                    var invalidItems = items.Where(x => x.OutSuratJalanId != null);
                     if (invalidItems.Count() > 0)
                     {
                         foreach (var item in invalidItems)
                         {
-                            response.NokTagIds.Add(item.Id, item.SuratJalanP1 != null ? item.SuratJalanP1.No ?? "Draft" : "-");
+                            response.NokTagIds.Add(item.Id, item.OutSuratJalan != null ? item.OutSuratJalan.No ?? "Draft" : "-");
                         }
                         response.Message = "Beberapa data sudah memiliki Surat Jalan";
                         return response;
@@ -65,7 +65,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                             Kode4 = (x.Grade != "ALK") ? x.Kode4 : "",
                             x.Grade,
                             x.LocationId,
-                            x.SuratJalanP1Id
+                            x.InSuratJalanId
                         })
                         .GroupBy(x => new { x.Kode, x.Kode1, x.Kode2, x.Kode3, x.Kode4, x.Grade})
                         .Select(x => new
@@ -97,7 +97,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                                 i += maxItem;
                                 //create surat jalan
                                 var userId = _user.GetUserId();
-                                var k3 = new SuratJalanP1()
+                                var k3 = new SuratJalan()
                                 {
                                     Kode = group.Kode,
                                     Kode1 = group.Kode1,
@@ -109,18 +109,18 @@ namespace RfidBarcode.Application.Operationals.Handlers
                                     //No = Helper.GenerateSuratJalanNo("P1", request.Year, request.Month, count),
                                     //FinalizeDate = DateTime.Now
                                 };
-                                await _context.SuratJalanP1s.AddAsync(k3);
+                                await _context.SuratJalans.AddAsync(k3);
                                 await _context.SaveChangesAsync(cancellationToken);
 
-                                var k3Vm = _mapper.Map<SuratJalanP1VM>(k3);
+                                var k3Vm = _mapper.Map<SuratJalanVM>(k3);
 
                                 //create items
                                 foreach (var itemK3 in itemsToSent)
                                 {
-                                    itemK3.SuratJalanP1Id = k3.Id;
-                                    if (itemK3.SuratJalanP1 != null)
+                                    itemK3.OutSuratJalanId = k3.Id;
+                                    if (itemK3.OutSuratJalan != null)
                                     {
-                                        response.NokTagIds.Add(itemK3.Id, itemK3.SuratJalanP1!.No ?? "Failed");
+                                        response.NokTagIds.Add(itemK3.Id, itemK3.OutSuratJalan!.No ?? "Failed");
                                     }
                                     else
                                     {
@@ -179,7 +179,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                                 {
                                     col = 0;
                                     var userId = _user.GetUserId();
-                                    var k3 = new SuratJalanP1()
+                                    var k3 = new SuratJalan()
                                     {
                                         //Kp = group.Kp,
                                         Kode = group.Kode,
@@ -190,21 +190,23 @@ namespace RfidBarcode.Application.Operationals.Handlers
                                         Grade = group.Grade,
                                         //Type = request.SuratJalanType,
                                         UserId = _user.GetUserId(),
+                                        SuratJalanType = SuratJalanType.TYPE_OUTBOND,
                                         //No = Helper.GenerateSuratJalanNo("P1", request.Year, request.Month, count),
                                         //FinalizeDate = DateTime.Now
                                     };
-                                    await _context.SuratJalanP1s.AddAsync(k3);
+                                    await _context.SuratJalans.AddAsync(k3);
                                     await _context.SaveChangesAsync(cancellationToken);
 
-                                    var k3Vm = _mapper.Map<SuratJalanP1VM>(k3);
+                                    var k3Vm = _mapper.Map<SuratJalanVM>(k3);
 
                                     //create items
                                     foreach (var updatedItem in updatedItems)
                                     {
-                                        updatedItem.SuratJalanP1Id = k3.Id;
-                                        if (updatedItem.SuratJalanP1Id != null && updatedItem.SuratJalanP1 != null)
+                                        updatedItem.OutSuratJalanId = k3.Id;
+                                        if (updatedItem.OutSuratJalanId != null && updatedItem.OutSuratJalan != null)
                                         {
-                                            response.NokTagIds.Add(updatedItem.Id, updatedItem.SuratJalanP1.No ?? "Failed");
+                                            response.NokTagIds.Add(updatedItem.Id, 
+                                                updatedItem.OutSuratJalan.No ?? "Failed");
                                         }
                                         else
                                         {
@@ -220,7 +222,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                             if (updatedItems.Count > 0)
                             {
                                 var userId = _user.GetUserId();
-                                var k3 = new SuratJalanP1()
+                                var k3 = new SuratJalan()
                                 {
                                     //Kp = group.Kp,
                                     Kode = group.Kode,
@@ -231,21 +233,22 @@ namespace RfidBarcode.Application.Operationals.Handlers
                                     Grade = group.Grade,
                                     //Type = request.SuratJalanType,
                                     UserId = _user.GetUserId(),
+                                    SuratJalanType = SuratJalanType.TYPE_OUTBOND,
                                     // No = Helper.GenerateSuratJalanNo("P1", request.Year, request.Month, count),
                                     //FinalizeDate = DateTime.Now
                                 };
-                                await _context.SuratJalanP1s.AddAsync(k3);
+                                await _context.SuratJalans.AddAsync(k3);
                                 await _context.SaveChangesAsync(cancellationToken);
 
-                                var k3Vm = _mapper.Map<SuratJalanP1VM>(k3);
+                                var k3Vm = _mapper.Map<SuratJalanVM>(k3);
 
                                 //create items
                                 foreach (var updatedItem in updatedItems)
                                 {
-                                    updatedItem.SuratJalanP1Id = k3.Id;
-                                    if (updatedItem.SuratJalanP1Id != null && updatedItem.SuratJalanP1 != null)
+                                    updatedItem.OutSuratJalanId = k3.Id;
+                                    if (updatedItem.OutSuratJalanId != null && updatedItem.OutSuratJalan != null)
                                     {
-                                        response.NokTagIds.Add(updatedItem.Id, updatedItem.SuratJalanP1.No ?? "Failed");
+                                        response.NokTagIds.Add(updatedItem.Id, updatedItem.OutSuratJalan.No ?? "Failed");
                                     }
                                     else
                                     {

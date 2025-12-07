@@ -1,0 +1,93 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.Inbounds.IndexModel
+@{
+    ViewData["Title"] = "Surat Jalan (Inbound)";
+}
+
+@section Scripts
+{
+    <script>
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/Inbounds');
+        SimplePageTable.InitTable({
+            hasAction: false,
+            action: 'page',
+            columns: [
+                {
+                    data: null, render: function (data, type, row, node) {
+                        console.log('data-' + node.row + ' >> ', data);
+                        var button = `<span class="text-nowrap d-inline-block">`;
+                        if (data['finalizeDate'] == null) {
+                            button += `<a rel="tooltip" data-bs-placement="top" title="Edit" class="btn btn-sm btn-soft-primary me-1 mb-1" `;
+                            button += `href="/Inbounds/Update?id=` + data['id'] + `"`;
+                            button += `>`;
+                            button += '<i class="far fa-edit"> </i>';
+                            button += '</a>';
+                            button += `<button rel="tooltip" type="button" data-bs-placement="top" data-container="body" title="Delete" class="btn btn-sm btn-soft-danger me-1 mb-1" onclick="SimplePageTable.Delete('` + node.row + `') ">`;
+                            button += '<i class="far fa-trash-alt"> </i></button>';
+                        } else {
+                            button += `<a rel="tooltip" data-bs-placement="top" title="View" class="btn btn-sm btn-soft-success me-1 mb-1" `;
+                            button += `href="/Inbounds/Update?id=` + data['id'] + `"`;
+                            button += `>`;
+                            button += '<i class="far fa-eye"> </i>';
+                            button += '</a>';
+                            button += `<button rel="tooltip" type="button" data-bs-placement="top" data-container="body" title="Delete" class="btn btn-sm btn-soft-danger me-1 mb-1" onclick="SimplePageTable.Delete('` + node.row + `') ">`;
+                            button += '<i class="far fa-trash-alt"> </i></button>';
+                        }
+
+                        button += '</span>';
+                        return button;
+                    }
+                },
+                { data: 'createdDateString', name: 'CreatedDate' },
+                { data: 'finalizeDateString', name: 'FinalizeDate' },
+                { data: 'no', name: 'No' },
+                { data: 'kode', name: 'Kode' },
+                { data: 'grade', name: 'Grade' },
+            ],
+            order: [[1,'desc']]
+        });
+    </script>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-end">
+                    <div class="col-md-10">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="w-75 p-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="col-md-2 p-3 text-end align-bottom">
+                        <a class="btn btn-primary" type="button" href="/Inbounds/Add">
+                            <i class="fas fa-plus"></i> Tambah
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="sort" data-role="action">Action</th>
+                            <th class="sort" data-role="text">Dibuat</th>
+                            <th class="sort" data-role="text">Finalisasi</th>
+                            <th class="sort" data-role="text">No</th>
+                            <th class="sort" data-role="text">Kode</th>
+                            <th class="sort" data-role="text">Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

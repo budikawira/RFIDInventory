@@ -34,9 +34,12 @@ namespace RfidBarcode.Application.Operationals.ViewModels
         public DateTime? QcFinish { get; set; }
         public DateTime? TanggalBuatBarcode { get; set; }
         //public string? PointGrade { get; set; } = "";
-        public long? SuratJalanP1Id { get; set; }
-        public long? ScanP1UserId { get; set; }
-        public DateTime? ScanP1 { get; set; }
+        public long? InSuratJalanId { get; set; }
+        public long? InScanUserId { get; set; }
+        public long? OutSuratJalanId { get; set; }
+        public long? OutScanUserId { get; set; }
+        public DateTime? InScan { get; set; }
+        public DateTime? OutScan { get; set; }
         //public string? T01 { get; set; }
 
         public string Lot { get { return ""; } }
@@ -52,7 +55,8 @@ namespace RfidBarcode.Application.Operationals.ViewModels
         public string? LocationName { get; set; }
         public byte? LocationType { get; set; }
 
-        public string? SuratJalanP1 { get; set; }
+        public string? InSuratJalan { get; set; }
+        public string? OutSuratJalan { get; set; }
 
         public string TanggalBuatBarcodeString { get { 
                 return TanggalBuatBarcode != null ? TanggalBuatBarcode.Value.ToString("yyyy-MM-dd") : ""; 

@@ -1,0 +1,188 @@
+﻿@page
+@model RfidBarcode.Crm.Pages.Inbounds.AddModel
+@{
+    ViewData["Title"] = "Surat Jalan (Inbound)";
+}
+
+
+@section Scripts
+{
+    <script>
+            let jsFunction = (() => {
+            var _token = '';
+            var _grid;
+            return {
+                Init: ((token) => {
+                    console.log('Init token >> ', _token);
+                    _token = token;
+                    _grid = $('#grid').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        scrollX: true,
+                        ajax: {
+                            url: '/Inbounds/Add?Handler=RefreshData',
+                            type: 'POST',
+                            headers: { 'RequestVerificationToken': token },
+                            dataSrc: 'data',
+                            data: function(d) {
+                                d.locationId = $('#LocationId').val()
+                            }
+                        },
+                        columns: [
+                        {
+                            data: null,
+                            render: function (data, type, row, node) {
+                                var button = `<span class="text-nowrap d-inline-block">`;
+                                button += `<button rel="tooltip" type="button" class="btn btn-sm btn-soft-primary me-1 mb-1" onclick="jsFunction.Create('` + node.row + `')">`;
+                                button += 'Buat Surat Jalan';
+                                button += '</button>';
+                                button += '</span>';
+                                return button;
+                            },
+                            createdCell: function (td, cellData, rowData, row, col) {
+                                $(td).addClass('align-middle text-start Edit');
+                            }
+                        },
+                        {
+                            data: 'kode',
+                            name: 'Kode',
+                            createdCell: function (td, cellData, rowData, row, col) {
+                                $(td).addClass('align-middle');
+                            }
+                        },
+                        {
+                            data: 'grade',
+                            name: 'Grade',
+                            createdCell: function (td, cellData, rowData, row, col) {
+                                $(td).addClass('align-middle');
+                            }
+                        },
+                        {
+                            data: 'count',
+                            name: 'Count',
+                            createdCell: function (td, cellData, rowData, row, col) {
+                                $(td).addClass('align-middle');
+                            }
+                        }
+                    ],
+                        stripeclasses: ['odd-row', 'even-row'],
+                        info: false,
+                        aoColumnDefs: [
+                            {
+                                bSortable: false,
+                                aTargets: [0]
+                            }
+                        ],
+                        order: [[1, 'asc']],
+                        pagingType: $(window).width() < 768 ? "numbers" : "simple_numbers",
+                    });
+                }),
+                CreateOk: ((newData) => {
+                    Swal.fire({
+                        title: 'Berhasil Membuat Surat Jalan?',
+                        text: "Lanjutkan dengan isi data Finish?",
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, lanjutkan!',
+                        cancelButtonText: 'Selesai'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "/Inbounds/Update?id=" + newData.id;
+                        } else {
+                                window.location.href = "/Inbounds/";
+                        }
+                    })
+                }),
+                Create: ((row) => {
+                    var rowData = _grid.row(row).data();
+                    Swal.fire({
+                        title: 'Buat Surat Jalan?',
+                        html: "<br/><b>Kode</b>: " + rowData.kode + "<br/><b>Grade</b>: " + rowData.grade,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, lanjutkan!',
+                        cancelButtonText: 'Batalkan'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            LoadingScreenFunction.Show();
+                            $.ajax({
+                                type: "POST",
+                                url: "/Inbounds/Add?Handler=CreateInbond",
+                                headers: { 'RequestVerificationToken': _token },
+                                data: {
+                                    kode1: rowData.kode1,
+                                    kode2: rowData.kode2,
+                                    kode3: rowData.kode3,
+                                    kode4: rowData.kode4,
+                                    kode: rowData.kode,
+                                    grade: rowData.grade
+                                },
+                                success: function (objRes) {
+                                    console.log('objRes >> ', objRes);
+                                    LoadingScreenFunction.Hide();
+                                    if (objRes.result != 0) {
+                                        Swal.fire(objRes.message, '', 'error')
+                                    } else {
+                                        jsFunction.CreateOk(objRes.data);
+                                    }
+                                },
+                                error: function (response) {
+                                    LoadingScreenFunction.Hide();
+                                    alert('Error function please contact developer');
+                                }
+                            })
+                        }
+                    })
+                })
+            }
+        })();
+    </script>
+    <script>
+        $(document).ready(function () {
+            jsFunction.Init($('@Html.AntiForgeryToken()').val());
+        })
+    </script>
+}
+
+<!-- #region Content -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item"><a href="/SuratJalanP1s/">@ViewData["Title"]</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">Tambah</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">Tambah @ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="sort" data-role="action" style="width:1%">Action</th>
+                            <th class="sort" data-role="text">Kode</th>
+                            <th class="sort" data-role="text">Grade</th>
+                            <th class="sort" data-role="text">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -65,9 +65,12 @@ namespace RFIDTracking.Pages.Shared.Components.SidebarMenu
             groupOps.MenuItems.Add(menuFinish);
             var menuStockOpname = new MenuItem() { Label = "Stock Opname", Href = "/StockOpnames/", Icon = "check-square" };
             groupOps.MenuItems.Add(menuStockOpname);
-            var menuSuratJalanP1 = new MenuItem() { Label = "Surat Jalan", Href = "/SuratJalanP1s/", Icon = "file" };
-            groupOps.MenuItems.Add(menuSuratJalanP1);
-
+            var menuSuratJalan = new MenuItem() { Label = "Surat Jalan", Href = "suratJalans", Icon = "file" };
+            var menuSuratInbound = new MenuItem() { Label = "Inbound", Href = "/Inbounds/", Icon = "file" };
+            var menuSuratOutbound = new MenuItem() { Label = "Outbound", Href = "/SuratJalanP1s/", Icon = "file" };
+            menuSuratJalan.ChildMenuItems.Add(menuSuratInbound);
+            menuSuratJalan.ChildMenuItems.Add(menuSuratOutbound);
+            groupOps.MenuItems.Add(menuSuratJalan);
 
             Param.MenuGroups.Add(groupOps);
             #endregion
@@ -110,6 +113,7 @@ namespace RFIDTracking.Pages.Shared.Components.SidebarMenu
 
             var menuProfile = new MenuItem() { Label = "Ubah Password", Href = "/Settings/Password/" };
             menuSetting.ChildMenuItems.Add(menuProfile);
+
             groupSetting.MenuItems.Add(menuSetting);
             #endregion
 
@@ -125,6 +129,14 @@ namespace RFIDTracking.Pages.Shared.Components.SidebarMenu
             menuMap.ChildMenuItems.Add(new MenuItem() { Label = "RFID Gate", Href = "/Settings/Gates/" });
             groupSetting.MenuItems.Add(menuMap);
 
+            var menuMaster = new MenuItem
+            {
+                Label = "Master Data",
+                Icon = "box",
+                Href = "nav-master"
+            };
+            menuMaster.ChildMenuItems.Add(new MenuItem() { Label = "Tipe Surat Jalan", Href = "/Settings/SuratJalans/" });
+            groupSetting.MenuItems.Add(menuMaster);
             #endregion
 
             Param.MenuGroups.Add(groupSetting);

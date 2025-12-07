@@ -7,14 +7,14 @@ namespace RfidBarcode.Application.Operationals.Requests
 {
     public class FinalizeP1Request : IRequest<BaseResponse>
     {
-        public long SuratJalanP1Id { get; set; }
+        public long SuratJalanId { get; set; }
         public string Type { get; set; }
         public string Code { get; set; }
         public int Sequence { get; set; }
 
-        public FinalizeP1Request(long suratJalanP1Id, string type, string code, int sequence) 
+        public FinalizeP1Request(long suratJalanId, string type, string code, int sequence) 
         {
-            SuratJalanP1Id = suratJalanP1Id;
+            SuratJalanId = suratJalanId;
             Type = type;
             Code = code;
             Sequence = sequence;

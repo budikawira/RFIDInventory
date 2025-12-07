@@ -30,6 +30,9 @@ namespace RfidBarcode.Application.Common.Mappings
                 .ForMember(dest => dest.PrevLocationName, opt => opt.MapFrom(src => src.PrevLocation != null ? src.PrevLocation.Name : ""))
                 .ForMember(dest => dest.Antenna, opt => opt.MapFrom(src => src.Antenna));
 
+            CreateMap<SuratJalanTypeVM, SuratJalanType>()
+                .ReverseMap();
+
         }
     }
 }

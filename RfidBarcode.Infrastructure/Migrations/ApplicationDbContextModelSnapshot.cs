@@ -528,6 +528,18 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.Property<string>("IdentitasBenang")
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime?>("InScan")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("InScanUser")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("InScanUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("InSuratJalanId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Inisial")
                         .HasColumnType("longtext");
 
@@ -577,6 +589,18 @@ namespace RfidBarcode.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime?>("OutScan")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("OutScanUser")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("OutScanUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("OutSuratJalanId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Oz")
                         .HasColumnType("longtext");
 
@@ -595,16 +619,10 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.Property<int?>("R")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ScanP1")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<long?>("ScanP1UserId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("SerialNumber")
                         .HasColumnType("longtext");
 
-                    b.Property<long?>("SuratJalanP1Id")
+                    b.Property<long?>("SuratJalanId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("SusutLusi")
@@ -625,9 +643,13 @@ namespace RfidBarcode.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("InSuratJalanId");
+
                     b.HasIndex("LocationId");
 
-                    b.HasIndex("SuratJalanP1Id");
+                    b.HasIndex("OutSuratJalanId");
+
+                    b.HasIndex("SuratJalanId");
 
                     b.HasIndex("TrackingItemId");
 
@@ -880,7 +902,7 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.ToTable("StockOpnameDetails");
                 });
 
-            modelBuilder.Entity("RfidBarcode.Domain.Entities.SuratJalanP1", b =>
+            modelBuilder.Entity("RfidBarcode.Domain.Entities.SuratJalan", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -927,7 +949,11 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("SuratJalanName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SuratJalanType")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<long>("UserId")
@@ -937,7 +963,45 @@ namespace RfidBarcode.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SuratJalanP1s");
+                    b.ToTable("SuratJalans");
+                });
+
+            modelBuilder.Entity("RfidBarcode.Domain.Entities.SuratJalanType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastUpdateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("LastUpdateDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("SuratJalanTypes");
                 });
 
             modelBuilder.Entity("RfidBarcode.Domain.Entities.TagLocation", b =>
@@ -1238,24 +1302,35 @@ namespace RfidBarcode.Infrastructure.Migrations
 
             modelBuilder.Entity("RfidBarcode.Domain.Entities.Item", b =>
                 {
+                    b.HasOne("RfidBarcode.Domain.Entities.SuratJalan", "InSuratJalan")
+                        .WithMany()
+                        .HasForeignKey("InSuratJalanId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("RfidBarcode.Domain.Entities.Location", "Location")
                         .WithMany("Items")
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("RfidBarcode.Domain.Entities.SuratJalanP1", "SuratJalanP1")
-                        .WithMany("Items")
-                        .HasForeignKey("SuratJalanP1Id")
+                    b.HasOne("RfidBarcode.Domain.Entities.SuratJalan", "OutSuratJalan")
+                        .WithMany()
+                        .HasForeignKey("OutSuratJalanId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RfidBarcode.Domain.Entities.SuratJalan", null)
+                        .WithMany("Items")
+                        .HasForeignKey("SuratJalanId");
 
                     b.HasOne("RfidBarcode.Domain.Entities.TrackingItem", "TrackingItem")
                         .WithMany("Items")
                         .HasForeignKey("TrackingItemId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.Navigation("InSuratJalan");
+
                     b.Navigation("Location");
 
-                    b.Navigation("SuratJalanP1");
+                    b.Navigation("OutSuratJalan");
 
                     b.Navigation("TrackingItem");
                 });
@@ -1335,7 +1410,7 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.Navigation("TagLocation");
                 });
 
-            modelBuilder.Entity("RfidBarcode.Domain.Entities.SuratJalanP1", b =>
+            modelBuilder.Entity("RfidBarcode.Domain.Entities.SuratJalan", b =>
                 {
                     b.HasOne("RfidBarcode.Domain.Entities.Identities.ApplicationUser", "User")
                         .WithMany()
@@ -1420,7 +1495,7 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.Navigation("StockOpnameDetails");
                 });
 
-            modelBuilder.Entity("RfidBarcode.Domain.Entities.SuratJalanP1", b =>
+            modelBuilder.Entity("RfidBarcode.Domain.Entities.SuratJalan", b =>
                 {
                     b.Navigation("Items");
                 });

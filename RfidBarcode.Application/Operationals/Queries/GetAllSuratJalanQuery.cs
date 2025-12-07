@@ -9,7 +9,7 @@ using System.Linq.Dynamic.Core;
 
 namespace RfidBarcode.Application.Operationals.Queries
 {
-    public class GetAllSuratJalanQuery : BaseHandler, IRequestHandler<GetAllSuratJalanP1Request, BaseDataTableResponse<SuratJalanP1VM>>
+    public class GetAllSuratJalanQuery : BaseHandler, IRequestHandler<GetAllSuratJalanRequest, BaseDataTableResponse<SuratJalanVM>>
     {
         public GetAllSuratJalanQuery(IApplicationDbContext context, IMapper mapper)
         {
@@ -17,9 +17,9 @@ namespace RfidBarcode.Application.Operationals.Queries
             _mapper = mapper;
         }
 
-        public async Task<BaseDataTableResponse<SuratJalanP1VM>> Handle(GetAllSuratJalanP1Request request, CancellationToken cancellationToken)
+        public async Task<BaseDataTableResponse<SuratJalanVM>> Handle(GetAllSuratJalanRequest request, CancellationToken cancellationToken)
         {
-            var response = new BaseDataTableResponse<SuratJalanP1VM>()
+            var response = new BaseDataTableResponse<SuratJalanVM>()
             {
                 Draw = request.Draw
             };
@@ -27,17 +27,18 @@ namespace RfidBarcode.Application.Operationals.Queries
             
             try
             {
-                var query = _context.SuratJalanP1s
+                var query = _context.SuratJalans
                     .Include(x => x.Items)
                     .AsNoTracking()
-                    .Select(x => new SuratJalanP1VM
+                    .Select(x => new SuratJalanVM
                     {
                         Id = x.Id,
                         CreatedDate = x.CreatedDate ?? DateTime.MinValue,
                         CreatedBy = x.CreatedBy,
                         LastUpdateDate = x.LastUpdateDate ?? DateTime.MinValue,
                         LastUpdateBy = x.LastUpdateBy,
-                        Type = x.Type,
+                        SuratJalanType = x.SuratJalanType,
+                        SuratJalanName = x.SuratJalanName,
                         No = x.No,
                         //Kp = string.Join(", ", x.Items.OrderBy(x => x.Kp).GroupBy(x => x.Kp).Select(x => x.Key).ToList()),
                         Kode = x.Kode,
@@ -49,13 +50,22 @@ namespace RfidBarcode.Application.Operationals.Queries
                         FinalizeDate = x.FinalizeDate
                     }).AsQueryable();
 
-                var total = query.Count();
+                var total = await query.CountAsync();
                 var totalFiltered = total;
+
+                if (request.Data != null)
+                {
+                    if (!string.IsNullOrEmpty(request.Data.SuratJalanType))
+                    {
+                        query = query.Where(x => x.SuratJalanType == request.Data.SuratJalanType);
+                    }
+                    totalFiltered = await query.CountAsync();
+                }
 
                 if (!string.IsNullOrEmpty(request.SearchValue))
                 {
                     var search = request.SearchValue.ToLower();
-                    query = query.Where(x => x.No.ToLower().Contains(search) ||
+                    query = query.Where(x => (x.No != null && x.No.ToLower().Contains(search)) ||
                         (x.Kode != null && x.Kode.ToLower().Contains(search)) || 
                         (x.Grade != null && x.Grade.ToLower().Contains(search)));
                     totalFiltered = await query.CountAsync();

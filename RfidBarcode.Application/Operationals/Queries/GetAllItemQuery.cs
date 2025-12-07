@@ -33,7 +33,7 @@ namespace RfidBarcode.Application.Operationals.Queries
                 var query = _context.Items
                     .Include(x => x.ItemPrintLogs)
                     .Include(x => x.Location)
-                    .Include(x => x.SuratJalanP1)
+                    .Include(x => x.OutSuratJalan)
                     .AsNoTracking()
                     .Select(item => new ItemVM
                     {
@@ -60,9 +60,14 @@ namespace RfidBarcode.Application.Operationals.Queries
                         QcFinishUserId = item.QcFinishUserId,
                         QcFinish = item.QcFinish,
                         TanggalBuatBarcode = item.TanggalBuatBarcode,
-                        SuratJalanP1Id = item.SuratJalanP1Id,
-                        ScanP1UserId = item.ScanP1UserId,
-                        ScanP1 = item.ScanP1,
+                        InSuratJalanId = item.InSuratJalanId,
+                        InScanUserId = item.InScanUserId,
+                        InScan = item.InScan,
+                        OutSuratJalanId = item.OutSuratJalanId,
+                        OutScanUserId = item.OutScanUserId,
+                        OutScan = item.OutScan,
+                        InSuratJalan = item.InSuratJalan != null ? item.InSuratJalan.No : "",
+                        OutSuratJalan = item.OutSuratJalan != null ? item.OutSuratJalan.No : "",
                         TrackingItemId = item.TrackingItemId,
                         CreatedDate = item.CreatedDate ?? DateTime.MinValue,
                         CreatedBy = item.CreatedBy,
@@ -73,8 +78,9 @@ namespace RfidBarcode.Application.Operationals.Queries
                         LocationName = item.Location != null ? item.Location.Name : "",
                         LocationType = item.Location != null ? item.Location.Type : null,
                         Epc = item.Epc,
-                        SuratJalanP1 = item.SuratJalanP1 != null ? item.SuratJalanP1.No : null
-                    }).AsQueryable();
+                    })
+                    .AsNoTracking()
+                    .AsQueryable();
 
 
                 if (request.Ids != null && request.Ids.Count > 0)
@@ -89,9 +95,14 @@ namespace RfidBarcode.Application.Operationals.Queries
                         query = query.Where(x => x.TrackingItemId == request.Data.TrackingItemId);
                     }
 
-                    if (request.Data.SuratJalanP1Id != null)
+                    if (request.Data.OutSuratJalanId != null)
                     {
-                        query = query.Where(x => x.SuratJalanP1Id == request.Data.SuratJalanP1Id);
+                        query = query.Where(x => x.OutSuratJalanId == request.Data.OutSuratJalanId);
+                    }
+
+                    if (request.Data.InSuratJalanId != null)
+                    {
+                        query = query.Where(x => x.InSuratJalanId == request.Data.InSuratJalanId);
                     }
 
                     if (request.Data.LocationId != null)
@@ -120,7 +131,7 @@ namespace RfidBarcode.Application.Operationals.Queries
 
                 if (request.ExcludedSuratJalanP1Id != null)
                 {
-                    var p1 = await _context.SuratJalanP1s.Where(x => x.Id == request.ExcludedSuratJalanP1Id).FirstOrDefaultAsync();
+                    var p1 = await _context.SuratJalans.Where(x => x.Id == request.ExcludedSuratJalanP1Id).FirstOrDefaultAsync();
                     if (p1 != null)
                     {
                         if (p1.Grade == "ALK")
@@ -141,7 +152,7 @@ namespace RfidBarcode.Application.Operationals.Queries
                                 );
                         }
                     }
-                    query = query.Where(x => x.SuratJalanP1Id == null)
+                    query = query.Where(x => x.OutSuratJalanId == null)
                         .Where(x => x.LocationType == Domain.Entities.Location.TYPE_END_LOCATION);
                 }
 

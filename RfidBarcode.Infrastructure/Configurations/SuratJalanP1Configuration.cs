@@ -7,9 +7,9 @@ using System.Reflection.Emit;
 
 namespace RfidBarcode.Infrastructure.Configurations
 {
-    public class SuratJalanP1Configuration : IEntityTypeConfiguration<SuratJalanP1>
+    public class SuratJalanP1Configuration : IEntityTypeConfiguration<SuratJalan>
     {
-        public void Configure(EntityTypeBuilder<SuratJalanP1> builder)
+        public void Configure(EntityTypeBuilder<SuratJalan> builder)
         {
 
         }

@@ -16,5 +16,7 @@ namespace RfidBarcode.Application.Common.Interfaces
         public Task mqttClient_DisconnectedAsync(MqttClientDisconnectedEventArgs arg);
         public Task mqttClient_ConnectingFailedAsync(ConnectingFailedEventArgs arg);
         public DateTime? GetGateLastUpdate(string clientId);
+        public Task RestartAsync(CancellationToken cancellationToken = default);
+
     }
 }

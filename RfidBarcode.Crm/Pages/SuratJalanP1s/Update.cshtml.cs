@@ -13,7 +13,7 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 {
     public class UpdateModel : PageModel
     {
-        public SuratJalanP1VM ViewModel { get; set; }
+        public SuratJalanVM ViewModel { get; set; }
 
         [BindProperty]
         public long SuratJalanP1Id { get; set; }
@@ -25,14 +25,13 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 
         public List<ItemVM> Items { get; set; } = new List<ItemVM>();
 
-        public List<decimal> ColYards { get; set; }
+        public List<decimal> ColYards { get; set; } = new List<decimal>();
 
-        public List<string> ColKp { get; set; }
+        public List<string> ColKp { get; set; } = new List<string>();
 
         public List<string> SuratJalanTypes { get; set; } = new List<string>()
         {
-            SuratJalanP1.TYPE_P1,
-            SuratJalanP1.TYPE_K4
+
         };
 
         public int TotalRoll { get; set; }
@@ -45,21 +44,21 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
         public UpdateModel(IMediator mediator, IUserResolverService user)
         {
             _mediator = mediator;
-            ViewModel = new SuratJalanP1VM();
+            ViewModel = new SuratJalanVM();
             ItemIds = new List<long>();
             Username = user.GetUser();
         }
 
         public async Task<IActionResult> OnGetAsync(long id)
         {
-            var cmd = new GetSuratJalanRequest(new SuratJalanP1VM() { Id = id });
+            var cmd = new GetSuratJalanRequest(new SuratJalanVM() { Id = id });
             var res = await _mediator.Send(cmd);
             if (res.Result == BaseResponse.RESULT_OK && res.Data != null)
             {
                 ViewModel = res.Data;
             }
 
-            var request = new GetAllItemRequest() { Data = new ItemVM() { SuratJalanP1Id = id } };
+            var request = new GetAllItemRequest() { Data = new ItemVM() { OutSuratJalanId = id } };
             var response = await _mediator.Send(request);
 
             if (response.Data != null)
@@ -123,7 +122,17 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
                 TotalRoll = response.Data.Count;
 
             }
-            
+
+
+            var cmd1 = new GetAllSuratJalanTypeRequest()
+            {
+                Data = new SuratJalanTypeVM()
+                {
+                    Type = SuratJalanType.TYPE_OUTBOND
+                }
+            };
+            var res1 = await _mediator.Send(cmd1);
+            SuratJalanTypes = res1.Data.Select(x => x.Name).ToList();
 
             return Page();
         }
@@ -133,7 +142,7 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
             var response = new BaseDataTableResponse<ItemVM>();
             try
             {
-                var request = new GetAllItemRequest() { Data = new ItemVM() { SuratJalanP1Id = SuratJalanP1Id } };
+                var request = new GetAllItemRequest() { Data = new ItemVM() { OutSuratJalanId = SuratJalanP1Id } };
                 request.InitFromDataTable(Request.Form);
 
                 response = await _mediator.Send(request);
@@ -145,7 +154,6 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 
             return new OkObjectResult(response);
         }
-
 
         public async Task<IActionResult> OnPostRefreshDataModalAsync()
         {
@@ -167,7 +175,7 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 
         public async Task<IActionResult> OnPostAddItemsAsync()
         {
-            var cmd = new AddItemsForP1Request(SuratJalanP1Id, ItemIds);
+            var cmd = new AddItemsForSuratJalanRequest(SuratJalanP1Id, ItemIds);
             var response = await _mediator.Send(cmd);
 
             return new OkObjectResult(response);

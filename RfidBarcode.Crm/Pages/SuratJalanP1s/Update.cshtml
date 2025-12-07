@@ -348,8 +348,11 @@
     background-color: #f4f4f4;
     }
 
+
 </style>
+    
 }
+
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -502,7 +505,7 @@
                     <div class="form-group mb-3">
                         <label class="form-label" for="no">Nomor Surat Jalan</label>
                         <div class="input-group mb-3">
-                             <span class="input-group-text" id="noPrefixLabel">P1/</span>
+                             <span class="input-group-text" id="noPrefixLabel">@(Model.SuratJalanTypes.Count > 0 ? Model.SuratJalanTypes[0] : "")/</span>
                             <input class="form-control modal-input" id="no" name="no" type="text" style="max-width:100px" placeholder="cth: OL01" maxlength="4" />
                             <span class="input-group-text d-flex justify-content-center align-items-center" style="width:100px">
                                 <span id="noPostfixLabel">/00001</span>
@@ -531,6 +534,35 @@
 @if (Model.ViewModel.Grade == "ALK")
 {
     <div id="print-section" class="invoice-box">
+        <style>
+            /* Default bordered table */
+            .table-bordered {
+                border: 1px solid black;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            .table-bordered th,
+            .table-bordered td {
+                border: 1px solid black;
+                padding: 6px;
+                text-align: center;
+            }
+
+            /* Borderless table */
+            .table-borderless {
+                border: none;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+                .table-borderless th,
+                .table-borderless td {
+                    border: none;
+                    padding: 6px;
+                    text-align: left;
+                }
+        </style>
         <table style="border:none">
             <tbody>
                 <tr style="border:none">
@@ -542,10 +574,11 @@
             </tbody>
         </table>
         <br />
-        <table>
+        <table class="table-bordered">
+
             <thead>
                 <tr>
-                    <th style="width:25px"><strong>No</strong></th>
+                    <th style="width:25px"><strong>No1</strong></th>
                     <th><strong>SN</strong></th>
                     <th><strong>KP</strong></th>
                     <th colspan="4"><strong>KODE</strong></th>
@@ -596,6 +629,35 @@
 else
 {
     <div id="print-section" class="invoice-box">
+        <style>
+            /* Default bordered table */
+            .table-bordered {
+                border: 1px solid black;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            .table-bordered th,
+            .table-bordered td {
+                border: 1px solid black;
+                padding: 6px;
+                text-align: center;
+            }
+
+            /* Borderless table */
+            .table-borderless {
+                border: none;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+                .table-borderless th,
+                .table-borderless td {
+                    border: none;
+                    padding: 6px;
+                    text-align: left;
+                }
+        </style>
         <table style="border:none">
             <tbody>
                 <tr style="border:none">
@@ -604,7 +666,7 @@ else
                     <td style="border:none;width:200px;text-align:right;"><strong>KA : @Model.ViewModel.Kode</strong></td>
                 </tr>
                 <tr>
-                    <td style="border:none;vertical-align:top"><strong>User</strong></td>
+                    <td style="border:none;vertical-align:top;width:150px"><strong>User</strong></td>
                     <td style="border:none;vertical-align:top"><strong>: @Model.Username</strong></td>
                     <td style="border:none;text-align:right" rowspan="2"><image src="/api/qr?text=@Model.ViewModel.No" style="width:80px;height:80px" /></td>
                 </tr>
@@ -612,7 +674,7 @@ else
             </tbody>
         </table>
         <br />
-        <table>
+        <table class="table-bordered">
             <thead>
                 <tr>
                     <th width="20%"><strong>PO : @(Model.ColKp.Count > 0 ? Model.ColKp[0] : "")</strong></th>

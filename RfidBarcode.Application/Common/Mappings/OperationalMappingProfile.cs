@@ -29,7 +29,7 @@ namespace RfidBarcode.Application.Common.Mappings
                     src.StockOpnameDetails != null ? src.StockOpnameDetails.Where(x => x.Note == "Misplaced").Count() : 0))
                 .ForMember(dest => dest.InvalidTag, opt => opt.MapFrom(src =>
                     src.StockOpnameDetails != null ? src.StockOpnameDetails.Where(x => x.Note == "Invalid Tag").Count() : 0));
-            CreateMap<SuratJalanP1, SuratJalanP1VM>()
+            CreateMap<SuratJalan, SuratJalanVM>()
                 .ReverseMap();
         }
     }

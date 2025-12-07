@@ -1,0 +1,102 @@
+﻿@page
+@model RfidBarcode.Crm.Areas.Settings.Pages.SuratJalans.IndexModel
+@{
+    ViewData["Title"] = "Tipe Surat Jalan";
+}
+
+
+@section Styles {
+    <style>
+        #grid td:nth-child(1) {
+            width: 0.1%;
+            padding-right: 20px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/Settings/SuratJalans');
+        SimplePageTable.InitTable({
+            hasAction: true,
+            hasEdit: true,
+            hasDelete: true,
+            action: 'popup',
+            columns: [
+                { data: 'name', name: 'Name' },
+                { data: 'type', name: 'Type' },
+            ],
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+
+            <div class="card-header">
+                <div class="d-flex flex-sm-row flex-column justify-content-between">
+                    <div class="me-auto">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+
+                        <h3 class="pt-3">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="align-self-end">
+                        <button class="btn btn-primary" type="button" onclick="SimplePageTable.Open('-1')">
+                            <i class="fas fa-plus"></i> Tambah
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Nama</th>
+                            <th>Tipe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="entryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span class="fas fa-times fs--1"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="modal-input" id="id" name="id" />
+                <div class="form-group mb-3">
+                    <label class="form-label" for="name">Nama Surat Jalan</label>
+                    <input class="form-control modal-input" id="name" name="name" type="text" maxlength="50" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label" for="type">Tipe</label>
+                    <select class="form-control modal-input" id="type" name="type" required>
+                        <option value="in">Inbound</option>
+                        <option value="out">Outbond</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" onclick="SimplePageTable.Save()">Save</button>
+                <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -44,19 +44,27 @@ namespace RfidBarcode.Domain.Entities
         [Required]
         public DateTime TanggalBuatBarcode { get; set; }
 
-        //public string? PointGrade { get; set; } = "";
-        public long? SuratJalanP1Id { get; set; }
-        public long? ScanP1UserId { get; set; }
-        public DateTime? ScanP1 { get; set; }
+        //SuratJalan Masuk
+        public long? InSuratJalanId { get; set; }
+        public long? InScanUserId { get; set; }
+        public string? InScanUser { get; set; }
+        public DateTime? InScan { get; set; }
 
-        //public string? T01 { get; set; }
+        //SuratJalan Keluar
+        public long? OutSuratJalanId { get; set; }
+        public long? OutScanUserId { get; set; }
+        public string? OutScanUser { get; set; }
+        public DateTime? OutScan { get; set; }
+
+
         public long? TrackingItemId { get; set; }
 
         public string? Epc { get; set; }
         public string? Qr { get; set; }
         public long? LocationId { get; set; }
 
-        public SuratJalanP1? SuratJalanP1 { get; set; }
+        public SuratJalan? InSuratJalan { get; set; }
+        public SuratJalan? OutSuratJalan { get; set; }
 
         public TrackingItem? TrackingItem { get; set; }
 

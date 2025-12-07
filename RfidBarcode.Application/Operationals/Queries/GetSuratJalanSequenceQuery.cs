@@ -22,7 +22,7 @@ namespace RfidBarcode.Application.Operationals.Queries
             try
             {
                 var noPrefix = $"{request.Type}/{request.Code}";
-                var count = await _context.SuratJalanP1s
+                var count = await _context.SuratJalans
                     .Where(sj => sj.No != null && sj.No.StartsWith(noPrefix))
                     .OrderByDescending(sj => sj.Sequence)
                     .Select(sj => sj.Sequence)

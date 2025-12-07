@@ -29,7 +29,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                 {
                     foreach (var item in items)
                     {
-                        item.SuratJalanP1Id = null;
+                        item.OutSuratJalanId = null;
                     }
                     await _context.SaveChangesAsync(cancellationToken);
                     response.Result = BaseResponse.RESULT_OK;

@@ -25,7 +25,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
             try
             {
                 //validate number items to ensure that it can be printed
-                var items = await _context.Items.Where(x => x.SuratJalanP1Id == request.SuratJalanP1Id)
+                var items = await _context.Items.Where(x => x.OutSuratJalanId == request.SuratJalanId)
                     .Select(item => new ItemVM()
                     {
                         Id = item.Id,
@@ -48,12 +48,12 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         K3l = item.K3l,
                         Inisial = item.Inisial,
                         UserId = item.UserId,
-                        SuratJalanP1Id = item.SuratJalanP1Id,
+                        OutSuratJalanId = item.OutSuratJalanId,
                         QcFinishUserId = item.QcFinishUserId,
                         QcFinish = item.QcFinish,
                         TanggalBuatBarcode = item.TanggalBuatBarcode,
-                        ScanP1UserId = item.ScanP1UserId,
-                        ScanP1 = item.ScanP1,
+                        OutScanUserId = item.OutScanUserId,
+                        OutScan = item.OutScan,
                         TrackingItemId = item.TrackingItemId,
                         CreatedDate = item.CreatedDate ?? DateTime.MinValue,
                         CreatedBy = item.CreatedBy,
@@ -64,7 +64,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         LocationName = item.Location != null ? item.Location.Name : "",
                         LocationType = item.Location != null ? item.Location.Type : null,
                         Epc = item.Epc,
-                        SuratJalanP1 = item.SuratJalanP1 != null ? item.SuratJalanP1.No : null
+                        OutSuratJalan = item.OutSuratJalan != null ? item.OutSuratJalan.No : null
                     })
                     .ToListAsync();
                 if (!Helper.ValidateSuratJalanColumns(items))
@@ -81,11 +81,11 @@ namespace RfidBarcode.Application.Operationals.Handlers
                 var no = Helper.GenerateSuratJalanNo(request.Type, request.Code, request.Sequence);
 
                 //check if any duplicate no
-                if (await _context.SuratJalanP1s.Where(x => x.No == no).AnyAsync())
+                if (await _context.SuratJalans.Where(x => x.No == no).AnyAsync())
                 {
                     //try to regenerate with new sequence
                     var noPrefix = $"{request.Type}/{request.Code}";
-                    var count = await _context.SuratJalanP1s
+                    var count = await _context.SuratJalans
                         .Where(sj => sj.No != null && sj.No.StartsWith(noPrefix))
                         .OrderByDescending(sj => sj.Sequence)
                         .Select(sj => sj.Sequence)
@@ -97,10 +97,10 @@ namespace RfidBarcode.Application.Operationals.Handlers
                     return response;
                 }
 
-                var srtJalan = await _context.SuratJalanP1s.Where(x => x.Id == request.SuratJalanP1Id).FirstOrDefaultAsync();
+                var srtJalan = await _context.SuratJalans.Where(x => x.Id == request.SuratJalanId).FirstOrDefaultAsync();
                 if (srtJalan != null)
                 {
-                    srtJalan.Type = request.Type;
+                    srtJalan.SuratJalanType = request.Type;
                     srtJalan.No = no;
                     srtJalan.FinalizeDate = DateTime.Now;
                     srtJalan.Sequence = request.Sequence;

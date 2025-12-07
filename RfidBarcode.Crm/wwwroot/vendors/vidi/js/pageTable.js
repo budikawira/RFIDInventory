@@ -1,5 +1,5 @@
 ﻿// ///////////////////////////////////////////////
-// version: 2025.01.05                          //
+// version: 2025.07.30                          //
 // ///////////////////////////////////////////////
 
 var SimplePageTable = (() => {
@@ -74,9 +74,29 @@ var SimplePageTable = (() => {
             return _grid;
         }),
         InitTable: ((options) => {
+            console.log('options >> ', options);
             var dataParam = {};
 
+            var pageLength = 10;
+            if (options.hasOwnProperty("pageLength")) {
+                pageLength = options["pageLength"];
+            }
             var columnDefs = [{ className: "align-middle", targets: "_all" }];
+
+            if (options.hasOwnProperty("columnDefs")) {
+                console.log("Property columnDefs >> ", options["columnDefs"].length);
+                for (let i = 0; i < options["columnDefs"].length; i++) {
+                    columnDefs.push(options["columnDefs"][i]);
+                }
+            }
+
+            let dataSrc = function (d) {
+                return d.data;
+            }
+            if (options.hasOwnProperty("dataSrc")) {
+                dataSrc = options['dataSrc'];
+            }
+
             if (options['hasAction'] === true) {
                 var actionType = 'popup';
                 if (typeof options['action'] !== "undefined") {
@@ -84,19 +104,10 @@ var SimplePageTable = (() => {
                 }
 
                 if (options['hasEdit'] && options['hasDelete']) {
-                    columnDefs.push({ targets: [0], sortable: false});
+                    columnDefs.push({ targets: [0], sortable: false });
                 } else {
-                    columnDefs.push({ targets: [0], sortable: false});
+                    columnDefs.push({ targets: [0], sortable: false });
                 }
-
-                if (options.hasOwnProperty("columnDefs")) {
-                    console.log("Property columnDefs >> ", options["columnDefs"].length);
-                    for (let i = 0; i < options["columnDefs"].length; i++) {
-                        columnDefs.push(options["columnDefs"][i]);
-                    }
-                } 
-
-                console.log("columnDefs >> ", columnDefs);
 
                 var action = {};
                 action['data'] = null;
@@ -134,8 +145,29 @@ var SimplePageTable = (() => {
                     return button;
                 }
                 options['columns'].unshift(action);
+            }
+
+            //check the selection
+            if (options['hasSelection'] === true) {
+                $('#grid thead tr').prepend('<th><input type="checkbox" class="form-check-input dt-checkbox-input-all" /></th>');
+                var col = {};
+                col['data'] = null;
+                col['render'] = function (data, type, row, node) {
+                    var html = `<input class="form-check-input dt-checkbox-input ms-1" type="checkbox" value="${data['id']}" />`;
+                    return html;
+                }
+                options['columns'].unshift(col);
+
+                // Handle "select all" checkbox
+                $(document).on('change', '.dt-checkbox-input-all', function () {
+                    const checked = $(this).is(':checked');
+                    $('#grid tbody input.dt-checkbox-input').prop('checked', checked);
+                });
 
             }
+
+            console.log("columnDefs >> ", columnDefs);
+
             //default order
             var gridOrder = [[1, 'asc']];
             if (options['order'] !== undefined) {
@@ -158,9 +190,14 @@ var SimplePageTable = (() => {
                     headers: { 'RequestVerificationToken': _token },
                     data: function (d) {
                         $('.grid-param').each(function (index, element) {
-                            d[element.id] = element.value;
+                            var value = element.value;
+                            if (element.classList.contains("select2-hidden-accessible")) {
+                                value = $('#' + element.id).select2('val');
+                            }
+                            d[element.id] = value;
                         });
-                    }
+                    },
+                    dataSrc: dataSrc
                 },
                 initComplete: function (settings, json) {
                     //setTimeout(function () {
@@ -171,6 +208,9 @@ var SimplePageTable = (() => {
                 order: gridOrder,
                 pagingType: $(window).width() < 768 ? "numbers" : "simple_numbers",
                 columns: options['columns'],
+                pageLength: pageLength,
+                lengthMenu: [[10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000]]
+
             });
 
             $('.grid-param').on('change', function () {
@@ -184,26 +224,31 @@ var SimplePageTable = (() => {
                     _grid.columns.adjust();
                 }, 100);
             });
-
         }),
         Open: ((row) => {
             $('.is-invalid').removeClass('is-invalid');
             _row = row || -1;
+
             if (_row == -1) {
                 $('.modal-input').each(function (index, element) {
                     var attr = element.getAttribute('type');
                     console.log('attr > ', attr);
                     if (element.classList.contains("select2-hidden-accessible")) {
-                        $("#" + element.id).val(null).trigger('change');
+                        // For multiple Select2, set empty array
+                        if ($("#" + element.id).attr('multiple') !== undefined) {
+                            $("#" + element.id).val([]).trigger('change');
+                        } else {
+                            $("#" + element.id).val(null).trigger('change');
+                        }
                     } else if (attr != 'hidden') {
                         element.value = '';
                         if (attr == 'checkbox') {
                             $("#" + element.id).prop("checked", false);
                         }
-                    } 
+                    }
                 });
                 $('#id').val('');
-                $('#modalTitle').html('Add');
+                $('#modalTitle').html('Tambah');
             } else {
                 var rowData = _grid.row(_row).data();
                 console.log('rowData >> ', rowData);
@@ -212,14 +257,35 @@ var SimplePageTable = (() => {
                 $('.modal-input').each(function (index, element) {
                     var inputType = element.getAttribute("type");
                     console.log(element.id + ':' + inputType);
+
                     if (element.classList.contains("select2-hidden-accessible")) {
+                        var isMultiple = $("#" + element.id).attr('multiple') !== undefined;
+
                         if (rowData[element.id] == null) {
-                            $("#" + element.id).val(null).trigger('change');
+                            if (isMultiple) {
+                                $("#" + element.id).val([]).trigger('change');
+                            } else {
+                                $("#" + element.id).val(null).trigger('change');
+                            }
                         } else {
-                            var label = element.getAttribute("data-select2-label");
-                            var option = new Option(rowData[label], rowData[element.id], true, true);
+                            $('#' + element.id).empty();
+                            if (isMultiple) {
+                                var label = element.getAttribute("data-select2-label");
+                                var values = rowData[element.id];
+                                console.log('is Multiple label ' + label + 'values >> ', values);
+                                values.forEach(function (value) {
+                                    $('#' + element.id)
+                                        .append(new Option(value[label], value['id'], true, true))
+                                        .trigger('change');
+                                });
+
+                            } else {
+                                // Single selection
+                                var label = element.getAttribute("data-select2-label");
+                                var option = new Option(rowData[label], rowData[element.id], true, true);
+                                $("#" + element.id).append(option).trigger('change');
+                            }
                         }
-                        $("#" + element.id).append(option).trigger('change');
                     } else {
                         if (inputType == 'checkbox') {
                             $("#" + element.id).prop("checked", rowData[element.id]);
@@ -228,7 +294,7 @@ var SimplePageTable = (() => {
                         }
                     }
                 });
-                $('#modalTitle').html('Edit');
+                $('#modalTitle').html('Ubah');
             }
             $('#modal').modal('show');
             SimplePageTable.PostOpen(row);
@@ -244,7 +310,21 @@ var SimplePageTable = (() => {
             var dataParam = {};
             $('.modal-input').each(function (index, element) {
                 if (element.hasAttribute('required')) {
-                    countBlankError = validateBlank(element.id);
+                    countBlankError += validateBlank(element.id);
+                }
+
+                var minLength = -1;
+                var maxLength = -1;
+                if (element.hasAttribute('minlength')) {
+                    minLength = element.minLength;
+                }
+
+                if (element.hasAttribute('maxlength')) {
+                    maxLength = element.maxLength;
+                }
+
+                if (minLength > 0 || maxLength > 0) {
+                    countBlankError += validateMinMax(element.id, minLength, maxLength);
                 }
 
                 if (element.hasAttribute('select2')) {
@@ -257,6 +337,19 @@ var SimplePageTable = (() => {
                 } else if (isChoicesInstance(element.id)) {
                     dataParam[element.id] = JSON.stringify($('#' + element.id).val());
                     console.log('isChoiceInstance-' + element.id, dataParam[element.id]);
+                } else if ($('#' + element.id).hasClass('select2-hidden-accessible') && $('#' + element.id).attr('multiple')) {
+                    // Handle Select2 multiple select
+                    var values = $('#' + element.id).val();
+                    var resultArray = [];
+
+                    if (values && values.length > 0) {
+                        values.forEach(function (value) {
+                            resultArray.push({ id: value });
+                        });
+                    }
+
+                    dataParam[element.id] = resultArray;
+                    console.log('Select2 Multiple-' + element.id, dataParam[element.id]);
                 } else if (element.classList.contains("input-decimal")) {
                     dataParam[element.id] = parseFloat(element.value);
                     console.log('Float param >> ' + element.id + ' >> ', dataParam[element.id])
@@ -267,7 +360,7 @@ var SimplePageTable = (() => {
             console.log('dataParam >> ', dataParam);
             if (countBlankError > 0) {
                 LoadingScreenFunction.Hide();
-                Swal.fire('Please input mandatory fields!', '', 'error');
+                Swal.fire('Harap cek kembali data yang diisi!', '', 'error');
                 return;
             }
 
@@ -282,7 +375,7 @@ var SimplePageTable = (() => {
                         Swal.fire(objRes.message, '', 'error');
                     } else {
                         $('#modal').modal('hide');
-                        Swal.fire('Data has been saved!', '', 'success')
+                        Swal.fire(objRes.message, '', 'Sukses')
                             .then(okay => {
                                 if (okay) {
                                     if (_row == -1) {
@@ -324,6 +417,7 @@ var SimplePageTable = (() => {
                         },
                         success: function (objRes) {
                             LoadingScreenFunction.Hide();
+                            console.log('Delete objRes >> ', objRes);
                             if (objRes.result != 0) {
                                 Swal.fire(objRes.message, '', 'error')
                             } else {
@@ -446,3 +540,19 @@ var SimplePageTable = (() => {
         })
     }
 })();
+
+let validateMinMax = function (id, min, max) {
+    var error = '';
+    var value = $('#' + id).val();
+    if (min > 0 && value.length < min) {
+        $('#' + id).addClass('is-invalid');
+        return 1;
+    } else if (max > 0 && value.length > max) {
+        $('#' + id).addClass('is-invalid');
+        return 1;
+    }
+
+    return 0;
+}
+
+

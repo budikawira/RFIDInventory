@@ -45,10 +45,16 @@ namespace RfidBarcode.Infrastructure.Configurations
                 .HasForeignKey(x => x.LocationId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasOne(x => x.SuratJalanP1)
-                .WithMany(y => y.Items)
+            builder.HasOne(x => x.InSuratJalan)
+                .WithMany()
                 .IsRequired(false)
-                .HasForeignKey(x => x.SuratJalanP1Id)
+                .HasForeignKey(x => x.InSuratJalanId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(x => x.OutSuratJalan)
+                .WithMany()
+                .IsRequired(false)
+                .HasForeignKey(x => x.OutSuratJalanId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }

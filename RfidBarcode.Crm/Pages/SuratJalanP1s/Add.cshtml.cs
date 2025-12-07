@@ -53,10 +53,9 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
             Locations = resL.Data;
         }
 
-
         public async Task<IActionResult> OnPostRefreshDataAsync()
         {
-            var request = new GetAllItemSummaryForP1Request(LocationId);
+            var request = new GetAllItemSummaryForOutbondRequest(LocationId);
             request.InitFromDataTable(Request.Form);
 
             var response = await _mediator.Send(request);
@@ -68,13 +67,14 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
         {
             var response = new BaseResponse();
 
-            var cmd = new CreateSuratJalanP1Request();
+            var cmd = new CreateSuratJalanRequest();
             cmd.Kode = Kode;
             cmd.Kode1 = Kode1;
             cmd.Kode2 = Kode2;
             cmd.Kode3 = Kode3;
             cmd.Kode4 = Kode4;
             cmd.Grade = Grade;
+            cmd.SuratJalanType = SuratJalanType.TYPE_OUTBOND;
             response = await _mediator.Send(cmd);
 
             return new OkObjectResult(response);
