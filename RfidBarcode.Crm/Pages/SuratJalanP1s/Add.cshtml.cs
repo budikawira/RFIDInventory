@@ -1,19 +1,20 @@
+using DocumentFormat.OpenXml.Spreadsheet;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Storage;
 using RfidBarcode.Application.Common.BaseObjects;
+using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Application.Operationals.Requests;
 using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Application.Settings.ViewModels;
+using RfidBarcode.Crm.Common;
 using RfidBarcode.Domain.Entities;
 
 namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 {
-    public class AddModel : PageModel
+    public class AddModel : BasePageModel
     {
-        [BindProperty]
-        public long LocationId { get; set; }
 
         [BindProperty]
         public string? Kp { get; set; }
@@ -36,26 +37,14 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
         [BindProperty]
         public string? Grade { get; set; }
 
-        public List<LocationVM> Locations { get; set; }
-
-        private readonly IMediator _mediator;
-
-        public AddModel(IMediator mediator)
+        public AddModel(IMediator mediator, IUserResolverService user) : base(mediator)
         {
-            _mediator = mediator;
-            Locations = new List<LocationVM>();
-        }
-
-        public async Task OnGetAsync()
-        {
-            var cmdL = new GetAllLocationRequest() { IsForSummaryK3 = true};
-            var resL = await _mediator.Send(cmdL);
-            Locations = resL.Data;
+            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanOutbond);
         }
 
         public async Task<IActionResult> OnPostRefreshDataAsync()
         {
-            var request = new GetAllItemSummaryForOutbondRequest(LocationId);
+            var request = new GetAllItemSummaryForOutbondRequest();
             request.InitFromDataTable(Request.Form);
 
             var response = await _mediator.Send(request);

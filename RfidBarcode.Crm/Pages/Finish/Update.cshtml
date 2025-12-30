@@ -1,5 +1,8 @@
 ﻿@page
+@using RfidBarcode.Application.Common.Interfaces
+@using RfidBarcode.Domain.Entities
 @model RfidBarcode.Crm.Pages.Finish.UpdateModel
+@inject IUserResolverService _user
 @{
     ViewData["Action"] = Model.Item.Id == 0 ? "Tambah" : "Ubah";
     ViewData["Title"] = "Finish";
@@ -18,6 +21,16 @@
             });
         });
     </script>
+    @if (!_user.HasReadAccess(AccessMenu.InputBarcode))
+    {
+        <script>
+            // Disable all input fields if the user does not have read access
+            $(document).ready(function () {
+                $('.form-control').attr('disabled', 'disabled');
+            });
+        </script>
+    }
+
 }
 <!-- #region Content -->
 <div class="row">
@@ -38,9 +51,12 @@
                             <h3 class="pt-3">@(ViewData["Action"] + " " + @ViewData["Title"])</h3>
                         </div>
                         <div class="align-self-end">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-save"></i> Save
-                            </button>
+                            @if (_user.HasReadAccess(AccessMenu.InputBarcode))
+                            {
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>

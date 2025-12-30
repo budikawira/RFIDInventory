@@ -34,6 +34,7 @@ namespace RfidBarcode.Application.Operationals.Queries
                     .Include(x => x.ItemPrintLogs)
                     .Include(x => x.Location)
                     .Include(x => x.OutSuratJalan)
+                    .Include(x => x.InSuratJalan)
                     .AsNoTracking()
                     .Select(item => new ItemVM
                     {
@@ -78,6 +79,7 @@ namespace RfidBarcode.Application.Operationals.Queries
                         LocationName = item.Location != null ? item.Location.Name : "",
                         LocationType = item.Location != null ? item.Location.Type : null,
                         Epc = item.Epc,
+                        PrintStatus = item.ItemPrintLogs.Count == 0 ? ItemVM.PRINT_STATUS_PENDING : ItemVM.PRINT_STATUS_DONE
                     })
                     .AsNoTracking()
                     .AsQueryable();
@@ -153,9 +155,50 @@ namespace RfidBarcode.Application.Operationals.Queries
                         }
                     }
                     query = query.Where(x => x.OutSuratJalanId == null)
-                        .Where(x => x.LocationType == Domain.Entities.Location.TYPE_END_LOCATION);
+                        .Where(x => x.InScan != null); //already confirm inbound
+                }
+                else if (request.IsForAddInboundItems != null)
+                {
+                    var p1 = await _context.SuratJalans.Where(x => x.Id == request.IsForAddInboundItems).FirstOrDefaultAsync();
+                    if (p1 != null)
+                    {
+                        if (p1.Grade == "ALK")
+                        {
+                            query = query.Where(x =>
+                                x.Grade == p1.Grade
+                                );
+                        }
+                        else
+                        {
+                            query = query.Where(x =>
+                                //x.Kp == k3.Kp && 
+                                x.Kode1 == p1.Kode1 &&
+                                x.Kode2 == p1.Kode2 &&
+                                x.Kode3 == p1.Kode3 &&
+                                x.Kode4 == p1.Kode4 &&
+                                x.Grade == p1.Grade
+                                );
+                        }
+                    }
+                    query = query.Where(x => x.InSuratJalanId == null && x.OutSuratJalanId == null);
                 }
 
+
+                if (request.StockStatus != ItemVM.STOCK_STATUS_ALL)
+                {
+                    if (request.StockStatus == ItemVM.STOCK_STATUS_IN_STOCK)
+                    {
+                        query = query.Where(x => x.InScan != null && x.OutScan == null);
+                    }
+                    else if (request.StockStatus == ItemVM.STOCK_STATUS_SHIPPED)
+                    {
+                        query = query.Where(x => x.OutScan != null);
+                    }
+                    else if (request.StockStatus == ItemVM.STOCK_STATUS_NOT_RECEIVED)
+                    {
+                        query = query.Where(x => x.InScan == null);
+                    }
+                }
 
                 //additional queries for Handheld Find
                 DateTime createdDate;

@@ -2,18 +2,19 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RfidBarcode.Application.Common.BaseObjects;
+using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Application.Operationals.Requests;
 using RfidBarcode.Application.Operationals.ViewModels;
+using RfidBarcode.Crm.Common;
 using RfidBarcode.Domain.Entities;
 
 namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 {
-    public class IndexModel : PageModel
+    public class IndexModel : BasePageModel
     {
-        private readonly IMediator _mediator;
-        public IndexModel(IMediator mediator)
+        public IndexModel(IMediator mediator, IUserResolverService user) : base(mediator)
         {
-            _mediator = mediator;
+            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanOutbond);
         }
 
 

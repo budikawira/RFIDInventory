@@ -38,10 +38,11 @@ namespace RfidBarcode.Application.Operationals.Queries
                         Kode4 = (x.Grade != "ALK") ? x.Kode4 : "",
                         x.Grade,
                         x.LocationId,
-                        x.OutSuratJalanId
+                        x.OutSuratJalanId,
+                        x.InScan
                     })
                     .AsNoTracking()
-                    .Where(x => x.LocationId == request.LocationId)
+                    .Where(x => x.InScan != null) //items with inbound already finalized
                     .Where(x => x.OutSuratJalanId == null)
                     .GroupBy(x => new
                     {

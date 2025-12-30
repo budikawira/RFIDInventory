@@ -5,19 +5,19 @@ using System.Buffers;
 
 namespace RfidBarcode.Application.Operationals.Requests
 {
-    public class FinalizeP1Request : IRequest<BaseResponse>
+    public class FinalizeSuratJalanRequest : IRequest<BaseResponse>
     {
         public long SuratJalanId { get; set; }
         public string Type { get; set; }
         public string Code { get; set; }
         public int Sequence { get; set; }
 
-        public FinalizeP1Request(long suratJalanId, string type, string code, int sequence) 
+        public FinalizeSuratJalanRequest(long suratJalanId, string? type, string? code, int? sequence) 
         {
             SuratJalanId = suratJalanId;
-            Type = type;
-            Code = code;
-            Sequence = sequence;
+            Type = type ?? "";
+            Code = code ?? "";
+            Sequence = sequence ?? 0;
         }
     }
 }

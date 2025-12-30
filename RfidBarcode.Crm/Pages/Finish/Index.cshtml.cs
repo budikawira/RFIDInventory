@@ -10,6 +10,7 @@ using RfidBarcode.Application.Operationals.Requests;
 using RfidBarcode.Application.Operationals.ViewModels;
 using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Crm.Common.ViewModels;
+using RfidBarcode.Domain.Entities;
 using SQLitePCL;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
@@ -45,6 +46,7 @@ namespace RfidBarcode.Crm.Pages.Finish
             var printStatus = Request.Form["printStatus"].ToString();
             var tempLocation = Request.Form["locationId"];
             var temp = Request.Form["tagId"];
+            var stockStatus = Request.Form["stockStatus"];
             var response = new BaseDataTableResponse<ItemVM>();
             try
             {
@@ -74,6 +76,12 @@ namespace RfidBarcode.Crm.Pages.Finish
                 {
                     request.LocationId = locationId;
                 }
+                int stockStatusValue;
+                if (int.TryParse(stockStatus, out stockStatusValue))
+                {
+                    request.StockStatus = stockStatusValue;
+                }
+
                 request.InitFromDataTable(Request.Form);
 
                 response = await _mediator.Send(request);
@@ -89,6 +97,12 @@ namespace RfidBarcode.Crm.Pages.Finish
         public async Task<IActionResult> OnPostDeleteAsync(long id)
         {
             var response = new BaseResponse();
+
+            if (!_user.HasReadAccess(AccessMenu.InputBarcode))
+            {
+                response.Message = "Not authorized!";
+                return new OkObjectResult(response);
+            }
             try
             {
                 var request = new DeleteItemRequest(id);
@@ -136,6 +150,12 @@ namespace RfidBarcode.Crm.Pages.Finish
         public async Task<IActionResult> OnPostImportAsync()
         {
             var response = new BaseResponse();
+            if (!_user.HasReadAccess(AccessMenu.InputBarcode))
+            {
+                response.Message = "Not authorized!";
+                return new OkObjectResult(response);
+            }
+
             var indexColumn = new string[]
             {
                 "", "Merk", "", "Kp", "Kode1", "Kode2", "Kode3", "Kode4",
@@ -229,6 +249,12 @@ namespace RfidBarcode.Crm.Pages.Finish
         public async Task<IActionResult> OnPostImport1Async()
         {
             var response = new BaseResponse();
+
+            if (!_user.HasReadAccess(AccessMenu.InputBarcode))
+            {
+                response.Message = "Not authorized!";
+                return new OkObjectResult(response);
+            }
             var indexColumn = new string[]
             {
                 "Merk", "Kp", "Kode1", "Kode2", "Kode3", "Kode4",
@@ -324,6 +350,12 @@ namespace RfidBarcode.Crm.Pages.Finish
         public async Task<IActionResult> OnPostPrintAsync(long[] ids)
         {
             var response = new BaseResponse();
+
+            if (!_user.HasReadAccess(AccessMenu.InputBarcode))
+            {
+                response.Message = "Not authorized!";
+                return new OkObjectResult(response);
+            }
             try
             {
                 var cmd = new GetAllItemRequest()

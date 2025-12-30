@@ -78,7 +78,49 @@
                         });
                     }
                 });
-            }),
+                }),
+                    Confirm: (() => {
+                         Swal.fire({
+                            title: 'Konfirmasi Pengiriman?',
+                            text: "Data tidak dapat diubah lagi!",
+                            icon: 'success',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, Konfirmasi!',
+                            cancelButtonText: 'Selesai'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                LoadingScreenFunction.Show();
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/SuratJalanP1s/Update?Handler=Confirm",
+                                    data: {
+                                        suratJalanP1Id: $('#suratJalanP1Id').val()
+                                    },
+                                    headers: {
+                                        'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                                    },
+                                    success: function(objRes) {
+                                        console.log('objRes >> ', objRes);
+                                        LoadingScreenFunction.Hide();
+
+                                        if (objRes.result == 0) {
+                                            window.location.reload();
+                                        } else {
+                                            Swal.fire('Gagal Konfirmasi!', objRes.message, 'error');
+                                        }
+                                    },
+                                    error: function(response) {
+                                        console.log('response err >> ', response);
+                                        LoadingScreenFunction.Hide();
+                                        Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                                    }
+                                });
+                            }
+                        });
+                    }),
             AddItems: (() => {
                 var itemIds = [];
                 $(".checkbox-input:checked").each(function() {
@@ -138,7 +180,8 @@
                                 }
                             },
                             { data: 'createdDateString', name: 'CreatedDate' },
-                            { data: 'locationName', name: 'LocationName' },
+                                { data: 'locationName', name: 'LocationName' },
+                                { data: 'id', name: 'Id' },
                             { data: 'merk', name: 'Merk' },
                             { data: 'kp', name: 'Kp' },
                             { data: 'kode1', name: 'Kode1' },
@@ -182,6 +225,7 @@
         columns: [
         { data: 'createdDateString', name: 'CreatedDate' },
         { data: 'locationName', name: 'LocationName' },
+        { data: 'id', name: 'Id' },
         { data: 'merk', name: 'Merk' },
         { data: 'kp', name: 'Kp' },
         { data: 'kode1', name: 'Kode1' },
@@ -375,15 +419,29 @@
                             <button class="btn btn-primary" onclick="jsFunction.Open()">
                                 <i class="fas fa-plus me-1"></i> Tambah
                             </button>
-                            <button type="button" class="btn btn-success" onclick="jsFunction.OpenFinalize()">
-                                <i class="fas fa-check me-1"></i>  Finalisasi
-                            </button>
+                            @if (string.IsNullOrEmpty(Model.ViewModel.No))
+                            {
+                                <button type="button" class="btn btn-success" onclick="jsFunction.OpenFinalize()">
+                                    <i class="fas fa-check me-1"></i>  Finalisasi
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-success" onclick="jsFunction.Finalize()">
+                                    <i class="fas fa-check me-1"></i>  Finalisasi
+                                </button>
+                            }
                         }
-                        else
+                        else if (Model.ViewModel.ConfirmDate == null)
                         {
-
+                            <button type="button" class="btn btn-warning" onclick="jsFunction.Unfinalize()">
+                                <i class="fas fa-cross me-1"></i>  Batalkan Finalisasi
+                            </button>
                             <button class="btn btn-primary" onclick="openAndPrint()">
                                 <i class="fas fa-print me-1"></i>  Print Surat Jalan
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="jsFunction.Confirm()">
+                                <i class="fas fa-check me-1"></i>  Konfirmasi Pengiriman
                             </button>
                         }
 
@@ -402,6 +460,7 @@
                             }
                             <th>Tanggal Pembuatan</th>
                             <th>Lokasi</th>
+                            <th>Tag Id</th>
                             <th>Merk</th>
                             <th>KP</th>
                             <th>Kode 1</th>
@@ -448,6 +507,7 @@
                                 <th class="me-1"><input class="form-check-input checkbox-input-all ms-3" type="checkbox" id="cbInputAll" checked></th>
                                 <th>Tanggal Pembuatan</th>
                                 <th>Lokasi</th>
+                                <th>Tag Id</th>
                                 <th>Merk</th>
                                 <th>KP</th>
                                 <th>Kode 1</th>
@@ -530,7 +590,6 @@
 
 
 <!-- Static print content (hidden in browser) -->
-
 @if (Model.ViewModel.Grade == "ALK")
 {
     <div id="print-section" class="invoice-box">
@@ -542,12 +601,12 @@
                 width: 100%;
             }
 
-            .table-bordered th,
-            .table-bordered td {
-                border: 1px solid black;
-                padding: 6px;
-                text-align: center;
-            }
+                .table-bordered th,
+                .table-bordered td {
+                    border: 1px solid black;
+                    padding: 6px;
+                    text-align: center;
+                }
 
             /* Borderless table */
             .table-borderless {
@@ -590,7 +649,9 @@
                 </tr>
             </thead>
             <tbody>
-                @{ var no = 1; }
+                @{
+                    var no = 1;
+                }
                 @foreach (var item in Model.Items)
                 {
                     <tr>
@@ -637,12 +698,12 @@ else
                 width: 100%;
             }
 
-            .table-bordered th,
-            .table-bordered td {
-                border: 1px solid black;
-                padding: 6px;
-                text-align: center;
-            }
+                .table-bordered th,
+                .table-bordered td {
+                    border: 1px solid black;
+                    padding: 6px;
+                    text-align: center;
+                }
 
             /* Borderless table */
             .table-borderless {
@@ -658,19 +719,19 @@ else
                     text-align: left;
                 }
         </style>
-        <table style="border:none">
+        <table class="table-borderless">
             <tbody>
-                <tr style="border:none">
-                    <td style="border:none;width:150px"><strong>No Surat Jalan</strong></td>
-                    <td style="border:none"><strong>: @Model.ViewModel.No</strong></td>
-                    <td style="border:none;width:200px;text-align:right;"><strong>KA : @Model.ViewModel.Kode</strong></td>
+                <tr>
+                    <td style="width:120px;text-align:left"><strong>No Surat Jalan</strong></td>
+                    <td style="text-align:left"><strong>: @Model.ViewModel.No</strong></td>
+                    <td style="text-align:right;"><strong>KA : @Model.ViewModel.Kode</strong></td>
                 </tr>
                 <tr>
-                    <td style="border:none;vertical-align:top;width:150px"><strong>User</strong></td>
-                    <td style="border:none;vertical-align:top"><strong>: @Model.Username</strong></td>
-                    <td style="border:none;text-align:right" rowspan="2"><image src="/api/qr?text=@Model.ViewModel.No" style="width:80px;height:80px" /></td>
+                    <td style="vertical-align:top;text-align:left;width:150px"><strong>User</strong></td>
+                    <td style="vertical-align:top;text-align:left"><strong>: @Model.Username</strong></td>
+                    <td style="text-align:right" rowspan="2"><image src="/api/qr?text=@Model.ViewModel.No" style="width:80px;height:80px" /></td>
                 </tr>
-                <tr><td colspan="2" style="border:none;vertical-align:bottom;"><strong>@Model.ViewModel.Grade</strong></td></tr>
+                <tr><td colspan="2" style="vertical-align:bottom;text-align:left"><strong>@Model.ViewModel.Grade</strong></td></tr>
             </tbody>
         </table>
         <br />
@@ -718,5 +779,5 @@ else
             </tbody>
         </table>
     </div>
-    
+
 }

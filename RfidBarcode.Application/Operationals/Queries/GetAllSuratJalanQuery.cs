@@ -47,7 +47,8 @@ namespace RfidBarcode.Application.Operationals.Queries
                         Kode3 = x.Kode3,
                         Kode4 = x.Kode4,
                         Grade = x.Grade,
-                        FinalizeDate = x.FinalizeDate
+                        FinalizeDate = x.FinalizeDate,
+                        ConfirmDate = x.ConfirmDate,
                     }).AsQueryable();
 
                 var total = await query.CountAsync();

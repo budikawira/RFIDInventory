@@ -2,13 +2,15 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RfidBarcode.Application.Common.BaseObjects;
+using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Application.Operationals.Requests;
 using RfidBarcode.Application.Settings.ViewModels;
+using RfidBarcode.Crm.Common;
 using RfidBarcode.Domain.Entities;
 
 namespace RfidBarcode.Crm.Pages.Inbounds
 {
-    public class AddModel : PageModel
+    public class AddModel : BasePageModel
     {
         [BindProperty]
         public string? Kp { get; set; }
@@ -31,11 +33,9 @@ namespace RfidBarcode.Crm.Pages.Inbounds
         [BindProperty]
         public string? Grade { get; set; }
 
-        private readonly IMediator _mediator;
-
-        public AddModel(IMediator mediator)
+        public AddModel(IMediator mediator, IUserResolverService user) : base(mediator)
         {
-            _mediator = mediator;
+            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanInbound);
         }
 
         public async Task<IActionResult> OnPostRefreshDataAsync()

@@ -313,7 +313,7 @@ namespace RfidBarcode.Crm.Services
 
                         var cmdItem = new GetItemRequest(new ItemVM() { Epc = log.Epc });
                         var resItem = await mediator.Send(cmdItem);
-                        if (resItem.Result == BaseResponse.RESULT_OK && resItem.Data != null && resItem.Data.OutSuratJalanId == null)
+                        if (resItem.Result == BaseResponse.RESULT_OK && resItem.Data != null && resItem.Data.OutScan == null)
                         {
                             log.ItemId = resItem.Data.Id;
 

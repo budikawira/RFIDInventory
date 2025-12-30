@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RfidBarcode.Infrastructure;
 
@@ -10,9 +11,11 @@ using RfidBarcode.Infrastructure;
 namespace RfidBarcode.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208091036_001_Init")]
+    partial class _001_Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -154,42 +157,6 @@ namespace RfidBarcode.Infrastructure.Migrations
                             Description = "User Management",
                             LastUpdateBy = "system",
                             LastUpdateDate = new DateTime(2025, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = "RM",
-                            CreatedBy = "system",
-                            CreatedDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Role Management",
-                            LastUpdateBy = "system",
-                            LastUpdateDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = "IB",
-                            CreatedBy = "system",
-                            CreatedDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Input Barcode",
-                            LastUpdateBy = "system",
-                            LastUpdateDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = "SJI",
-                            CreatedBy = "system",
-                            CreatedDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Surat Jalan Inbound",
-                            LastUpdateBy = "system",
-                            LastUpdateDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = "SJO",
-                            CreatedBy = "system",
-                            CreatedDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Surat Jalan Outbond",
-                            LastUpdateBy = "system",
-                            LastUpdateDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -349,16 +316,6 @@ namespace RfidBarcode.Infrastructure.Migrations
                             LastUpdateBy = "system",
                             LastUpdateDate = new DateTime(2025, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1L
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            AccessMenuId = "RM",
-                            CreatedBy = "system",
-                            CreatedDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastUpdateBy = "system",
-                            LastUpdateDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RoleId = 1L
                         });
                 });
 
@@ -398,20 +355,44 @@ namespace RfidBarcode.Infrastructure.Migrations
                         new
                         {
                             Id = 2L,
-                            Name = "Adm Barcode",
-                            NormalizedName = "ADM BARCODE"
+                            Name = "Admin Finish",
+                            NormalizedName = "ADMIN FINISH"
                         },
                         new
                         {
                             Id = 3L,
-                            Name = "Adm Finish",
-                            NormalizedName = "ADM FINISH"
+                            Name = "QC Finish",
+                            NormalizedName = "QC FINISH"
                         },
                         new
                         {
                             Id = 4L,
-                            Name = "Adm Gudang",
-                            NormalizedName = "ADM GUDANG"
+                            Name = "Gudang Kain",
+                            NormalizedName = "GUDANG KAIN"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Name = "QC Gudang Kain",
+                            NormalizedName = "QC GUDANG KAIN"
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            Name = "Admin Gudang Kain",
+                            NormalizedName = "ADMIN GUDANG KAIN"
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            Name = "Gudang Jakarta",
+                            NormalizedName = "GUDANG JAKARTA"
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            Name = "Admin Gudang Jakarta",
+                            NormalizedName = "ADMIN GUDANG JAKARTA"
                         });
                 });
 
@@ -930,9 +911,6 @@ namespace RfidBarcode.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("ConfirmDate")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -1290,7 +1268,7 @@ namespace RfidBarcode.Infrastructure.Migrations
             modelBuilder.Entity("RfidBarcode.Domain.Entities.Identities.AccessMenuRole", b =>
                 {
                     b.HasOne("RfidBarcode.Domain.Entities.AccessMenu", "AccessMenu")
-                        .WithMany("AccessMenuRoles")
+                        .WithMany()
                         .HasForeignKey("AccessMenuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1472,11 +1450,6 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.Navigation("PrevLocation");
 
                     b.Navigation("StockOpname");
-                });
-
-            modelBuilder.Entity("RfidBarcode.Domain.Entities.AccessMenu", b =>
-                {
-                    b.Navigation("AccessMenuRoles");
                 });
 
             modelBuilder.Entity("RfidBarcode.Domain.Entities.Gate", b =>

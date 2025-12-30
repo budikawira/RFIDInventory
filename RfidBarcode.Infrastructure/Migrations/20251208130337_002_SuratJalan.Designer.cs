@@ -11,8 +11,8 @@ using RfidBarcode.Infrastructure;
 namespace RfidBarcode.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251206233630_001_Init")]
-    partial class _001_Init
+    [Migration("20251208130337_002_SuratJalan")]
+    partial class _002_SuratJalan
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -911,6 +911,9 @@ namespace RfidBarcode.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<DateTime?>("ConfirmDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -953,7 +956,6 @@ namespace RfidBarcode.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("SuratJalanName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("SuratJalanType")

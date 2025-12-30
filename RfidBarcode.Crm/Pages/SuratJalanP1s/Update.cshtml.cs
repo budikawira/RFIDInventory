@@ -7,11 +7,12 @@ using RfidBarcode.Application.Operationals.Requests;
 using RfidBarcode.Application.Operationals.ViewModels;
 using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Application.Settings.ViewModels;
+using RfidBarcode.Crm.Common;
 using RfidBarcode.Domain.Entities;
 
 namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 {
-    public class UpdateModel : PageModel
+    public class UpdateModel : BasePageModel
     {
         public SuratJalanVM ViewModel { get; set; }
 
@@ -37,13 +38,11 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
         public int TotalRoll { get; set; }
         public decimal TotalYard { get; set; }
 
-        private readonly IMediator _mediator;
-
         public string Username { get; set; }
 
-        public UpdateModel(IMediator mediator, IUserResolverService user)
+        public UpdateModel(IMediator mediator, IUserResolverService user) : base(mediator)
         {
-            _mediator = mediator;
+            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanOutbond);
             ViewModel = new SuratJalanVM();
             ItemIds = new List<long>();
             Username = user.GetUser();
@@ -185,7 +184,7 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
         {
             var list = new List<long>();
             list.Add(id);
-            var cmd = new RemoveItemsForP1Request(list);
+            var cmd = new RemoveItemsForOutbondRequest(list);
             var response = await _mediator.Send(cmd);
 
             return new OkObjectResult(response);
@@ -194,7 +193,7 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
         public async Task<IActionResult> OnPostFinalizeAsync(string type, string no, int sequence)
         {
             var list = new List<long>();
-            var cmd = new FinalizeP1Request(SuratJalanP1Id, type, no, sequence);
+            var cmd = new FinalizeSuratJalanRequest(SuratJalanP1Id, type, no, sequence);
             var response = await _mediator.Send(cmd);
 
             return new OkObjectResult(response);
@@ -207,5 +206,15 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 
             return new OkObjectResult(response);
         }
+
+
+        public async Task<IActionResult> OnPostConfirmAsync()
+        {
+            var cmd = new ConfirmSuratJalanRequest(SuratJalanP1Id);
+            var response = await _mediator.Send(cmd);
+
+            return new OkObjectResult(response);
+        }
+
     }
 }

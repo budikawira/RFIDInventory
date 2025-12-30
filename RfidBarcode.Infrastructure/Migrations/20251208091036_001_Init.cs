@@ -406,7 +406,7 @@ namespace RfidBarcode.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    SuratJalanName = table.Column<string>(type: "longtext", nullable: false),
+                    SuratJalanName = table.Column<string>(type: "longtext", nullable: true),
                     SuratJalanType = table.Column<string>(type: "longtext", nullable: false),
                     No = table.Column<string>(type: "longtext", nullable: true),
                     Kode = table.Column<string>(type: "longtext", nullable: true),

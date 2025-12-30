@@ -4,10 +4,10 @@ using RfidBarcode.Application.Operationals.ViewModels;
 
 namespace RfidBarcode.Application.Operationals.Requests
 {
-    public class RemoveItemsForP1Request : IRequest<BaseResponse>
+    public class RemoveItemsForOutbondRequest : IRequest<BaseResponse>
     {
         public List<long> ItemIds { get; set; }
-        public RemoveItemsForP1Request(List<long> itemIds) 
+        public RemoveItemsForOutbondRequest(List<long> itemIds) 
         {
             ItemIds = itemIds;
         }

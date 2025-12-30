@@ -21,6 +21,7 @@ namespace RfidBarcode.Domain.Entities
         public string? Grade { get; set; }
         public long UserId { get; set; }
         public DateTime? FinalizeDate { get; set; }
+        public DateTime? ConfirmDate { get; set; }
         public int Sequence { get; set; }
 
         public virtual ApplicationUser User { get; set; } = null!;

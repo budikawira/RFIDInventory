@@ -11,8 +11,8 @@ using RfidBarcode.Infrastructure;
 namespace RfidBarcode.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251207061740_002_SuratJalan")]
-    partial class _002_SuratJalan
+    [Migration("20251230024839_003_AccessMenu")]
+    partial class _003_AccessMenu
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,6 +157,15 @@ namespace RfidBarcode.Infrastructure.Migrations
                             Description = "User Management",
                             LastUpdateBy = "system",
                             LastUpdateDate = new DateTime(2025, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = "RM",
+                            CreatedBy = "system",
+                            CreatedDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Role Management",
+                            LastUpdateBy = "system",
+                            LastUpdateDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -315,6 +324,16 @@ namespace RfidBarcode.Infrastructure.Migrations
                             CreatedDate = new DateTime(2025, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             LastUpdateBy = "system",
                             LastUpdateDate = new DateTime(2025, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            RoleId = 1L
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            AccessMenuId = "RM",
+                            CreatedBy = "system",
+                            CreatedDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            LastUpdateBy = "system",
+                            LastUpdateDate = new DateTime(2025, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RoleId = 1L
                         });
                 });
@@ -911,6 +930,9 @@ namespace RfidBarcode.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<DateTime?>("ConfirmDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -1268,7 +1290,7 @@ namespace RfidBarcode.Infrastructure.Migrations
             modelBuilder.Entity("RfidBarcode.Domain.Entities.Identities.AccessMenuRole", b =>
                 {
                     b.HasOne("RfidBarcode.Domain.Entities.AccessMenu", "AccessMenu")
-                        .WithMany()
+                        .WithMany("AccessMenuRoles")
                         .HasForeignKey("AccessMenuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1450,6 +1472,11 @@ namespace RfidBarcode.Infrastructure.Migrations
                     b.Navigation("PrevLocation");
 
                     b.Navigation("StockOpname");
+                });
+
+            modelBuilder.Entity("RfidBarcode.Domain.Entities.AccessMenu", b =>
+                {
+                    b.Navigation("AccessMenuRoles");
                 });
 
             modelBuilder.Entity("RfidBarcode.Domain.Entities.Gate", b =>

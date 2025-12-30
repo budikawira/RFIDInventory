@@ -1,6 +1,10 @@
 ﻿@page
+@using RfidBarcode.Application.Common.Interfaces
 @using RfidBarcode.Application.Operationals.ViewModels
+@using RfidBarcode.Domain.Entities
 @model RfidBarcode.Crm.Pages.Finish.IndexModel
+
+@inject IUserResolverService _user
 @{
     ViewData["Title"] = "Finish";
 }
@@ -13,7 +17,7 @@
         SimplePageTable.InitTable({
             hasAction: true,
             hasEdit: true,
-            hasDelete: true,
+            hasDelete: @(_user.HasReadAccess(AccessMenu.InputBarcode) ? "true" : "false"),
             action: 'page',
             columns: [
                 {
@@ -23,7 +27,7 @@
                     }
                 },
                 {
-                    data: null, name: 'StatusString', render: function (data, type, row, node) {
+                    data: null, name: 'PrintStatus', render: function (data, type, row, node) {
                         var html = '';
                         if (data['printCount'] > 0) {
                             html += '<span class="badge badge-phoenix fs-10 badge-phoenix-success" > <span class="badge-label" >' + data['printStatus'] + '</span></span>';
@@ -200,16 +204,19 @@
                         <h3 class="pt-3">@ViewData["Title"]</h3>
                     </div>
                     <div class="align-self-end">
-                        <a class="btn btn-primary" href="/Finish/Add" >
-                            <i class="fas fa-plus me-1"></i> Add
-                        </a>
-                        <button type="button" class="btn btn-secondary" onclick="showModalImport()">
-                            <i class="fas fa-file-import me-1"></i>  Import
-                        </button>
-                        
-                        <button type="button" class="btn btn-warning" onclick="print('Print.xlsx')" style="display: none;">
-                            <i class="fas fa-print me-1"></i>  Print
-                        </button>
+                        @if (_user.HasReadAccess(AccessMenu.InputBarcode))
+                        {
+                            <a class="btn btn-primary" href="/Finish/Add">
+                                <i class="fas fa-plus me-1"></i> Add
+                            </a>
+                            <button type="button" class="btn btn-secondary" onclick="showModalImport()">
+                                <i class="fas fa-file-import me-1"></i>  Import
+                            </button>
+
+                            <button type="button" class="btn btn-warning" onclick="print('Print.xlsx')" style="display: none;">
+                                <i class="fas fa-print me-1"></i>  Print
+                            </button>
+                        }
                         
                     </div>
                 </div>
@@ -217,21 +224,31 @@
 
             <div class="card-body">
                 <div class="row">
-                    <div class="form-group col-sm-12 col-md-4">
-                        <label class="form-label">Status</label>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label class="form-label">Status Print</label>
                         <select class="form-select grid-param" id="printStatus" name="printStatus">
                             <option value="">Semua</option>
                             <option value="@ItemVM.PRINT_STATUS_PENDING">Belum Print</option>
                             <option value="@ItemVM.PRINT_STATUS_DONE">Sudah Print</option>
                         </select>
                     </div>
-                    <div class="form-group col-sm-12 col-md-4">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label class="form-label">Status Stok</label>
+                        <select class="form-select grid-param" id="stockStatus" name="stockStatus">
+                            @foreach (var opt in ItemVM.ListStockStatus)
+                            {
+                                <option value="@opt.Key">@opt.Value</option>
+                            }
+)
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
                         <label class="form-label">Lokasi</label>
                         <select class="form-select grid-param" id="locationId" name="locationId">
                         </select>
                     </div>
 
-                    <div class="form-group col-sm-12 col-md-4">
+                    <div class="form-group col-sm-12 col-md-3">
                         <label class="form-label">Tag id</label>
                         <input class="form-control grid-param" id="tagId" name="tagId" placeholder="ex: 1,2,10,28" />
                     </div>

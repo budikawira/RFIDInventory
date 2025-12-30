@@ -35,6 +35,20 @@ namespace RfidBarcode.Application.Operationals.ViewModels
             }
         }
 
+
+        public string ConfirmDateString
+        {
+            get
+            {
+                if (ConfirmDate != null)
+                {
+                    return ConfirmDate.Value.ToString("yyyy-MM-dd HH:mm:ss");
+                }
+
+                return "-";
+            }
+        }
+
         public string CreatedDateString
         {
             get
@@ -46,6 +60,19 @@ namespace RfidBarcode.Application.Operationals.ViewModels
 
                 return "-";
             }
+        }
+
+        public string? GetNoCode()
+        {
+            if (!string.IsNullOrEmpty(No))
+            {
+                var parts = No.Split('/');
+                if (parts.Length >= 2)
+                {
+                    return parts[1];
+                }
+            }
+            return null;
         }
     }
 }

@@ -24,6 +24,50 @@ namespace RfidBarcode.Infrastructure.Configurations
                     LastUpdateDate = new DateTime(2025, 5, 12)
                 }
             );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.RoleManagement,
+                    Description = "Role Management",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.InputBarcode,
+                    Description = "Input Barcode",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.SuratJalanInbound,
+                    Description = "Surat Jalan Inbound",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.SuratJalanOutbond,
+                    Description = "Surat Jalan Outbond",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
         }
     }
 }

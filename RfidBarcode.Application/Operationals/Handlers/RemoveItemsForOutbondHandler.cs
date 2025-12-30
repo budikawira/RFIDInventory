@@ -10,15 +10,15 @@ using RfidBarcode.Domain.Entities;
 
 namespace RfidBarcode.Application.Operationals.Handlers
 {
-    public class RemoveItemForP1Handler : BaseHandler, IRequestHandler<RemoveItemsForP1Request, BaseResponse>
+    public class RemoveItemsForOutbondHandler : BaseHandler, IRequestHandler<RemoveItemsForOutbondRequest, BaseResponse>
     {
-        public RemoveItemForP1Handler(IApplicationDbContext context, IMapper mapper)
+        public RemoveItemsForOutbondHandler(IApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public async Task<BaseResponse> Handle(RemoveItemsForP1Request request, CancellationToken cancellationToken)
+        public async Task<BaseResponse> Handle(RemoveItemsForOutbondRequest request, CancellationToken cancellationToken)
         {
             var response = new BaseResponse();
 

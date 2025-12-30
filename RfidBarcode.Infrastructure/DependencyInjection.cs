@@ -1,17 +1,18 @@
-﻿using RfidBarcode.Application.Common.Interfaces;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Quartz;
+using RfidBarcode.Application.Common.Interfaces;
+using RfidBarcode.Domain.Entities;
 using RfidBarcode.Domain.Entities.Identities;
 using RfidBarcode.Infrastructure.Services;
 using RfidBarcode.Infrastructure.Services.Identities;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using RfidBarcode.Infrastructure.Services.Jobs;
 using System.Reflection;
 using System.Text;
-using Quartz;
-using RfidBarcode.Infrastructure.Services.Jobs;
-using Microsoft.AspNetCore.Localization;
 
 namespace RfidBarcode.Infrastructure
 {
@@ -102,7 +103,8 @@ namespace RfidBarcode.Infrastructure
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("UserMgmt", policy => policy.RequireClaim("UserMgmt"));
+                options.AddPolicy(AccessMenu.UserManagement, policy => policy.RequireClaim(AccessMenu.UserManagement));
+                options.AddPolicy(AccessMenu.RoleManagement, policy => policy.RequireClaim(AccessMenu.RoleManagement));
             });
 
             services.AddTransient<IUserResolverService, UserResolverService>();

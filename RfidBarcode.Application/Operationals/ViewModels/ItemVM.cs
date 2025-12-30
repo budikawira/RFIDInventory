@@ -63,14 +63,7 @@ namespace RfidBarcode.Application.Operationals.ViewModels
             } 
         }
 
-        public string PrintStatus
-        {
-            get
-            {
-                if (PrintCount > 0) return PRINT_STATUS_DONE;
-                return PRINT_STATUS_PENDING;
-            }
-        }
+        public string? PrintStatus { get; set; }
 
         public string ConvertedLebar
         {
@@ -106,5 +99,18 @@ namespace RfidBarcode.Application.Operationals.ViewModels
 
         public const string PRINT_STATUS_DONE = "Sudah Print";
         public const string PRINT_STATUS_PENDING = "Belum Print";
+
+        public static Dictionary<int, string> ListStockStatus = new Dictionary<int, string>()
+        {
+            { STOCK_STATUS_ALL, "Semua" },
+            { STOCK_STATUS_IN_STOCK, "Dalam Stok" },
+            { STOCK_STATUS_SHIPPED, "Terkirim" },
+            { STOCK_STATUS_NOT_RECEIVED, "Belum Diterima" },
+        };
+
+        public const int STOCK_STATUS_ALL = 0;
+        public const int STOCK_STATUS_IN_STOCK = 1;
+        public const int STOCK_STATUS_SHIPPED = 2;
+        public const int STOCK_STATUS_NOT_RECEIVED = 3;
     }
 }

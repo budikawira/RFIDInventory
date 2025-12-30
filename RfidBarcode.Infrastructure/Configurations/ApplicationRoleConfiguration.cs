@@ -19,48 +19,48 @@ namespace RfidBarcode.Infrastructure.Configurations
                 new ApplicationRole
                 {
                     Id = ApplicationRole.RoleAdminFinish,
-                    Name = "Admin Finish",
-                    NormalizedName = "ADMIN FINISH".ToUpper()
+                    Name = "Adm Barcode",
+                    NormalizedName = "Adm Barcode".ToUpper()
                 }, new ApplicationRole
                 {
-                    Id = ApplicationRole.RoleQcFinish, 
-                    Name = "QC Finish",
-                    NormalizedName = "QC FINISH"
+                    Id = ApplicationRole.RoleQcFinish,
+                    Name = "Adm Finish",
+                    NormalizedName = "Adm Finish".ToUpper()
                 },
                 new ApplicationRole
                 {
-                    Id = ApplicationRole.RoleGudangKain, 
-                    Name = "Gudang Kain",
-                    NormalizedName = "GUDANG KAIN"
-                },
-
-                new ApplicationRole
-                {
-                    Id = ApplicationRole.RoleQcGudangKain, 
-                    Name = "QC Gudang Kain",
-                    NormalizedName = "QC GUDANG KAIN"
-                },
-
-                new ApplicationRole
-                {
-                    Id = ApplicationRole.RoleAdminGudangKain, 
-                    Name = "Admin Gudang Kain",
-                    NormalizedName = "ADMIN GUDANG KAIN"
-                },
-
-                new ApplicationRole
-                {
-                    Id = ApplicationRole.RoleGudangJakarta, 
-                    Name = "Gudang Jakarta",
-                    NormalizedName = "GUDANG JAKARTA"
-                },
-
-                new ApplicationRole
-                {
-                    Id = ApplicationRole.RoleAdminGudangJakarta, 
-                    Name = "Admin Gudang Jakarta",
-                    NormalizedName = "ADMIN GUDANG JAKARTA"
+                    Id = ApplicationRole.RoleGudangKain,
+                    Name = "Adm Gudang",
+                    NormalizedName = "Adm Gudang".ToUpper()
                 }
+
+                //new ApplicationRole
+                //{
+                //    Id = ApplicationRole.RoleQcGudangKain, 
+                //    Name = "QC Gudang Kain",
+                //    NormalizedName = "QC GUDANG KAIN"
+                //},
+
+            //new ApplicationRole
+            //{
+            //    Id = ApplicationRole.RoleAdminGudangKain, 
+            //    Name = "Admin Gudang Kain",
+            //    NormalizedName = "ADMIN GUDANG KAIN"
+            //},
+
+            //new ApplicationRole
+            //{
+            //    Id = ApplicationRole.RoleGudangJakarta, 
+            //    Name = "Gudang Jakarta",
+            //    NormalizedName = "GUDANG JAKARTA"
+            //},
+
+            //new ApplicationRole
+            //{
+            //    Id = ApplicationRole.RoleAdminGudangJakarta, 
+            //    Name = "Admin Gudang Jakarta",
+            //    NormalizedName = "ADMIN GUDANG JAKARTA"
+            //}
             );
         }
     }

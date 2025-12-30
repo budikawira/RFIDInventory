@@ -25,6 +25,18 @@ namespace RfidBarcode.Infrastructure.Configurations
                     LastUpdateDate = new DateTime(2025, 5, 12)
                 }
             );
+            builder.HasData(
+                new AccessMenuRole
+                {
+                    Id = 2,
+                    RoleId = ApplicationRole.RoleAdministrator, //Administrator
+                    AccessMenuId = AccessMenu.RoleManagement,
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
 
             builder.HasOne(x => x.Role)
                 .WithMany()
@@ -32,7 +44,7 @@ namespace RfidBarcode.Infrastructure.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(x => x.AccessMenu)
-                .WithMany()
+                .WithMany(y => y.AccessMenuRoles)
                 .HasForeignKey(x => x.AccessMenuId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

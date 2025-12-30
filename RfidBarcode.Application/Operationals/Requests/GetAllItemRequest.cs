@@ -15,5 +15,9 @@ namespace RfidBarcode.Application.Operationals.Requests
         public string? Kode { get; set; }
 
         public long? ExcludedSuratJalanP1Id { get; set; }
+
+        public long? IsForAddInboundItems { get; set; }
+
+        public int StockStatus { get; set; } = ItemVM.STOCK_STATUS_ALL; //default
     }
 }

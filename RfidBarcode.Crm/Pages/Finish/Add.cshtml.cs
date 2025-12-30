@@ -3,23 +3,25 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RfidBarcode.Application.Common.BaseObjects;
+using RfidBarcode.Application.Common.Interfaces;
 using RfidBarcode.Application.Common.Libs;
 using RfidBarcode.Application.Operationals.Requests;
 using RfidBarcode.Application.Operationals.ViewModels;
+using RfidBarcode.Crm.Common;
+using RfidBarcode.Domain.Entities;
 using System.Collections;
 
 namespace RfidBarcode.Crm.Pages.Finish
 {
-    public class AddModel : PageModel
+    public class AddModel : BasePageModel
     {
         [BindProperty]
         public List<List<string>> Data { get; set; } = null!;
 
-        private readonly IMediator _mediator;
 
-        public AddModel(IMediator mediator)
+        public AddModel(IMediator mediator, IUserResolverService user) : base(mediator)
         {
-            _mediator = mediator;
+            this.HasAccess = user.HasReadAccess(AccessMenu.InputBarcode);
         }
 
         public void OnGet()

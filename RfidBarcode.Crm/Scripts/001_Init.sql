@@ -43,10 +43,33 @@ CREATE TABLE `AspNetUsers` (
     PRIMARY KEY (`Id`)
 );
 
+CREATE TABLE `DailyReports` (
+    `Id` bigint NOT NULL AUTO_INCREMENT,
+    `Content` longblob NOT NULL,
+    `CurrentDate` datetime(6) NOT NULL,
+    `PreviousDate` datetime(6) NOT NULL,
+    `CreatedDate` datetime(6) NULL,
+    `CreatedBy` longtext NOT NULL,
+    `LastUpdateDate` datetime(6) NULL,
+    `LastUpdateBy` longtext NOT NULL,
+    PRIMARY KEY (`Id`)
+);
+
 CREATE TABLE `Gates` (
     `Id` bigint NOT NULL AUTO_INCREMENT,
     `Name` longtext NOT NULL,
     `ClientId` longtext NOT NULL,
+    `CreatedDate` datetime(6) NULL,
+    `CreatedBy` longtext NOT NULL,
+    `LastUpdateDate` datetime(6) NULL,
+    `LastUpdateBy` longtext NOT NULL,
+    PRIMARY KEY (`Id`)
+);
+
+CREATE TABLE `ImportItemLogs` (
+    `Id` bigint NOT NULL AUTO_INCREMENT,
+    `Filename` longtext NOT NULL,
+    `Metadata` longtext NOT NULL,
     `CreatedDate` datetime(6) NULL,
     `CreatedBy` longtext NOT NULL,
     `LastUpdateDate` datetime(6) NULL,
@@ -77,6 +100,17 @@ CREATE TABLE `Status` (
     PRIMARY KEY (`Id`)
 );
 
+CREATE TABLE `SuratJalanTypes` (
+    `Id` bigint NOT NULL AUTO_INCREMENT,
+    `Name` varchar(255) NOT NULL,
+    `Type` varchar(255) NOT NULL,
+    `CreatedDate` datetime(6) NULL,
+    `CreatedBy` longtext NOT NULL,
+    `LastUpdateDate` datetime(6) NULL,
+    `LastUpdateBy` longtext NOT NULL,
+    PRIMARY KEY (`Id`)
+);
+
 CREATE TABLE `TrackingItems` (
     `Id` bigint NOT NULL AUTO_INCREMENT,
     `Merk` longtext NULL,
@@ -89,7 +123,7 @@ CREATE TABLE `TrackingItems` (
     `Kode4` longtext NULL,
     `Oz` longtext NULL,
     `Grade` longtext NULL,
-    `Point` decimal(18,2) NULL,
+    `Point` longtext NULL,
     `Yard` decimal(18,2) NULL,
     `Kg` decimal(18,2) NULL,
     `Lebar` double NULL,
@@ -179,9 +213,10 @@ CREATE TABLE `AspNetUserTokens` (
     CONSTRAINT `FK_AspNetUserTokens_AspNetUsers_UserId` FOREIGN KEY (`UserId`) REFERENCES `AspNetUsers` (`Id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `SuratJalanP1s` (
+CREATE TABLE `SuratJalans` (
     `Id` bigint NOT NULL AUTO_INCREMENT,
-    `Type` longtext NULL,
+    `SuratJalanName` longtext NULL,
+    `SuratJalanType` longtext NOT NULL,
     `No` longtext NULL,
     `Kode` longtext NULL,
     `Kode1` longtext NULL,
@@ -191,12 +226,13 @@ CREATE TABLE `SuratJalanP1s` (
     `Grade` longtext NULL,
     `UserId` bigint NOT NULL,
     `FinalizeDate` datetime(6) NULL,
+    `Sequence` int NOT NULL,
     `CreatedDate` datetime(6) NULL,
     `CreatedBy` longtext NOT NULL,
     `LastUpdateDate` datetime(6) NULL,
     `LastUpdateBy` longtext NOT NULL,
     PRIMARY KEY (`Id`),
-    CONSTRAINT `FK_SuratJalanP1s_AspNetUsers_UserId` FOREIGN KEY (`UserId`) REFERENCES `AspNetUsers` (`Id`) ON DELETE CASCADE
+    CONSTRAINT `FK_SuratJalans_AspNetUsers_UserId` FOREIGN KEY (`UserId`) REFERENCES `AspNetUsers` (`Id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `GateMaps` (
@@ -242,7 +278,7 @@ CREATE TABLE `Items` (
     `Kode4` longtext NULL,
     `Oz` longtext NULL,
     `Grade` longtext NULL,
-    `Point` decimal(18,2) NULL,
+    `Point` longtext NULL,
     `Yard` decimal(18,2) NULL,
     `Kg` decimal(18,2) NULL,
     `Lebar` longtext NULL,
@@ -252,24 +288,54 @@ CREATE TABLE `Items` (
     `K3l` longtext NULL,
     `Inisial` longtext NULL,
     `UserId` bigint NOT NULL,
+    `R` int NULL,
+    `IdentitasBenang` longtext NULL,
     `QcFinishUserId` bigint NULL,
     `QcFinish` datetime(6) NULL,
     `TanggalBuatBarcode` datetime(6) NOT NULL,
-    `SuratJalanP1Id` bigint NULL,
-    `ScanP1UserId` bigint NULL,
-    `ScanP1` datetime(6) NULL,
+    `InSuratJalanId` bigint NULL,
+    `InScanUserId` bigint NULL,
+    `InScanUser` longtext NULL,
+    `InScan` datetime(6) NULL,
+    `OutSuratJalanId` bigint NULL,
+    `OutScanUserId` bigint NULL,
+    `OutScanUser` longtext NULL,
+    `OutScan` datetime(6) NULL,
     `TrackingItemId` bigint NULL,
     `Epc` longtext NULL,
     `Qr` longtext NULL,
     `LocationId` bigint NULL,
+    `SuratJalanId` bigint NULL,
     `CreatedDate` datetime(6) NULL,
     `CreatedBy` longtext NOT NULL,
     `LastUpdateDate` datetime(6) NULL,
     `LastUpdateBy` longtext NOT NULL,
     PRIMARY KEY (`Id`),
     CONSTRAINT `FK_Items_Locations_LocationId` FOREIGN KEY (`LocationId`) REFERENCES `Locations` (`Id`) ON DELETE SET NULL,
-    CONSTRAINT `FK_Items_SuratJalanP1s_SuratJalanP1Id` FOREIGN KEY (`SuratJalanP1Id`) REFERENCES `SuratJalanP1s` (`Id`) ON DELETE SET NULL,
+    CONSTRAINT `FK_Items_SuratJalans_InSuratJalanId` FOREIGN KEY (`InSuratJalanId`) REFERENCES `SuratJalans` (`Id`) ON DELETE SET NULL,
+    CONSTRAINT `FK_Items_SuratJalans_OutSuratJalanId` FOREIGN KEY (`OutSuratJalanId`) REFERENCES `SuratJalans` (`Id`) ON DELETE SET NULL,
+    CONSTRAINT `FK_Items_SuratJalans_SuratJalanId` FOREIGN KEY (`SuratJalanId`) REFERENCES `SuratJalans` (`Id`),
     CONSTRAINT `FK_Items_TrackingItems_TrackingItemId` FOREIGN KEY (`TrackingItemId`) REFERENCES `TrackingItems` (`Id`) ON DELETE SET NULL
+);
+
+CREATE TABLE `ItemMovements` (
+    `Id` bigint NOT NULL AUTO_INCREMENT,
+    `ItemId` bigint NOT NULL,
+    `PrevLocationId` bigint NULL,
+    `LocationId` bigint NULL,
+    `PrevLocationName` longtext NULL,
+    `LocationName` longtext NULL,
+    `Note` longtext NULL,
+    `Source` longtext NULL,
+    `TagLocationId` bigint NULL,
+    `CreatedDate` datetime(6) NULL,
+    `CreatedBy` longtext NOT NULL,
+    `LastUpdateDate` datetime(6) NULL,
+    `LastUpdateBy` longtext NOT NULL,
+    PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_ItemMovements_Items_ItemId` FOREIGN KEY (`ItemId`) REFERENCES `Items` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_ItemMovements_Locations_LocationId` FOREIGN KEY (`LocationId`) REFERENCES `Locations` (`Id`) ON DELETE SET NULL,
+    CONSTRAINT `FK_ItemMovements_Locations_PrevLocationId` FOREIGN KEY (`PrevLocationId`) REFERENCES `Locations` (`Id`) ON DELETE SET NULL
 );
 
 CREATE TABLE `ItemPrintLogs` (
@@ -378,11 +444,21 @@ CREATE INDEX `IX_GateMaps_NextLocationId` ON `GateMaps` (`NextLocationId`);
 
 CREATE INDEX `IX_GateMaps_PrevLocationId` ON `GateMaps` (`PrevLocationId`);
 
+CREATE INDEX `IX_ItemMovements_ItemId` ON `ItemMovements` (`ItemId`);
+
+CREATE INDEX `IX_ItemMovements_LocationId` ON `ItemMovements` (`LocationId`);
+
+CREATE INDEX `IX_ItemMovements_PrevLocationId` ON `ItemMovements` (`PrevLocationId`);
+
 CREATE INDEX `IX_ItemPrintLogs_ItemId` ON `ItemPrintLogs` (`ItemId`);
+
+CREATE INDEX `IX_Items_InSuratJalanId` ON `Items` (`InSuratJalanId`);
 
 CREATE INDEX `IX_Items_LocationId` ON `Items` (`LocationId`);
 
-CREATE INDEX `IX_Items_SuratJalanP1Id` ON `Items` (`SuratJalanP1Id`);
+CREATE INDEX `IX_Items_OutSuratJalanId` ON `Items` (`OutSuratJalanId`);
+
+CREATE INDEX `IX_Items_SuratJalanId` ON `Items` (`SuratJalanId`);
 
 CREATE INDEX `IX_Items_TrackingItemId` ON `Items` (`TrackingItemId`);
 
@@ -396,7 +472,11 @@ CREATE INDEX `IX_StockOpnames_LocationId` ON `StockOpnames` (`LocationId`);
 
 CREATE INDEX `IX_StockOpnames_UserId` ON `StockOpnames` (`UserId`);
 
-CREATE INDEX `IX_SuratJalanP1s_UserId` ON `SuratJalanP1s` (`UserId`);
+CREATE INDEX `IX_SuratJalans_UserId` ON `SuratJalans` (`UserId`);
+
+CREATE UNIQUE INDEX `IX_SuratJalanTypes_Name` ON `SuratJalanTypes` (`Name`);
+
+CREATE INDEX `IX_SuratJalanTypes_Type` ON `SuratJalanTypes` (`Type`);
 
 CREATE INDEX `IX_TagLocations_ItemId` ON `TagLocations` (`ItemId`);
 
@@ -407,7 +487,7 @@ CREATE INDEX `IX_TagLocations_PrevLocationId` ON `TagLocations` (`PrevLocationId
 CREATE INDEX `IX_TagLocations_StockOpnameId` ON `TagLocations` (`StockOpnameId`);
 
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-VALUES ('20250517035445_001_Init', '8.0.8');
+VALUES ('20251208091036_001_Init', '8.0.8');
 
 COMMIT;
 
