@@ -68,6 +68,61 @@ namespace RfidBarcode.Infrastructure.Configurations
                     LastUpdateDate = new DateTime(2025, 12, 30)
                 }
             );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.CreateInbound,
+                    Description = "Buat Surat Jalan Inbound",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.CreateOutbond,
+                    Description = "Buat Surat Jalan Outbond",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.ConfirmInbound,
+                    Description = "Konfirmasi Surat Jalan Inbound",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.ConfirmOutbond,
+                    Description = "Konfirmasi Surat Jalan Outbond",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
+            builder.HasData(
+                new AccessMenu
+                {
+                    Id = AccessMenu.ConfirmOutbondReturn,
+                    Description = "Konfirmasi Surat Jalan Outbond Retur",
+                    CreatedBy = "system",
+                    CreatedDate = new DateTime(2025, 12, 30),
+                    LastUpdateBy = "system",
+                    LastUpdateDate = new DateTime(2025, 12, 30)
+                }
+            );
         }
     }
 }

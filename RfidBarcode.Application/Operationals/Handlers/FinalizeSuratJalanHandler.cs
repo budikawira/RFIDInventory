@@ -90,14 +90,14 @@ namespace RfidBarcode.Application.Operationals.Handlers
                     response.Message = "Jumlah Item melebihi kolom Surat Jalan";
                     return response;
                 }
-                if (request.Code.Length != 4)
-                {
-                    response.Message = "Kode No Surat Jalan harus 4 karakter.";
-                    return response;
-                }
 
                 if (string.IsNullOrEmpty(srtJalan.No))
                 {
+                    if (request.Code.Length != 4)
+                    {
+                        response.Message = "Kode No Surat Jalan harus 4 karakter.";
+                        return response;
+                    }
                     //this is a new finalization, generate the surat jalan no
                     var no = Helper.GenerateSuratJalanNo(request.Type, request.Code, request.Sequence);
 
@@ -121,7 +121,13 @@ namespace RfidBarcode.Application.Operationals.Handlers
                     srtJalan.No = no;
                     srtJalan.Sequence = request.Sequence;
                 }
-                
+
+                //check if it is a retur
+                var srtJalanType = await _context.SuratJalanTypes.Where(x => x.Name == srtJalan.SuratJalanName).FirstOrDefaultAsync();
+                if (srtJalanType != null && srtJalanType.Type == SuratJalanType.TYPE_OUTBOND_RETURN)
+                {
+                    srtJalan.IsReturn = true;
+                }
                 srtJalan.FinalizeDate = DateTime.Now;
                 await _context.SaveChangesAsync(cancellationToken);
                 response.Result = BaseResponse.RESULT_OK;

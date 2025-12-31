@@ -23,7 +23,7 @@ namespace RfidBarcode.Domain.Entities
         public DateTime? FinalizeDate { get; set; }
         public DateTime? ConfirmDate { get; set; }
         public int Sequence { get; set; }
-
+        public bool IsReturn { get; set; }
         public virtual ApplicationUser User { get; set; } = null!;
         public virtual List<Item> Items { get; set; } = null!;
     }

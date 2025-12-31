@@ -35,7 +35,8 @@ namespace RfidBarcode.Crm.Pages.Inbounds
 
         public AddModel(IMediator mediator, IUserResolverService user) : base(mediator)
         {
-            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanInbound);
+            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanInbound) && 
+                user.HasReadAccess(AccessMenu.CreateInbound);
         }
 
         public async Task<IActionResult> OnPostRefreshDataAsync()

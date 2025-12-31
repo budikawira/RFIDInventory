@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Identity\Controllers\**" />
+    <Compile Remove="Areas\Identity\Data\**" />
+    <Content Remove="Areas\Identity\Controllers\**" />
+    <Content Remove="Areas\Identity\Data\**" />
+    <EmbeddedResource Remove="Areas\Identity\Controllers\**" />
+    <EmbeddedResource Remove="Areas\Identity\Data\**" />
+    <None Remove="Areas\Identity\Controllers\**" />
+    <None Remove="Areas\Identity\Data\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\assets\css\theme-rtl.css.map" />
     <None Include="wwwroot\assets\css\theme-rtl.min.css.map" />
     <None Include="wwwroot\assets\css\theme.css.map" />
@@ -437,10 +448,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Identity\Controllers\" />
-    <Folder Include="Areas\Identity\Data\" />
     <Folder Include="Logs\" />
-    <Folder Include="Scripts\" />
   </ItemGroup>
 
 </Project>

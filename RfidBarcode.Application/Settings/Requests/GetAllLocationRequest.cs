@@ -8,5 +8,6 @@ namespace RfidBarcode.Application.Settings.Requests
     {
         public bool IsForStockOpname { get; set; } = false;
         public bool IsForSummaryK3 { get; set; } = false;
+        public byte? Type { get; set; }
     }
 }

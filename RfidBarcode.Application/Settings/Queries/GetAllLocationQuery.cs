@@ -50,6 +50,11 @@ namespace RfidBarcode.Application.Settings.Queries
                 {
                     query = query.Where(x => x.Type == Location.TYPE_END_LOCATION);
                 }
+
+                if (request.Type != null)
+                {
+                    query = query.Where(x => x.Type == request.Type);
+                }
                 if (!string.IsNullOrEmpty(request.SearchValue))
                 {
                     var search = request.SearchValue.ToLower();

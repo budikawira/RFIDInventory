@@ -44,7 +44,7 @@ namespace RfidBarcode.Application.Settings.Queries
                 {
                     if (!string.IsNullOrEmpty(request.Data.Type))
                     {
-                        query = query.Where(x => x.Type == request.Data.Type);
+                        query = query.Where(x => x.Type.StartsWith(request.Data.Type));
                     }
 
                     totalFiltered = await query.CountAsync();

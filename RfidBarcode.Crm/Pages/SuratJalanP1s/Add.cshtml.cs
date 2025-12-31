@@ -39,7 +39,8 @@ namespace RfidBarcode.Crm.Pages.SuratJalanP1s
 
         public AddModel(IMediator mediator, IUserResolverService user) : base(mediator)
         {
-            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanOutbond);
+            HasAccess = user.HasReadAccess(AccessMenu.SuratJalanOutbond) && 
+                user.HasReadAccess(AccessMenu.CreateOutbond);
         }
 
         public async Task<IActionResult> OnPostRefreshDataAsync()

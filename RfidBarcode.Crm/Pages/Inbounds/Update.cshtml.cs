@@ -8,6 +8,7 @@ using RfidBarcode.Application.Operationals.ViewModels;
 using RfidBarcode.Application.Settings.Requests;
 using RfidBarcode.Application.Settings.ViewModels;
 using RfidBarcode.Crm.Common;
+using RfidBarcode.Crm.Common.ViewModels;
 using RfidBarcode.Domain.Entities;
 
 namespace RfidBarcode.Crm.Pages.Inbounds
@@ -174,6 +175,32 @@ namespace RfidBarcode.Crm.Pages.Inbounds
             return new OkObjectResult(response);
         }
 
+        public async Task<IActionResult> OnPostSelect2LocationInboundAsync()
+        {
+            List<Select2Item> data = new List<Select2Item>();
+            string? search = Request.Form["term"].FirstOrDefault();
+
+            var cmd = new GetAllLocationRequest()
+            {
+                Type = Location.TYPE_START_LOCATION,
+                Skip = 0,
+                PageSize = 100,
+                SearchValue = search
+            };
+            var res = await _mediator.Send(cmd);
+
+            if (res.Data != null)
+            {
+                foreach (var item in res.Data)
+                {
+                    data.Add(new Select2Item(item.Name, item.Id.ToString()));
+                }
+            }
+            return new OkObjectResult(data);
+
+
+        }
+
         public async Task<IActionResult> OnPostAddItemsAsync()
         {
             var cmd = new AddItemsForSuratJalanRequest(SuratJalanId, ItemIds);
@@ -215,12 +242,22 @@ namespace RfidBarcode.Crm.Pages.Inbounds
             return new OkObjectResult(response);
         }
 
-
         public async Task<IActionResult> OnPostDeleteAsync(long id)
         {
             var list = new List<long>();
             list.Add(id);
             var cmd = new RemoveItemsForInbondRequest(list);
+            var response = await _mediator.Send(cmd);
+
+            return new OkObjectResult(response);
+        }
+
+        public async Task<IActionResult> OnPostUpdateLocationsAsync(List<long> itemIds, long newLocationId, long suratJalanId)
+        {
+            var cmd = new UpdateItemLocationsRequest(itemIds, newLocationId)
+            {
+                SuratJalanId = suratJalanId
+            };
             var response = await _mediator.Send(cmd);
 
             return new OkObjectResult(response);

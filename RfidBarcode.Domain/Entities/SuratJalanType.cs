@@ -17,5 +17,6 @@ namespace RfidBarcode.Domain.Entities
 
         public const string TYPE_INBOUND = "in";
         public const string TYPE_OUTBOND = "out";
+        public const string TYPE_OUTBOND_RETURN = "out return";
     }
 }

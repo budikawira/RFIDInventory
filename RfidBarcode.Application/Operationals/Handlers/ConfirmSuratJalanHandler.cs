@@ -61,7 +61,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         item.InScanUser = _user.GetUser();
                     }
                 }
-                else
+                else 
                 {
                     qry = qry.Where(x => x.OutSuratJalanId == request.SuratJalanId);
                     items = await qry

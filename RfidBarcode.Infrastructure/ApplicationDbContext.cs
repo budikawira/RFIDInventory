@@ -39,7 +39,6 @@ namespace RfidBarcode.Infrastructure
         public DbSet<SuratJalanType> SuratJalanTypes { get; set; }
         public DbSet<DailyReport> DailyReports { get; set; }
 
-
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IUserResolverService userService)
             : base(options)
         {

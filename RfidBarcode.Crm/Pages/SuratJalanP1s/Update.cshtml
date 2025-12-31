@@ -1,7 +1,16 @@
 ﻿@page
+@using RfidBarcode.Application.Common.Interfaces
+@using RfidBarcode.Domain.Entities
 @model RfidBarcode.Crm.Pages.SuratJalanP1s.UpdateModel
+
+@inject IUserResolverService _user
 @{
     ViewData["Title"] = Model.ViewModel.No;
+
+    var HasConfirmAccess = ((!Model.ViewModel.IsReturn && _user.HasReadAccess(AccessMenu.ConfirmOutbond)) ||
+                                Model.ViewModel.IsReturn && _user.HasReadAccess(AccessMenu.ConfirmOutbondReturn));
+
+    var noString = string.IsNullOrEmpty(Model.ViewModel.No) ? "" : Model.ViewModel.No;
 }
 
 @section Scripts
@@ -25,10 +34,53 @@
             OpenFinalize: (() => {
                 $('#modalFinalize').modal('show');
             }),
-        
+            Unfinalize: (() => {
+                Swal.fire({
+                        title: 'Batalkan Finalisasi Surat Jalan?',
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, Batalkan!',
+                        cancelButtonText: 'Selesai'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            LoadingScreenFunction.Show();
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/SuratJalanP1s/Update?Handler=Unfinalize",
+                                data: {
+                                    suratJalanP1Id: $('#suratJalanP1Id').val()
+                                },
+                                headers: {
+                                    'RequestVerificationToken': $('@Html.AntiForgeryToken()').val()
+                                },
+                                success: function(objRes) {
+                                    console.log('objRes >> ', objRes);
+                                    LoadingScreenFunction.Hide();
+
+                                    if (objRes.result == 0) {
+                                        window.location.reload();
+                                    } else {
+                                        Swal.fire('Gagal Finalisasi!', objRes.message, 'error');
+                                    }
+                                },
+                                error: function(response) {
+                                    console.log('response err >> ', response);
+                                    LoadingScreenFunction.Hide();
+                                    Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                                }
+                            });
+                        }
+                    });
+                }),
             Finalize: (() => {
                 var isValid = 0;
-                isValid += validateBlank('no');
+                var noString = $('#noString').val();
+                if (noString == '') {
+                    isValid += validateBlank('no');
+                }
 
                 if (isValid > 0) {
                     Swal.fire('Fail', 'Please input all mandatory data', 'error');
@@ -216,13 +268,17 @@
     })();
     </script>
     <script>
-        var hasDelete = @(Model.ViewModel.FinalizeDate == null ? "true" : "false");
+        var hasDelete = @(Model.ViewModel.FinalizeDate == null && _user.HasReadAccess(AccessMenu.CreateOutbond) ? "true" : "false");
         SimplePageTable.Init($('@Html.AntiForgeryToken()').val(), '/SuratJalanP1s/Update');
         SimplePageTable.InitTable({
         hasAction: hasDelete,
         hasDelete: hasDelete,
         action: 'page',
         columns: [
+        { data: null, render: function(data,type,row,node) {
+            var html = "<input class=\"form-check-input dt-checkbox-input\" type=\"checkbox\" value=" + data['id'] + " id=\"cbInput\" style=\"margin-left:4px;\">";
+            return html;
+        }},
         { data: 'createdDateString', name: 'CreatedDate' },
         { data: 'locationName', name: 'LocationName' },
         { data: 'id', name: 'Id' },
@@ -246,7 +302,7 @@
         { data: 'tanggalBuatBarcodeString', name: 'TanggalBuatBarcode' },
         ],
         columnDefs: [
-        { targets: [1], sortable: false }
+        { targets: [0,1], sortable: false }
         ],
         order: [[3,'desc']]
         });
@@ -345,6 +401,65 @@
         }
 
     </script>
+
+    <script>
+
+        $('.dt-checkbox-input-all').on('change', function () {
+            const isChecked = $(this).is(':checked');
+            $('#grid tbody .dt-checkbox-input').prop('checked', isChecked);
+            $('#btnUpdateLocation').prop('disabled', !isChecked);
+        });
+
+        $(document).on('change', '.dt-checkbox-input', function() {
+            const isChecked = $('.dt-checkbox-input:checked').length > 0;
+            $('#btnUpdateLocation').prop('disabled', !isChecked);
+        });
+
+        SimplePageForm.Init($('@Html.AntiForgeryToken()').val(), '/SuratJalanP1s/Update');
+        SimplePageForm.Select2('updateLocationId', 'Pilih Lokasi', 'Select2LocationOutbond', '#modalUpdateLocation');
+
+        function openUpdateLocation() {
+            $('#modalUpdateLocation').modal('show');
+        }
+
+                function saveUpdateLocation() {
+            var ids = []; // Declare the array
+
+            $(".dt-checkbox-input:checked").each(function () {
+                ids.push($(this).val());
+            });
+
+            if (ids.length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/SuratJalanP1s/Update?Handler=UpdateLocations',
+                    data: {
+                        itemIds: ids,
+                        newLocationId: $('#updateLocationId').val(), // Fixed here
+                        suratJalanId: $('#suratJalanP1Id').val()
+                    },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (objRes) {
+                        LoadingScreenFunction.Hide();
+                        if (objRes.result == 0) {
+                            SimplePageTable.GetTable().ajax.reload();
+                            $('#modalUpdateLocation').modal('hide');
+                        } else {
+                            alert(objRes.message);
+                        }
+                    },
+                    error: function (response) { // Changed from 'failed' to 'error'
+                        LoadingScreenFunction.Hide();
+                        alert('An error occurred while updating locations.');
+                    }
+                });
+            } else {
+                alert('Please select at least one item.');
+            }
+        }
+    </script>
 }
 
 @section Styles
@@ -397,6 +512,7 @@
     
 }
 
+<input type="hidden" id="noString" value="@noString" />
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -416,33 +532,47 @@
                     <div class="align-self-end">
                         @if (Model.ViewModel.FinalizeDate == null)
                         {
-                            <button class="btn btn-primary" onclick="jsFunction.Open()">
-                                <i class="fas fa-plus me-1"></i> Tambah
-                            </button>
-                            @if (string.IsNullOrEmpty(Model.ViewModel.No))
+                            @if (_user.HasReadAccess(AccessMenu.CreateOutbond))
                             {
-                                <button type="button" class="btn btn-success" onclick="jsFunction.OpenFinalize()">
-                                    <i class="fas fa-check me-1"></i>  Finalisasi
+                                <button class="btn btn-primary mb-3" onclick="jsFunction.Open()">
+                                    <i class="fas fa-plus me-1"></i> Tambah
                                 </button>
-                            }
-                            else
-                            {
-                                <button type="button" class="btn btn-success" onclick="jsFunction.Finalize()">
-                                    <i class="fas fa-check me-1"></i>  Finalisasi
-                                </button>
+                                @if (string.IsNullOrEmpty(Model.ViewModel.No))
+                                {
+                                    <button type="button" class="btn btn-success mb-3" onclick="jsFunction.OpenFinalize()">
+                                        <i class="fas fa-check me-1"></i>  Finalisasi
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-success mb-3" onclick="jsFunction.Finalize()">
+                                        <i class="fas fa-check me-1"></i>  Finalisasi
+                                    </button>
+                                }
                             }
                         }
                         else if (Model.ViewModel.ConfirmDate == null)
                         {
-                            <button type="button" class="btn btn-warning" onclick="jsFunction.Unfinalize()">
-                                <i class="fas fa-cross me-1"></i>  Batalkan Finalisasi
-                            </button>
-                            <button class="btn btn-primary" onclick="openAndPrint()">
+                            <button class="btn btn-primary mb-3" onclick="openAndPrint()">
                                 <i class="fas fa-print me-1"></i>  Print Surat Jalan
                             </button>
-                            <button type="button" class="btn btn-success" onclick="jsFunction.Confirm()">
-                                <i class="fas fa-check me-1"></i>  Konfirmasi Pengiriman
-                            </button>
+                            if (HasConfirmAccess || _user.HasReadAccess(AccessMenu.CreateOutbond))
+                            {
+                                <button type="button" class="btn btn-warning mb-3" onclick="jsFunction.Unfinalize()">
+                                    <i class="fas fa-cross me-1"></i>  Batalkan Finalisasi
+                                </button>
+                            }
+                            if (HasConfirmAccess)
+                            {
+
+                                <button type="button" class="btn btn-info mb-3" id="btnUpdateLocation" disabled onclick="openUpdateLocation()">
+                                    <i class="fas fa-edit me-1"></i>  Ubah Lokasi
+                                </button>
+                                <button type="button" class="btn btn-success mb-3" onclick="jsFunction.Confirm()">
+                                    <i class="fas fa-check me-1"></i>  Konfirmasi Pengiriman
+                                </button>
+                            }
+
                         }
 
                     </div>
@@ -454,10 +584,11 @@
                 <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%">
                     <thead>
                         <tr>
-                            @if (Model.ViewModel.FinalizeDate == null)
+                            @if (Model.ViewModel.FinalizeDate == null && _user.HasReadAccess(AccessMenu.CreateOutbond))
                             {
                                 <th>Action</th>
                             }
+                            <th><input class="form-check-input dt-checkbox-input-all" type="checkbox" /></th>
                             <th>Tanggal Pembuatan</th>
                             <th>Lokasi</th>
                             <th>Tag Id</th>
@@ -588,6 +719,31 @@
 </div>
 
 
+<div class="modal fade" id="modalUpdateLocation" tabindex="-1" aria-labelledby="entryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Import</h5>
+                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                    <span class="fas fa-times fs--1"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3 col-sm-12 col-md-12">
+                    <label class="form-label" for="updateLocationId">Lokasi</label>
+                    <select class="form-control" id="updateLocationId" name="updateLocationId" required>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button class="btn btn-primary me-1" type="button" onclick="saveUpdateLocation()">Ubah Lokasi</button>
+                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Static print content (hidden in browser) -->
 @if (Model.ViewModel.Grade == "ALK")

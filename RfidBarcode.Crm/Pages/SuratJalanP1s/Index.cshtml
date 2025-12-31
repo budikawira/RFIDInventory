@@ -1,5 +1,9 @@
 ﻿@page
+@using RfidBarcode.Application.Common.Interfaces
+@using RfidBarcode.Domain.Entities
 @model RfidBarcode.Crm.Pages.SuratJalanP1s.IndexModel
+
+@inject IUserResolverService _user
 @{
     ViewData["Title"] = "Surat Jalan (Outbond)";
 }
@@ -17,7 +21,7 @@
                     data: null, render: function (data, type, row, node) {
                         console.log('data-' + node.row + ' >> ', data);
                         var button = `<span class="text-nowrap d-inline-block">`;
-                        if (data['finalizeDate'] == null) {
+                        if (data['finalizeDate'] == null || data['confirmDate'] == null) {
                             button += `<a rel="tooltip" data-bs-placement="top" title="Edit" class="btn btn-sm btn-soft-primary me-1 mb-1" `;
                             button += `href="/SuratJalanP1s/Update?id=` + data['id'] + `"`;
                             button += `>`;
@@ -41,6 +45,7 @@
                 },
                 { data: 'createdDateString', name: 'CreatedDate' },
                 { data: 'finalizeDateString', name: 'FinalizeDate' },
+                { data: 'confirmDateString', name: 'ConfirmDate' },
                 { data: 'no', name: 'No' },
                 { data: 'kode', name: 'Kode' },
                 { data: 'grade', name: 'Grade' },
@@ -66,9 +71,12 @@
                         <h3 class="w-75 p-3">@ViewData["Title"]</h3>
                     </div>
                     <div class="col-md-2 p-3 text-end align-bottom">
-                        <a class="btn btn-primary" type="button" href="/SuratJalanP1s/Add">
-                            <i class="fas fa-plus"></i> Tambah
-                        </a>
+                        @if (_user.HasReadAccess(AccessMenu.CreateOutbond))
+                        {
+                            <a class="btn btn-primary" type="button" href="/SuratJalanP1s/Add">
+                                <i class="fas fa-plus"></i> Tambah
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
@@ -80,6 +88,7 @@
                             <th class="sort" data-role="action">Action</th>
                             <th class="sort" data-role="text">Dibuat</th>
                             <th class="sort" data-role="text">Finalisasi</th>
+                            <th class="sort" data-role="text">Konfirmasi</th>
                             <th class="sort" data-role="text">No</th>
                             <th class="sort" data-role="text">Kode</th>
                             <th class="sort" data-role="text">Grade</th>

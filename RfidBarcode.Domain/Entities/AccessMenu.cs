@@ -18,5 +18,10 @@ namespace RfidBarcode.Domain.Entities
         public const string InputBarcode = "IB";
         public const string SuratJalanInbound = "SJI";
         public const string SuratJalanOutbond = "SJO";
+        public const string CreateInbound = "CI";
+        public const string CreateOutbond = "CO";
+        public const string ConfirmInbound = "FI";
+        public const string ConfirmOutbond = "FO";
+        public const string ConfirmOutbondReturn = "FOR";
     }
 }
