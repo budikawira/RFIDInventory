@@ -21,7 +21,9 @@ namespace RfidBarcode.Crm.Areas.Reports.Pages
         {
             var result = new List<DailySummaryVM>();
             var startDate = Helper.ParseDate(start);
+            if (startDate == null) startDate = DateTime.MinValue;
             var endDate = Helper.ParseDate(end);
+            if (endDate == null) endDate = DateTime.MaxValue;
             if (startDate != null && endDate != null)
             {
                 var cmd = new CreateDailySummaryRequest(startDate.Value, endDate.Value)
@@ -47,7 +49,9 @@ namespace RfidBarcode.Crm.Areas.Reports.Pages
         public async Task<IActionResult> OnPostDownloadAsync(string? kode, string? grade, string? start, string? end)
         {
             var startDate = Helper.ParseDate(start);
+            if (startDate == null) startDate = DateTime.MinValue;
             var endDate = Helper.ParseDate(end);
+            if (endDate == null) endDate = DateTime.MaxValue;
             if (startDate != null && endDate != null)
             {
                 var cmd = new CreateDailySummaryRequest(startDate.Value, endDate.Value)

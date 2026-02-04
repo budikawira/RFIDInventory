@@ -12,7 +12,7 @@ namespace RfidBarcode.Application.Reports.ViewModels
         public string Kategori { get; set; } = null!;
         public string Kode1 { get; set; } = null!;
         public string Kode { get; set; } = null!;
-        public string K { get; set; } = null!;
+        //public string K { get; set; } = null!;
         public int SaR { get; set; }
         public decimal SaYard { get; set; }
         public int InR { get; set; }

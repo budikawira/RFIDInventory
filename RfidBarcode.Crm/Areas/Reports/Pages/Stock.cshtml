@@ -19,10 +19,10 @@
         const dateRange = flatpickr("#range", {
           mode: "range",
           dateFormat: "Y-m-d",
-          defaultDate: [
-            formatDateLocal(startOfMonth),
-            formatDateLocal(today)
-          ],
+          // defaultDate: [
+          //   formatDateLocal(startOfMonth),
+          //   formatDateLocal(today)
+          // ],
           allowInput: true
         });
 
@@ -34,8 +34,12 @@
             LoadingScreenFunction.Show();
 
             selectedDates = dateRange.selectedDates;
-            var formattedStart = flatpickr.formatDate(selectedDates[0], "Y-m-d");
-            var formattedEnd = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+            var formattedStart = '';
+            var formattedEnd = '';
+            if (selectedDates.length >= 2) {
+                formattedStart = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                formattedEnd = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+            }
 
             var dataParam = {
                 kode : $('#kode').val(),
@@ -68,7 +72,7 @@
                         row.append($('<td>').text(item.kodeGeneral)); // Empty column
                         row.append($('<td>').text(item.kategori));
                         row.append($('<td>').text(item.kode));
-                        row.append($('<td>').text(item.k));
+                        //row.append($('<td>').text(item.k));
                         row.append($('<td>').text(SaR > 0 ? SaR : ""));
                         row.append($('<td>').text(SaYard > 0 ? SaYard: ""));
                         row.append($('<td>').text(item.inR > 0 ? item.inR : ""));
@@ -98,8 +102,12 @@
             LoadingScreenFunction.Show();
 
             selectedDates = dateRange.selectedDates;
-            var formattedStart = flatpickr.formatDate(selectedDates[0], "Y-m-d");
-            var formattedEnd = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+            var formattedStart = '';
+            var formattedEnd = '';
+            if (selectedDates.length >= 2) {
+                formattedStart = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                formattedEnd = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+            }
 
             var dataParam = {
                 kode : $('#kode').val(),
@@ -196,7 +204,7 @@
                             <th rowspan="2" class="align-middle">General</th>
                             <th rowspan="2" class="align-middle">Kategori</th>
                             <th rowspan="2" class="align-middle">Kode</th>
-                            <th rowspan="2" class="align-middle">K</th>
+                            @* <th rowspan="2" class="align-middle">K</th> *@
                             <th colspan="2" class="align-middle text-center">SA</th>
                             <th colspan="2" class="align-middle text-center">In</th>
                             <th colspan="2" class="align-middle text-center">Out</th>

@@ -43,7 +43,7 @@ namespace RfidBarcode.Application.Reports.Handlers
                         Kategori = x.Kode3 ?? "",
                         Kode = x.Kode ?? "",
                         Kode1 = x.Kode1 ?? "",
-                        K = x.K ?? "",
+                        //K = x.Kode3 ?? "",
                         R = x.R ?? 0,
                         Yard = x.Yard ?? 0,
                         TS = 0,
@@ -65,7 +65,7 @@ namespace RfidBarcode.Application.Reports.Handlers
                         Kategori = x.Kategori,
                         Kode1 = x.Kode1,
                         Kode = x.Kode,
-                        K = x.K,
+                        //K = x.K,
                         GR = x.GR
                     })
                     .Select(g => new DailySummaryVM
@@ -78,15 +78,15 @@ namespace RfidBarcode.Application.Reports.Handlers
                         Kategori = g.Key.Kategori,
                         Kode1 = g.Key.Kode1,
                         Kode = g.Key.Kode,
-                        K = g.Key.K,
+                        //K = g.Key.K,
                         SaR = 0,
                         SaYard = 0,
                         InR = g.Sum(x => x.StockOut == null && x.TangalBuatBarcode > request.PreviousDate ? x.R : 0),
                         InYard = g.Sum(x => x.StockOut == null && x.TangalBuatBarcode > request.PreviousDate ? x.Yard : 0),
                         OutR = g.Sum(x => x.StockOut > request.PreviousDate && x.StockOut <= request.CurrentDate ? x.R : 0),
                         OutYard = g.Sum(x => x.StockOut > request.PreviousDate && x.StockOut <= request.CurrentDate ? x.Yard : 0),
-                        R = g.Sum(x => x.StockOut == null ? x.R : 0),
-                        Yard = g.Sum(x => x.StockOut == null ? x.Yard : 0),
+                        R = g.Count(),
+                        Yard = g.Sum(x => x.Yard),
                         TS = 0, // Assuming no TS for this case
                         P = 0, // Assuming no P for this case
                         GR = g.Key.GR,

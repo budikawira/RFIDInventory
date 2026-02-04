@@ -302,7 +302,7 @@ namespace RfidBarcode.Application.Common.Libs
                         ws.Cell(rowIndex, colIndex++).Value = row.KodeGeneral;
                         ws.Cell(rowIndex, colIndex++).Value = row.Kategori;
                         ws.Cell(rowIndex, colIndex++).Value = row.Kode;
-                        ws.Cell(rowIndex, colIndex++).Value = row.K;
+                        //ws.Cell(rowIndex, colIndex++).Value = row.K;
                         //SA
                         ws.Cell(rowIndex, colIndex++).Value = SaR > 0 ? SaR : "";
                         ws.Cell(rowIndex, colIndex++).Value = SaYard > 0 ? SaYard : "";
