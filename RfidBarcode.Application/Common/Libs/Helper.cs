@@ -223,7 +223,7 @@ namespace RfidBarcode.Application.Common.Libs
                 ws.Cell(rowIndex, colIndex++).Value = "Kategori";
                 colKode = colIndex;
                 ws.Cell(rowIndex, colIndex++).Value = "Kode";
-                ws.Cell(rowIndex, colIndex++).Value = "K";
+                //ws.Cell(rowIndex, colIndex++).Value = "K";
                 colSA = colIndex;
                 ws.Cell(rowIndex, colIndex++).Value = "SA";
                 ws.Cell(rowIndex, colIndex++).Value = "SA";
