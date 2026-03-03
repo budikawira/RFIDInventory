@@ -448,6 +448,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Settings\Handlers\" />
+    <Folder Include="Areas\Settings\Requests\" />
     <Folder Include="Logs\" />
   </ItemGroup>
 

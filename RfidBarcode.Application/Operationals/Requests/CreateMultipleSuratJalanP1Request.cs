@@ -8,6 +8,10 @@ namespace RfidBarcode.Application.Operationals.Requests
     public class CreateMultipleSuratJalanP1Request : IRequest<CreateMultipleSuratJalanP1Response>
     {
         public List<Int64> Ids { get; set; } = null!;
+        public string Mode { get; set; } = null!;
+
+        public const string MODE_INBOUND = "in";
+        public const string MODE_OUTBOND = "out";
         public CreateMultipleSuratJalanP1Request()
         {
         }

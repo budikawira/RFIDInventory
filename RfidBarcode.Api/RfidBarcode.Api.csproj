@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\**" />
+    <Compile Remove="Models\**" />
+    <Content Remove="Controllers\**" />
+    <Content Remove="Models\**" />
+    <EmbeddedResource Remove="Controllers\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Controllers\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Resources\Images\centralpark.bmp" />
     <None Remove="Resources\Images\citos.bmp" />
     <None Remove="Resources\Images\mobil.bmp" />
@@ -43,11 +54,6 @@
     <ProjectReference Include="..\RfidBarcode.Application\RfidBarcode.Application.csproj" />
     <ProjectReference Include="..\RfidBarcode.Domain\RfidBarcode.Domain.csproj" />
     <ProjectReference Include="..\RfidBarcode.Infrastructure\RfidBarcode.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Models\Auth\" />
   </ItemGroup>
 
 </Project>
