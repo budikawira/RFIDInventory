@@ -209,6 +209,7 @@ namespace RfidBarcode.Application.Common.Libs
                 var colSA = 1;
                 var colIn = 1;
                 var colOut = 1;
+                var colSaldoAkhir = 1;
                 var colKode = 1;
                 int rowIndex = 1;
                 var lastCol = 0;
@@ -236,7 +237,10 @@ namespace RfidBarcode.Application.Common.Libs
                 ws.Cell(rowIndex, colIndex++).Value = "Out";
                 ws.Cell(rowIndex, colIndex++).Value = "Out";
                 ws.MergedRanges.Add(ws.Range(rowIndex, colIndex - 2, rowIndex, colIndex - 1));
-                ws.Cell(rowIndex, colIndex++).Value = "YDS";
+                colSaldoAkhir = colIndex;
+                ws.Cell(rowIndex, colIndex++).Value = "Saldo Akhir";
+                ws.Cell(rowIndex, colIndex++).Value = "Saldo Akhir";
+                ws.MergedRanges.Add(ws.Range(rowIndex, colIndex - 2, rowIndex, colIndex - 1));
                 ws.Cell(rowIndex, colIndex++).Value = "T.S.";
                 ws.Cell(rowIndex, colIndex++).Value = "P";
                 ws.Cell(rowIndex, colIndex++).Value = "GR";
@@ -258,7 +262,9 @@ namespace RfidBarcode.Application.Common.Libs
                 ws.Cell(rowIndex, colIn + 1).Value = "Yds";
                 ws.Cell(rowIndex, colOut).Value = "R";
                 ws.Cell(rowIndex, colOut + 1).Value = "Yds";
-                colIndex = colOut + 2;
+                ws.Cell(rowIndex, colSaldoAkhir).Value = "R";
+                ws.Cell(rowIndex, colSaldoAkhir + 1).Value = "Yds";
+                colIndex = colSaldoAkhir + 2;
                 while (colIndex <= lastCol)
                 {
                     ws.MergedRanges.Add(ws.Range(ws.Cell(rowIndex - 1, colIndex), ws.Cell(rowIndex, colIndex)));
@@ -313,6 +319,7 @@ namespace RfidBarcode.Application.Common.Libs
                         ws.Cell(rowIndex, colIndex++).Value = row.OutR > 0 ? row.OutR : "";
                         ws.Cell(rowIndex, colIndex++).Value = row.OutYard > 0 ? row.OutYard : "";
                         //YDS
+                        ws.Cell(rowIndex, colIndex++).Value = row.R > 0 ? row.R : "";
                         ws.Cell(rowIndex, colIndex++).Value = row.Yard > 0 ? row.Yard : "";
                         //T.S.
                         ws.Cell(rowIndex, colIndex++).Value = row.TS;

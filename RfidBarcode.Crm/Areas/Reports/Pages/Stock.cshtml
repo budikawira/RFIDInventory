@@ -73,13 +73,14 @@
                         row.append($('<td>').text(item.kategori));
                         row.append($('<td>').text(item.kode));
                         //row.append($('<td>').text(item.k));
-                        row.append($('<td>').text(SaR > 0 ? SaR : ""));
-                        row.append($('<td>').text(SaYard > 0 ? SaYard: ""));
-                        row.append($('<td>').text(item.inR > 0 ? item.inR : ""));
-                        row.append($('<td>').text(item.inYard > 0 ? item.inYard : ""));
-                        row.append($('<td>').text(item.outR > 0 ? item.outR : ""));
-                        row.append($('<td>').text(item.outYard > 0 ? item.outYard : ""));
-                        row.append($('<td>').text(item.yard)); // YDS
+                        row.append($('<td class="text-end">').text(SaR > 0 ? SaR : ""));
+                        row.append($('<td class="text-end">').text(SaYard > 0 ? SaYard: ""));
+                        row.append($('<td class="text-end">').text(item.inR > 0 ? item.inR : ""));
+                        row.append($('<td class="text-end">').text(item.inYard > 0 ? item.inYard : ""));
+                        row.append($('<td class="text-end">').text(item.outR > 0 ? item.outR : ""));
+                        row.append($('<td class="text-end">').text(item.outYard > 0 ? item.outYard : ""));
+                        row.append($('<td class="text-end">').text(item.r)); // R
+                        row.append($('<td class="text-end">').text(item.yard)); // YDS
                         row.append($('<td>').text(item.ts));
                         row.append($('<td>').text(item.p));
                         row.append($('<td>').text(item.gr));
@@ -194,7 +195,7 @@
                     </div>
 
                 </div>
-                <table id="grid" class="bg-white table table-sm fs--1 mb-0 w-100" width="100%" style="display:none;">
+                <table id="grid" class="bg-white table table-sm table-bordered fs--1 mb-0 w-100" width="100%" style="display:none;">
                     <thead>
                         <tr>
                             <th rowspan="2" class="align-middle">KP</th>
@@ -208,7 +209,7 @@
                             <th colspan="2" class="align-middle text-center">SA</th>
                             <th colspan="2" class="align-middle text-center">In</th>
                             <th colspan="2" class="align-middle text-center">Out</th>
-                            <th rowspan="2" class="align-middle">YDS</th>
+                            <th colspan="2" class="align-middle text-center">Saldo Akhir</th>
                             <th rowspan="2" class="align-middle">T.S.</th>
                             <th rowspan="2" class="align-middle">P</th>
                             <th rowspan="2" class="align-middle">GR</th>
@@ -216,12 +217,14 @@
                             <th rowspan="2" class="align-middle">S A K</th>
                         </tr>
                         <tr>
-                            <th>R</th>
-                            <th>Yds</th>
-                            <th>R</th>
-                            <th>Yds</th>
-                            <th>R</th>
-                            <th>Yds</th>
+                            <th class="text-center">R</th>
+                            <th class="text-center">Yds</th>
+                            <th class="text-center">R</th>
+                            <th class="text-center">Yds</th>
+                            <th class="text-center">R</th>
+                            <th class="text-center">Yds</th>
+                            <th class="text-center">R</th>
+                            <th class="text-center">Yds</th>
                         </tr>
                     </thead>
                     <tbody>
