@@ -35,7 +35,6 @@ namespace RfidBarcode.Crm.Areas.Reports.Pages
 
                 if (res.Result == Application.Common.BaseObjects.BaseResponse.RESULT_OK && res.Data != null)
                 {
-                   
                     foreach (var key in res.Data.Keys)
                     {
                         result.AddRange(res.Data[key]);

@@ -27,5 +27,7 @@ namespace RfidBarcode.Application.Reports.ViewModels
         public string SAK { get; set; } = null!;
         public string Total { get; set; } = null!;
         
+        public string? GradeGroup { get; set; } = null!;
+        public int GradeGroupSeq { get; set; } = 0;
     }
 }

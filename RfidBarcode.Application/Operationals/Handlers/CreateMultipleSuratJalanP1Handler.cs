@@ -62,11 +62,11 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         var groups = items
                             .Select(x => new
                             {
-                                Kode = (x.Grade != "ALK") ? x.Kode : "",
-                                Kode1 = (x.Grade != "ALK") ? x.Kode1 : "",
-                                Kode2 = (x.Grade != "ALK") ? x.Kode2 : "",
-                                Kode3 = (x.Grade != "ALK") ? x.Kode3 : "",
-                                Kode4 = (x.Grade != "ALK") ? x.Kode4 : "",
+                                Kode = (x.Grade == "AXP") ? x.Kode : "",
+                                Kode1 = (x.Grade == "AXP") ? x.Kode1 : "",
+                                Kode2 = (x.Grade == "AXP") ? x.Kode2 : "",
+                                Kode3 = (x.Grade == "AXP") ? x.Kode3 : "",
+                                Kode4 = (x.Grade == "AXP") ? x.Kode4 : "",
                                 x.Grade,
                                 x.LocationId,
                                 x.InSuratJalanId
@@ -87,9 +87,9 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         {
                             var qry = items.AsQueryable();
 
-                            if (group.Grade == "ALK")
+                            if (group.Grade != "AXP")
                             {
-                                qry = qry.Where(x => x.Grade == "ALK");
+                                qry = qry.Where(x => x.Grade == group.Grade);
 
 
                                 var itemsInGroup = qry.ToList();
@@ -140,7 +140,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                             {
                                 qry = qry.Where(x => x.Kode == group.Kode
                                         && x.Grade == group.Grade && //x.Kp == group.Kp &&
-                                        x.Grade != "ALK");
+                                        x.Grade == "AXP");
 
                                 var itemsInGroup = qry.ToList();
                                 var kps = itemsInGroup.GroupBy(x => x.Kp)
@@ -287,11 +287,11 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         var groups = items
                             .Select(x => new
                             {
-                                Kode = (x.Grade != "ALK") ? x.Kode : "",
-                                Kode1 = (x.Grade != "ALK") ? x.Kode1 : "",
-                                Kode2 = (x.Grade != "ALK") ? x.Kode2 : "",
-                                Kode3 = (x.Grade != "ALK") ? x.Kode3 : "",
-                                Kode4 = (x.Grade != "ALK") ? x.Kode4 : "",
+                                Kode = (x.Grade == "AXP") ? x.Kode : "",
+                                Kode1 = (x.Grade == "AXP") ? x.Kode1 : "",
+                                Kode2 = (x.Grade == "AXP") ? x.Kode2 : "",
+                                Kode3 = (x.Grade == "AXP") ? x.Kode3 : "",
+                                Kode4 = (x.Grade == "AXP") ? x.Kode4 : "",
                                 x.Grade,
                                 x.LocationId,
                                 x.InSuratJalanId
@@ -312,9 +312,9 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         {
                             var qry = items.AsQueryable();
 
-                            if (group.Grade == "ALK")
+                            if (group.Grade != "AXP")
                             {
-                                qry = qry.Where(x => x.Grade == "ALK");
+                                qry = qry.Where(x => x.Grade == group.Grade);
 
 
                                 var itemsInGroup = qry.ToList();
@@ -365,7 +365,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                             {
                                 qry = qry.Where(x => x.Kode == group.Kode
                                         && x.Grade == group.Grade && //x.Kp == group.Kp &&
-                                        x.Grade != "ALK");
+                                        x.Grade == "AXP");
 
                                 var itemsInGroup = qry.ToList();
                                 var kps = itemsInGroup.GroupBy(x => x.Kp)

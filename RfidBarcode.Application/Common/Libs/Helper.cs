@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.IdentityModel.Tokens;
 using RfidBarcode.Application.Operationals.ViewModels;
@@ -220,7 +221,7 @@ namespace RfidBarcode.Application.Common.Libs
                 ws.Cell(rowIndex, colIndex++).Value = "Identitas";
                 ws.Cell(rowIndex, colIndex++).Value = "OZ";
                 ws.Cell(rowIndex, colIndex++).Value = "I";
-                ws.Cell(rowIndex, colIndex++).Value = ""; //Kode General
+                ws.Cell(rowIndex, colIndex++).Value = "Kode General"; //Kode General
                 ws.Cell(rowIndex, colIndex++).Value = "Kategori";
                 colKode = colIndex;
                 ws.Cell(rowIndex, colIndex++).Value = "Kode";
@@ -280,6 +281,11 @@ namespace RfidBarcode.Application.Common.Libs
                 rowIndex++;
 
                 string? previousKategori = "";
+                var startYs = -1;
+                var endYs = -1;
+                var kodeGeneral = string.Empty;
+                decimal ts = 0;
+                var colTs = 0;
                 foreach (var key in rows.Keys)
                 {
                     var list = rows[key];
@@ -298,6 +304,7 @@ namespace RfidBarcode.Application.Common.Libs
                     foreach (var row in list)
                     {
                         colIndex = 1;
+
 
                         var SaR = row.R - row.InR + row.OutR;
                         var SaYard = row.Yard - row.InYard + row.OutYard;
@@ -322,7 +329,28 @@ namespace RfidBarcode.Application.Common.Libs
                         ws.Cell(rowIndex, colIndex++).Value = row.R > 0 ? row.R : "";
                         ws.Cell(rowIndex, colIndex++).Value = row.Yard > 0 ? row.Yard : "";
                         //T.S.
-                        ws.Cell(rowIndex, colIndex++).Value = row.TS;
+                        colTs = colIndex;
+                        if (kodeGeneral != row.KodeGeneral)
+                        {
+                            if (startYs > 0 && endYs > 0)
+                            {
+                                //merge previous YS
+                                ws.Range(ws.Cell(startYs, colTs), ws.Cell(endYs, colTs)).Merge();
+                                ws.Cell(startYs, colTs).Value = ts;
+                            }
+
+                            startYs = rowIndex;
+                            endYs = rowIndex;
+                            ts = row.Yard;
+                            kodeGeneral = row.KodeGeneral;
+                        }
+                        else
+                        {
+                            ts += row.Yard;
+                            endYs = rowIndex;
+                        }
+                        colIndex++; //TS
+                        //ws.Cell(rowIndex, colIndex++).Value = ts;
                         //P
                         ws.Cell(rowIndex, colIndex++).Value = row.P;
                         //GR
@@ -333,7 +361,47 @@ namespace RfidBarcode.Application.Common.Libs
                         ws.Cell(rowIndex, colIndex).Value = row.Total;
                         rowIndex++;
                     }
+
+                    if (startYs > 0 && endYs > 0)
+                    {
+                        ws.Range(ws.Cell(startYs, colTs), ws.Cell(endYs, colTs)).Merge();
+                        ws.Cell(startYs, colTs).Value = ts;
+                        startYs = -1;
+                        kodeGeneral = string.Empty;
+                    }
+
+                    colIndex = 6;
+                    ws.Cell(rowIndex, colIndex++).Value = list[0].Kategori;
+                    ws.Cell(rowIndex, colIndex++).Value = $"TOTAL {list[0].Kategori}";
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+                    colIndex++;
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+                    colIndex++;
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+                    colIndex++;
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+                    colIndex++;
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+                    colIndex++;
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+                    colIndex++;
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+                    colIndex++;
+                    ws.Cell(rowIndex, colIndex).FormulaA1 =
+                        $"=SUM({ws.Cell(rowIndex - list.Count, colIndex).Address.ToString()}:{ws.Cell(rowIndex - 1, colIndex).Address.ToString()})";
+
+
+                    ws.Range(ws.Cell(rowIndex, 6), ws.Cell(rowIndex, colIndex)).Style.Font.SetBold(true);
+                    rowIndex += 2;
                 }
+
                 ws.Columns(1, lastCol).AdjustToContents();
                 for (int i = 1; i <= lastCol; i++)
                 {

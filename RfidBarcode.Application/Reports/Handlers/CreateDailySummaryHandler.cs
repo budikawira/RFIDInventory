@@ -51,9 +51,11 @@ namespace RfidBarcode.Application.Reports.Handlers
                         GR = x.Grade ?? "",
                         SAK = "",
                         StockOut = x.OutScan,
-                        TangalBuatBarcode = x.TanggalBuatBarcode
+                        TangalBuatBarcode = x.TanggalBuatBarcode,
+                        LocationId = x.LocationId
                     })
                     .Where(x => (x.StockOut == null || x.StockOut >= request.PreviousDate) &&
+                        x.LocationId != null &&
                         x.TangalBuatBarcode < request.CurrentDate)
                     .GroupBy(x => new
                     {
@@ -91,7 +93,11 @@ namespace RfidBarcode.Application.Reports.Handlers
                         P = 0, // Assuming no P for this case
                         GR = g.Key.GR,
                         SAK = "", // Assuming SAK is not available in this context
-                        Total = "0" // Placeholder for total, adjust as needed
+                        Total = "0", // Placeholder for total, adjust as needed
+                        GradeGroup = g.Key.GR == "AXP" || g.Key.GR == "JD" ? "A" : 
+                            g.Key.GR == "ALK" || g.Key.GR == "ABL" ? "AB" : g.Key.GR,
+                        GradeGroupSeq = g.Key.GR == "AXP" || g.Key.GR == "JD" ? 1 :
+                            g.Key.GR == "ALK" || g.Key.GR == "ABL" ? 2 : 3,
                     })
                     .AsQueryable();
 
@@ -109,18 +115,22 @@ namespace RfidBarcode.Application.Reports.Handlers
                 var keys = items.Select(x => new
                 {
                     Kategori = x.Kategori,
+                    GradeGroup = x.GradeGroup,
+                    GradeGroupSeq = x.GradeGroupSeq,
                     GR = x.GR
                 }).Distinct()
                     .OrderBy(x => x.Kategori)
-                    .OrderBy(x => x.GR)
+                    .ThenBy(x => x.GradeGroup)
+                    .ThenBy(x => x.GR)
                     .ToList();
 
                 keys.ForEach(x =>
                     {
-                        var list = items.Where(y => y.Kategori == x.Kategori && y.GR == x.GR).ToList();
+                        var list = items.Where(y => y.Kategori == x.Kategori && y.GR == x.GR)
+                        .ToList();
                         if (list != null)
                         {
-                            var key = $"{x.Kategori} {x.GR}";
+                            var key = $"{x.Kategori.PadRight(25)} {x.GradeGroup}";
                             rows[key] = list;
                         }
                     });

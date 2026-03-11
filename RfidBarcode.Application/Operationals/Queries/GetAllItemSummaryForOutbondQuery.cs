@@ -31,11 +31,11 @@ namespace RfidBarcode.Application.Operationals.Queries
                     .Select(x => new
                     {
                         //Kp = (x.Grade != "ALK") ? x.Kp : "",
-                        Kode = (x.Grade != "ALK") ? x.Kode : "",
-                        Kode1 = (x.Grade != "ALK") ? x.Kode1 : "",
-                        Kode2 = (x.Grade != "ALK") ? x.Kode2 : "",
-                        Kode3 = (x.Grade != "ALK") ? x.Kode3 : "",
-                        Kode4 = (x.Grade != "ALK") ? x.Kode4 : "",
+                        Kode = (x.Grade == "AXP") ? x.Kode : "",
+                        Kode1 = (x.Grade == "AXP") ? x.Kode1 : "",
+                        Kode2 = (x.Grade == "AXP") ? x.Kode2 : "",
+                        Kode3 = (x.Grade == "AXP") ? x.Kode3 : "",
+                        Kode4 = (x.Grade == "AXP") ? x.Kode4 : "",
                         x.Grade,
                         x.LocationId,
                         x.OutSuratJalanId,
