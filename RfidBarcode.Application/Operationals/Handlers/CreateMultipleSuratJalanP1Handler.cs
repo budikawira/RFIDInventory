@@ -62,11 +62,11 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         var groups = items
                             .Select(x => new
                             {
-                                Kode = (x.Grade == "AXP") ? x.Kode : "",
-                                Kode1 = (x.Grade == "AXP") ? x.Kode1 : "",
-                                Kode2 = (x.Grade == "AXP") ? x.Kode2 : "",
-                                Kode3 = (x.Grade == "AXP") ? x.Kode3 : "",
-                                Kode4 = (x.Grade == "AXP") ? x.Kode4 : "",
+                                Kode = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode : "",
+                                Kode1 = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode1 : "",
+                                Kode2 = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode2 : "",
+                                Kode3 = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode3 : "",
+                                Kode4 = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode4 : "",
                                 x.Grade,
                                 x.LocationId,
                                 x.InSuratJalanId
@@ -87,7 +87,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         {
                             var qry = items.AsQueryable();
 
-                            if (group.Grade != "AXP")
+                            if (group.Grade != null && group.Grade.ToUpper() != "AXP")
                             {
                                 qry = qry.Where(x => x.Grade == group.Grade);
 
@@ -140,7 +140,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                             {
                                 qry = qry.Where(x => x.Kode == group.Kode
                                         && x.Grade == group.Grade && //x.Kp == group.Kp &&
-                                        x.Grade == "AXP");
+                                        (x.Grade != null && x.Grade.ToUpper() == "AXP"));
 
                                 var itemsInGroup = qry.ToList();
                                 var kps = itemsInGroup.GroupBy(x => x.Kp)
@@ -287,11 +287,11 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         var groups = items
                             .Select(x => new
                             {
-                                Kode = (x.Grade == "AXP") ? x.Kode : "",
-                                Kode1 = (x.Grade == "AXP") ? x.Kode1 : "",
-                                Kode2 = (x.Grade == "AXP") ? x.Kode2 : "",
-                                Kode3 = (x.Grade == "AXP") ? x.Kode3 : "",
-                                Kode4 = (x.Grade == "AXP") ? x.Kode4 : "",
+                                Kode = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode : "",
+                                Kode1 = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode1 : "",
+                                Kode2 = (x.Grade != null && x.Grade.ToUpper() == "AXP")  ? x.Kode2 : "",
+                                Kode3 = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode3 : "",
+                                Kode4 = (x.Grade != null && x.Grade.ToUpper() == "AXP") ? x.Kode4 : "",
                                 x.Grade,
                                 x.LocationId,
                                 x.InSuratJalanId

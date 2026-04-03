@@ -136,7 +136,7 @@ namespace RfidBarcode.Application.Operationals.Queries
                     var p1 = await _context.SuratJalans.Where(x => x.Id == request.ExcludedSuratJalanP1Id).FirstOrDefaultAsync();
                     if (p1 != null)
                     {
-                        if (p1.Grade != "AXP")
+                        if (p1.Grade == null || p1.Grade.ToUpper() != "AXP")
                         {
                             query = query.Where(x =>
                                 x.Grade == p1.Grade
@@ -162,7 +162,7 @@ namespace RfidBarcode.Application.Operationals.Queries
                     var p1 = await _context.SuratJalans.Where(x => x.Id == request.IsForAddInboundItems).FirstOrDefaultAsync();
                     if (p1 != null)
                     {
-                        if (p1.Grade != "AXP")
+                        if (p1.Grade == null || p1.Grade.ToUpper() != "AXP")
                         {
                             query = query.Where(x =>
                                 x.Grade == p1.Grade

@@ -94,10 +94,10 @@ namespace RfidBarcode.Application.Reports.Handlers
                         GR = g.Key.GR,
                         SAK = "", // Assuming SAK is not available in this context
                         Total = "0", // Placeholder for total, adjust as needed
-                        GradeGroup = g.Key.GR == "AXP" || g.Key.GR == "JD" ? "A" : 
-                            g.Key.GR == "ALK" || g.Key.GR == "ABL" ? "AB" : g.Key.GR,
-                        GradeGroupSeq = g.Key.GR == "AXP" || g.Key.GR == "JD" ? 1 :
-                            g.Key.GR == "ALK" || g.Key.GR == "ABL" ? 2 : 3,
+                        GradeGroup = g.Key.GR.ToUpper() == "AXP" || g.Key.GR.ToUpper() == "JD" ? "A" : 
+                            g.Key.GR.ToUpper() == "ALK" || g.Key.GR.ToUpper() == "ABL" ? "AB" : g.Key.GR,
+                        GradeGroupSeq = g.Key.GR.ToUpper() == "AXP" || g.Key.GR.ToUpper() == "JD" ? 1 :
+                            g.Key.GR.ToUpper() == "ALK" || g.Key.GR.ToUpper() == "ABL" ? 2 : 3,
                     })
                     .AsQueryable();
 

@@ -30,9 +30,18 @@ namespace RfidBarcode.Application.Operationals.Handlers
                     foreach (var item in request.Data)
                     {
                         var entity = _mapper.Map<Item>(item);
+                        entity.Kode = "" + item.Kode1;
+                        entity.Kode += (!string.IsNullOrEmpty(entity.Kode) && !string.IsNullOrEmpty(item.Kode2)) ? " " : "";
+                        entity.Kode += item.Kode2;
+                        entity.Kode += (!string.IsNullOrEmpty(entity.Kode) && !string.IsNullOrEmpty(item.Kode3)) ? " " : "";
+                        entity.Kode += item.Kode3;
+                        entity.Kode += (!string.IsNullOrEmpty(entity.Kode) && !string.IsNullOrEmpty(item.Kode4)) ? " " : "";
+                        entity.Kode += item.Kode4;
+
                         entity.K3l = Helper.GetK3L(item.Kode3 ?? "");
                         entity.Qr = Helper.GetQr(entity);
                         entity.Location = null;
+
                         await _context.Items.AddAsync(entity);
                         entities.Add(entity);
                     }

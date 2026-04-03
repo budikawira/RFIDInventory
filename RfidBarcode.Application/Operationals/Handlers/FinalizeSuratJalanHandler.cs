@@ -85,7 +85,7 @@ namespace RfidBarcode.Application.Operationals.Handlers
                         OutSuratJalan = item.OutSuratJalan != null ? item.OutSuratJalan.No : null
                     })
                     .ToListAsync();
-                if (srtJalan.Grade == "AXP" && !Helper.ValidateSuratJalanColumns(items))
+                if (srtJalan.Grade != null && srtJalan.Grade.ToUpper() == "AXP" && !Helper.ValidateSuratJalanColumns(items))
                 {
                     response.Message = "Jumlah Item melebihi kolom Surat Jalan";
                     return response;

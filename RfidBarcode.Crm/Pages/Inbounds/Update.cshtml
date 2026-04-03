@@ -740,7 +740,7 @@
 </div>
 
 <!-- Static print content (hidden in browser) -->
-@if (Model.ViewModel.Grade != "AXP")
+@if (Model.ViewModel.Grade == null || Model.ViewModel.Grade.ToUpper() != "AXP")
 {
     <div id="print-section" class="invoice-box">
         <style>
