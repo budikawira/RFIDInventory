@@ -29,8 +29,55 @@
                 $('.form-control').attr('disabled', 'disabled');
             });
         </script>
+    } 
+    else
+    {
+        <script>
+            function confirmReprint()
+            {
+                Swal.fire({
+                title: 'Ubah status menjadi "Belum Print"?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, update it!'
+                    }).then((result) =>
+                {
+                if (result.isConfirmed)
+                {
+                    LoadingScreenFunction.Show();
+                    $.ajax({
+                        type: "POST",
+                        url: "/Finish/Update?Handler=Reprint",
+                        headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                        data:
+                        {
+                            id: $('#Item_Id').val()
+                        },
+                        success: function(objRes) {
+                            LoadingScreenFunction.Hide();
+                            console.log('Delete objRes >> ', objRes);
+                            if (objRes.result != 0)
+                            {
+                                Swal.fire(objRes.message, '', 'error')
+                            }
+                            else
+                            {
+                                location.reload();
+                            }
+                        },
+                        error: function(response) {
+                            LoadingScreenFunction.Hide();
+                            alert('Error function please contact developer');
+                        }
+                    })
+                }
+                })
+            }
+        </script>
     }
-
 }
 <!-- #region Content -->
 <div class="row">
@@ -53,6 +100,12 @@
                         <div class="align-self-end">
                             @if (_user.HasReadAccess(AccessMenu.InputBarcode))
                             {
+                                if (Model.Item.PrintCount > 0)
+                                {
+                                    <button class="btn btn-warning" type="button" onclick="confirmReprint()">
+                                        <i class="fas fa-print"></i> Print Ulang
+                                    </button>
+                                }
                                 <button class="btn btn-primary" type="submit">
                                     <i class="fas fa-save"></i> Save
                                 </button>

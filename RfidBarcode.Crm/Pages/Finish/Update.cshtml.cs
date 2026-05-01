@@ -77,5 +77,12 @@ namespace RfidBarcode.Crm.Pages.Finish
 
             return new OkObjectResult(response);
         }
+
+        public async Task<IActionResult> OnPostReprintAsync(long id)
+        {
+            var cmd = new DeleteItemPrintLogRequest(id);
+            var res = await _mediator.Send(cmd);
+            return new OkObjectResult(res);
+        }
     }
 }

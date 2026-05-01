@@ -218,14 +218,14 @@ namespace RfidBarcode.Application.Common.Libs
                 //create header
                 var colIndex = 1;
                 ws.Cell(rowIndex, colIndex++).Value = "KP";
-                ws.Cell(rowIndex, colIndex++).Value = "Identitas";
+                ws.Cell(rowIndex, colIndex++).Value = ""; // "Identitas";
                 ws.Cell(rowIndex, colIndex++).Value = "OZ";
                 ws.Cell(rowIndex, colIndex++).Value = "I";
                 ws.Cell(rowIndex, colIndex++).Value = "Kode General"; //Kode General
                 ws.Cell(rowIndex, colIndex++).Value = "Kategori";
                 colKode = colIndex;
                 ws.Cell(rowIndex, colIndex++).Value = "Kode";
-                //ws.Cell(rowIndex, colIndex++).Value = "K";
+                ws.Cell(rowIndex, colIndex++).Value = "";
                 colSA = colIndex;
                 ws.Cell(rowIndex, colIndex++).Value = "SA";
                 ws.Cell(rowIndex, colIndex++).Value = "SA";
@@ -246,7 +246,9 @@ namespace RfidBarcode.Application.Common.Libs
                 ws.Cell(rowIndex, colIndex++).Value = "P";
                 ws.Cell(rowIndex, colIndex++).Value = "GR";
                 ws.Cell(rowIndex, colIndex++).Value = "";
-                ws.Cell(rowIndex, colIndex++).Value = "S A K";
+                ws.Cell(rowIndex, colIndex++).Value = "Saldo Akhir";
+                ws.Cell(rowIndex, colIndex++).Value = "";
+                ws.Cell(rowIndex, colIndex++).Value = "";
                 ws.Cell(rowIndex, colIndex).Value = "";
                 lastCol = colIndex;
 
@@ -266,12 +268,17 @@ namespace RfidBarcode.Application.Common.Libs
                 ws.Cell(rowIndex, colSaldoAkhir).Value = "R";
                 ws.Cell(rowIndex, colSaldoAkhir + 1).Value = "Yds";
                 colIndex = colSaldoAkhir + 2;
+                while (colIndex <= lastCol - 4)
+                {
+                    ws.MergedRanges.Add(ws.Range(ws.Cell(rowIndex - 1, colIndex), ws.Cell(rowIndex, colIndex)));
+                    colIndex++;
+                }
+                ws.Cell(rowIndex, colIndex++).Value = "R";
                 while (colIndex <= lastCol)
                 {
                     ws.MergedRanges.Add(ws.Range(ws.Cell(rowIndex - 1, colIndex), ws.Cell(rowIndex, colIndex)));
                     colIndex++;
                 }
-
                 var rowHeader = ws.Range(ws.Cell(rowIndex - 1, 1), ws.Cell(rowIndex, lastCol));
                 rowHeader.Style.Fill.BackgroundColor = XLColor.LightBlue;
                 rowHeader.Style.Font.Bold = true;
@@ -301,6 +308,8 @@ namespace RfidBarcode.Application.Common.Libs
                     ws.Cell(rowIndex, colKode).Value = key;
                     ws.Cell(rowIndex, colKode).Style.Fill.BackgroundColor = XLColor.Yellow;
                     rowIndex++;
+                    var editableCols = new List<int> { 2, 3, 8, 18, 20, 22, 23, 24};
+
                     foreach (var row in list)
                     {
                         colIndex = 1;
@@ -309,13 +318,13 @@ namespace RfidBarcode.Application.Common.Libs
                         var SaR = row.R - row.InR + row.OutR;
                         var SaYard = row.Yard - row.InYard + row.OutYard;
                         ws.Cell(rowIndex, colIndex++).Value = row.KP;
-                        ws.Cell(rowIndex, colIndex++).Value = row.Identitas;
-                        ws.Cell(rowIndex, colIndex++).Value = row.OZ;
+                        ws.Cell(rowIndex, colIndex++).Value = row.p1; //row.Identitas;
+                        ws.Cell(rowIndex, colIndex++).Value = row.p2; // row.OZ;
                         ws.Cell(rowIndex, colIndex++).Value = row.KodeI;
                         ws.Cell(rowIndex, colIndex++).Value = row.KodeGeneral;
                         ws.Cell(rowIndex, colIndex++).Value = row.Kategori;
                         ws.Cell(rowIndex, colIndex++).Value = row.Kode;
-                        //ws.Cell(rowIndex, colIndex++).Value = row.K;
+                        ws.Cell(rowIndex, colIndex++).Value = row.p3;
                         //SA
                         ws.Cell(rowIndex, colIndex++).Value = SaR > 0 ? SaR : "";
                         ws.Cell(rowIndex, colIndex++).Value = SaYard > 0 ? SaYard : "";
@@ -352,13 +361,24 @@ namespace RfidBarcode.Application.Common.Libs
                         colIndex++; //TS
                         //ws.Cell(rowIndex, colIndex++).Value = ts;
                         //P
-                        ws.Cell(rowIndex, colIndex++).Value = row.P;
+                        ws.Cell(rowIndex, colIndex++).Value = row.p4; // row.P;
                         //GR
                         ws.Cell(rowIndex, colIndex++).Value = row.GR;
                         //SAK
-                        ws.Cell(rowIndex, colIndex++).Value = row.SAK;
+                        ws.Cell(rowIndex, colIndex++).Value = row.p5;
                         //Total
-                        ws.Cell(rowIndex, colIndex).Value = row.Total;
+                        ws.Cell(rowIndex, colIndex++).Value = row.Total;
+
+                        ws.Cell(rowIndex, colIndex++).Value = row.p6;
+                        ws.Cell(rowIndex, colIndex++).Value = row.p7;
+                        ws.Cell(rowIndex, colIndex).Value = row.p8;
+
+                        foreach (var col in editableCols)
+                        {
+                            ws.Range(ws.Cell(rowIndex, col), ws.Cell(rowIndex, col))
+                                .Style.Fill.BackgroundColor = XLColor.LightGreen;
+                        }
+
                         rowIndex++;
                     }
 

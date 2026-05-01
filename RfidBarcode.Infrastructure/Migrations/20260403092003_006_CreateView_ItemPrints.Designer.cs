@@ -11,8 +11,8 @@ using RfidBarcode.Infrastructure;
 namespace RfidBarcode.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260204065930_034_DetailDailyReport")]
-    partial class _034_DetailDailyReport
+    [Migration("20260403092003_006_CreateView_ItemPrints")]
+    partial class _006_CreateView_ItemPrints
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

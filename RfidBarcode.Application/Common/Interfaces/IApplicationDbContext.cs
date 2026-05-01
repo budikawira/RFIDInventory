@@ -32,6 +32,8 @@ namespace RfidBarcode.Application.Common.Interfaces
         public DbSet<SuratJalanType> SuratJalanTypes { get; set; }
         public DbSet<DailyReport> DailyReports { get; set; }
 
+        public DbSet<StockParam> StockParams { get; set; }
+
         public DatabaseFacade Db { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);

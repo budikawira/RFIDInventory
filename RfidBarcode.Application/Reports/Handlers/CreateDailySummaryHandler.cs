@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using LinqKit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RfidBarcode.Application.Common.BaseObjects;
@@ -32,7 +33,7 @@ namespace RfidBarcode.Application.Reports.Handlers
             {
                 var count = _context.Items.Count();
                 //check item without ScanP1
-                var qry = _context.Items
+                var q = from item in _context.Items
                     .Select(x => new
                     {
                         KP = x.Kp,
@@ -43,7 +44,6 @@ namespace RfidBarcode.Application.Reports.Handlers
                         Kategori = x.Kode3 ?? "",
                         Kode = x.Kode ?? "",
                         Kode1 = x.Kode1 ?? "",
-                        //K = x.Kode3 ?? "",
                         R = x.R ?? 0,
                         Yard = x.Yard ?? 0,
                         TS = 0,
@@ -60,27 +60,21 @@ namespace RfidBarcode.Application.Reports.Handlers
                     .GroupBy(x => new
                     {
                         KP = x.KP,
-                        Identitas = x.Identitas,
-                        OZ = x.OZ,
                         KodeI = x.KodeI,
                         KodeGeneral = x.KodeGeneral,
                         Kategori = x.Kategori,
                         Kode1 = x.Kode1,
                         Kode = x.Kode,
-                        //K = x.K,
                         GR = x.GR
                     })
                     .Select(g => new DailySummaryVM
                     {
                         KP = g.Key.KP,
-                        Identitas = g.Key.Identitas,
-                        OZ = g.Key.OZ,
                         KodeI = g.Key.KodeI,
                         KodeGeneral = g.Key.KodeGeneral,
                         Kategori = g.Key.Kategori,
                         Kode1 = g.Key.Kode1,
                         Kode = g.Key.Kode,
-                        //K = g.Key.K,
                         SaR = 0,
                         SaYard = 0,
                         InR = g.Count(x => x.StockOut == null && x.TangalBuatBarcode > request.PreviousDate),
@@ -89,17 +83,53 @@ namespace RfidBarcode.Application.Reports.Handlers
                         OutYard = g.Sum(x => x.StockOut > request.PreviousDate && x.StockOut <= request.CurrentDate ? x.Yard : 0),
                         R = g.Count(),
                         Yard = g.Sum(x => x.Yard),
-                        TS = 0, // Assuming no TS for this case
-                        P = 0, // Assuming no P for this case
+                        TS = 0,
                         GR = g.Key.GR,
-                        SAK = "", // Assuming SAK is not available in this context
-                        Total = "0", // Placeholder for total, adjust as needed
-                        GradeGroup = g.Key.GR.ToUpper() == "AXP" || g.Key.GR.ToUpper() == "JD" ? "A" : 
+                        SAK = "",
+                        Total = "0",
+                        GradeGroup = g.Key.GR.ToUpper() == "AXP" || g.Key.GR.ToUpper() == "JD" ? "A" :
                             g.Key.GR.ToUpper() == "ALK" || g.Key.GR.ToUpper() == "ABL" ? "AB" : g.Key.GR,
                         GradeGroupSeq = g.Key.GR.ToUpper() == "AXP" || g.Key.GR.ToUpper() == "JD" ? 1 :
                             g.Key.GR.ToUpper() == "ALK" || g.Key.GR.ToUpper() == "ABL" ? 2 : 3,
                     })
-                    .AsQueryable();
+                    join stockParam in _context.StockParams
+                        on new { Kategori = item.Kategori, KodeI = item.KodeI, Kode = item.Kode, GR = item.GR }
+                        equals new { Kategori = stockParam.c2 ?? "", KodeI = stockParam.c3 ?? "", Kode = stockParam.c4 ?? "", GR = stockParam.c5 ?? "" }
+                        into stockParams
+                    from stockParam in stockParams.DefaultIfEmpty()
+                    select new { x = item, StockParam = stockParam };
+
+                var qry = q.Select(x => new DailySummaryVM
+                {
+                    KP = x.x.KP,
+                    KodeI = x.x.KodeI,
+                    KodeGeneral = x.x.KodeGeneral,
+                    Kategori = x.x.Kategori,
+                    Kode1 = x.x.Kode1,
+                    Kode = x.x.Kode,
+                    SaR = x.x.SaR,
+                    SaYard = x.x.SaYard,
+                    InR = x.x.InR,
+                    InYard = x.x.InYard,
+                    OutR = x.x.OutR,
+                    OutYard = x.x.OutYard,
+                    R = x.x.R,
+                    Yard = x.x.Yard,
+                    TS = x.x.TS,
+                    GR = x.x.GR,
+                    SAK = "",
+                    Total = x.x.Total,
+                    GradeGroup = x.x.GradeGroup,
+                    GradeGroupSeq = x.x.GradeGroupSeq,
+                    p1 = x.StockParam.p1 ?? "",
+                    p2 = x.StockParam.p2 ?? "",
+                    p3 = x.StockParam.p3 ?? "",
+                    p4 = x.StockParam.p4 ?? "",
+                    p5 = x.StockParam.p5 ?? "",
+                    p6 = x.StockParam.p6 ?? "",
+                    p7 = x.StockParam.p7 ?? "",
+                    p8 = x.StockParam.p8 ?? ""
+                });
 
                 if (!string.IsNullOrEmpty(request.Kode))
                 {

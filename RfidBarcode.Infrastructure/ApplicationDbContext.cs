@@ -39,6 +39,8 @@ namespace RfidBarcode.Infrastructure
         public DbSet<SuratJalanType> SuratJalanTypes { get; set; }
         public DbSet<DailyReport> DailyReports { get; set; }
 
+        public DbSet<StockParam> StockParams { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IUserResolverService userService)
             : base(options)
         {
@@ -133,6 +135,7 @@ namespace RfidBarcode.Infrastructure
             modelBuilder.ApplyConfiguration(new LocationConfiguration());
             modelBuilder.ApplyConfiguration(new SuratJalanP1Configuration());
             modelBuilder.ApplyConfiguration(new ItemMovementConfiguration());
+            modelBuilder.ApplyConfiguration(new StockParamConfiguration());
         }
     }
 }

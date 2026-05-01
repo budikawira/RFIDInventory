@@ -4,6 +4,149 @@
     ViewData["Title"] = "Laporan Stok";
 }
 
+<section class="section">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex flex-sm-row flex-column justify-content-between">
+                        <div class="me-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
+                                </ol>
+                            </nav>
+
+                            <h3 class="pt-3">@ViewData["Title"]</h3>
+                        </div>
+                        <div class="ms-3 h-100">
+                            <button type="button" class="btn btn-success align-middle" onclick="showModalImport()">
+                                <i class="fas fa-file-excel me-1"></i> Import
+                            </button>
+                            @* <button type="button" class="btn btn-primary align-middle" onclick="refreshTable()">
+                                <i class="fas fa-eye me-1"></i> View
+                            </button> *@
+                            <button type="button" class="btn btn-secondary" onclick="download()">
+                                <i class="fas fa-file-excel me-1"></i>  Download
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-sm-12 col-md-3">
+                            <label for="kode">Filter Kode</label>
+                            <input type="text" class="form-control" id="kode" name="kode" />
+                        </div>
+                        <div class="form-group col-sm-12 col-md-3">
+                            <label for="grade">Filter Grade</label>
+                            <input type="text" class="form-control" id="grade" name="grade" />
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="range">Filter Tanggal</label>
+                            <input type="text" class="form-control" id="range" name="range" />
+                        </div>
+
+                    </div>
+                    <table id="grid" class="bg-white table table-sm table-bordered fs--1 mb-0 w-100" width="100%" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="align-middle">KP</th>
+                                <th rowspan="2" class="align-middle">Identitas</th>
+                                <th rowspan="2" class="align-middle">OZ</th>
+                                <th rowspan="2" class="align-middle">I</th>
+                                <th rowspan="2" class="align-middle">General</th>
+                                <th rowspan="2" class="align-middle">Kategori</th>
+                                <th rowspan="2" class="align-middle">Kode</th>
+                                @* <th rowspan="2" class="align-middle">K</th> *@
+                                <th colspan="2" class="align-middle text-center">SA</th>
+                                <th colspan="2" class="align-middle text-center">In</th>
+                                <th colspan="2" class="align-middle text-center">Out</th>
+                                <th colspan="2" class="align-middle text-center">Saldo Akhir</th>
+                                <th rowspan="2" class="align-middle">T.S.</th>
+                                <th rowspan="2" class="align-middle">P</th>
+                                <th rowspan="2" class="align-middle">GR</th>
+                                <th rowspan="2" class="align-middle"></th>
+                                <th rowspan="2" class="align-middle">S A K</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center">R</th>
+                                <th class="text-center">Yds</th>
+                                <th class="text-center">R</th>
+                                <th class="text-center">Yds</th>
+                                <th class="text-center">R</th>
+                                <th class="text-center">Yds</th>
+                                <th class="text-center">R</th>
+                                <th class="text-center">Yds</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Import -->
+<div id="import">
+    <div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">
+        <form id="entryForm" method="POST">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalImportTitle">Import Daily Summary</h5>
+                        <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                            <span class="fas fa-times fs--1"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <div class="mb-3">
+                                <label class="form-label" for="importFile">Upload Daily Summary XLSX</label>
+                                <input class="form-control" id="importFile" name="importFile" type="file" accept=".xlsx,.xls" />
+                                <small class="form-text text-muted">
+                                    File harus mengandung kolom: KP, KodeI, KodeGeneral, Kategori, Kode, GR
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="button" onclick="importDailySummary()">Import</button>
+                        <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- modalImportError -->
+    <div class="modal fade" id="modalImportError" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Error Log</h5>
+                    <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="fas fa-times fs--1"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group m-3">
+                        <textarea id="textImportError" name="textImportError" class="form-control" rows="20" readonly></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         function formatDateLocal(date) {
@@ -149,88 +292,48 @@
                 }
             })
         }
+
+        function showModalImport() {
+            $('#modalImport').modal('show');
+        }
+
+        function importDailySummary() {
+            var fileInput = document.getElementById('importFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                Swal.fire('Error', 'Pilih file terlebih dahulu!', 'error');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('importFile', fileInput.files[0]);
+
+            LoadingScreenFunction.Show();
+
+            $.ajax({
+                type: "POST",
+                url: "?Handler=Import",
+                data: formData,
+                headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() },
+                processData: false,
+                contentType: false,
+                success: function (objRes) {
+                    LoadingScreenFunction.Hide();
+                    $('#modalImport').modal('hide');
+                    
+                    if (objRes.result != 0) {
+                        $('#textImportError').val(objRes.message);
+                        $('#modalImportError').modal('show');
+                    } else {
+                        Swal.fire('Success!', objRes.message, 'success');
+                        // Reload your data table here if needed
+                        // SimplePageTable.GetTable().ajax.reload();
+                    }
+                },
+                error: function (response) {
+                    LoadingScreenFunction.Hide();
+                    Swal.fire('Error : ' + response.status, response.responseText, 'error');
+                }
+            });
+        }
     </script>
 }
-
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex flex-sm-row flex-column justify-content-between">
-                    <div class="me-auto">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                                <li class="breadcrumb-item active" aria-current="Page">@ViewData["Title"]</li>
-                            </ol>
-                        </nav>
-
-                        <h3 class="pt-3">@ViewData["Title"]</h3>
-                    </div>
-                    <div class="ms-3 h-100">
-                        <button type="button" class="btn btn-primary align-middle" onclick="refreshTable()">
-                            <i class="fas fa-eye me-1"></i> View
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="download()">
-                            <i class="fas fa-file-excel me-1"></i>  Download
-                        </button>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-body">
-                <div class="row">
-                    <div class="form-group col-sm-12 col-md-3">
-                        <label for="kode">Filter Kode</label>
-                        <input type="text" class="form-control" id="kode" name="kode" />
-                    </div>
-                    <div class="form-group col-sm-12 col-md-3">
-                        <label for="grade">Filter Grade</label>
-                        <input type="text" class="form-control" id="grade" name="grade" />
-                    </div>
-                    <div class="form-group col-sm-12 col-md-6">
-                        <label for="range">Filter Tanggal</label>
-                        <input type="text" class="form-control" id="range" name="range" />
-                    </div>
-
-                </div>
-                <table id="grid" class="bg-white table table-sm table-bordered fs--1 mb-0 w-100" width="100%" style="display:none;">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" class="align-middle">KP</th>
-                            <th rowspan="2" class="align-middle">Identitas</th>
-                            <th rowspan="2" class="align-middle">OZ</th>
-                            <th rowspan="2" class="align-middle">I</th>
-                            <th rowspan="2" class="align-middle">General</th>
-                            <th rowspan="2" class="align-middle">Kategori</th>
-                            <th rowspan="2" class="align-middle">Kode</th>
-                            @* <th rowspan="2" class="align-middle">K</th> *@
-                            <th colspan="2" class="align-middle text-center">SA</th>
-                            <th colspan="2" class="align-middle text-center">In</th>
-                            <th colspan="2" class="align-middle text-center">Out</th>
-                            <th colspan="2" class="align-middle text-center">Saldo Akhir</th>
-                            <th rowspan="2" class="align-middle">T.S.</th>
-                            <th rowspan="2" class="align-middle">P</th>
-                            <th rowspan="2" class="align-middle">GR</th>
-                            <th rowspan="2" class="align-middle"></th>
-                            <th rowspan="2" class="align-middle">S A K</th>
-                        </tr>
-                        <tr>
-                            <th class="text-center">R</th>
-                            <th class="text-center">Yds</th>
-                            <th class="text-center">R</th>
-                            <th class="text-center">Yds</th>
-                            <th class="text-center">R</th>
-                            <th class="text-center">Yds</th>
-                            <th class="text-center">R</th>
-                            <th class="text-center">Yds</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
